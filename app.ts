@@ -7,13 +7,13 @@ import indexRouter from './routes/index';
 import usersRouter from './routes/users';
 
 const app = express();
-const PORT = process.env.PORT || '3000';
+const PORT = process.env.PORT || '3001';
 
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, '../qkd-game-client/build')));
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);

@@ -12,8 +12,13 @@
     "url": "git+https://github.com/picturestone/qkd-game.git"
   },
   "scripts": {
-    "start": "nodemon app.ts",
-    "build": "tsc --project ./"
+    "start": "nodemon build/app.js",
+    "devserver": "nodemon app.ts",
+    "devclient": "npm start --prefix qkd-game-client",
+    "dev": "concurrently \"npm run devserver\" \"npm run devclient\"",
+    "buildserver": "tsc --project ./",
+    "buildclient": "npm run build --prefix qkd-game-client",
+    "build": "concurrently \"npm run buildserver\" \"npm run buildclient\""
   },
   "dependencies": {
     "cookie-parser": "~1.4.4",
@@ -27,6 +32,7 @@
     "@types/express": "^4.17.13",
     "@types/morgan": "^1.9.3",
     "@types/node": "^17.0.21",
+    "concurrently": "^7.0.0",
     "nodemon": "^2.0.15",
     "ts-node": "^10.7.0",
     "typescript": "^4.6.2"
