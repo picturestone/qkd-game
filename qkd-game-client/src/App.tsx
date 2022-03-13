@@ -1,6 +1,8 @@
 import React from 'react';
 import logo from './logo.svg';
 import './App.css';
+import './game/PolarizationWheel';
+import PolarizationWheel from './game/PolarizationWheel';
 
 function App() {
   return (
@@ -19,6 +21,7 @@ function App() {
           Learn React
         </a>
       </header>
+      <PolarizationWheel />
     </div>
   );
 }
