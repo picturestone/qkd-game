@@ -1,78 +1,58 @@
-import React, { createRef } from "react";
-import { transform } from "typescript";
-import styles from "./PolarizationWheel.module.scss";
-import PolarizationWheelFilter from "./PolarizationWheelFilter";
+import React, { createRef, useEffect, useState } from 'react';
+import { useSpring, animated } from 'react-spring';
+import styles from './PolarizationWheel.module.scss';
+import PolarizationWheelFilter from './PolarizationWheelFilter';
 
-interface IProps {
-}
+function PolarizationWheel() {
+    const ref = createRef<HTMLDivElement>();
+    const [rotDegOnMouseDown, setrotDegOnMouseDown] = useState(0);
+    const [isDragging, setIsDragging] = useState(false);
+    const [isSnapping, setIsSnapping] = useState(false);
+    const [mouseDownPositionX, setMouseDownPositionX] = useState(0);
+    const [mouseDownPositionY, setMouseDownPositionY] = useState(0);
+    const [rotDeg, setRotDeg] = useState(0);
 
-interface IState {
-    isDragging: boolean;
-    mouseDownPositionX: number;
-    mouseDownPositionY: number;
-    rotDeg: number;
-    rotStyle: {}
-}
+    useEffect(() => {
+        window.addEventListener(('mouseup'), handleMouseUp);
+        window.addEventListener(('mousemove'), handleMouseMove);
 
-/**
- * Maybe add a running rot deg style and a not running one? 
- */
-
-class PolarizationWheel extends React.Component<IProps, IState> {
-    private ref = createRef<HTMLDivElement>();
-
-    constructor(props: IProps) {
-        super(props);
-        this.state = {
-            isDragging: false,
-            mouseDownPositionX: 0,
-            mouseDownPositionY: 0,
-            rotDeg: 0,
-            rotStyle: {
-                transform: `translate(0deg)`
-            }
+        return () => {
+            window.removeEventListener(('mouseup'), handleMouseUp);
+            window.removeEventListener(('mousemove'), handleMouseMove);
         }
-    }
+    });
 
-    componentDidMount() {
-        window.addEventListener(('mouseup'), this.handleMouseUp.bind(this));
-        window.addEventListener(('mousemove'), this.handleMouseMove.bind(this));
-    }
+    const spring = useSpring({
+        from: { x: 0},
+        x: 1,
+    });
 
-    componentWillUnmount() {
-        window.removeEventListener(('mouseup'), this.handleMouseUp.bind(this));
-        window.removeEventListener(('mousemove'), this.handleMouseMove.bind(this));
-    }
-
-    getPolarizationWheelFilters(): JSX.Element[] {
+    function getPolarizationWheelFilters(): JSX.Element[] {
         const filters : JSX.Element[] = [];
         for (let i = 0; i < 4; i++) {
             filters.push(
-                <PolarizationWheelFilter 
-                    key={i} 
-                />
+                <PolarizationWheelFilter
+                    deg={ -rotDeg }
+                    key={ i } />
             );
         }
         return filters;
     }
 
-    handleMouseDown(event: React.MouseEvent) {
-        const elementCenter = this.getElementCenter();
-
-        this.setState({
-            ...this.state,
-            isDragging: true,
-            mouseDownPositionX: event.pageX - elementCenter.x, 
-            mouseDownPositionY: elementCenter.y - event.pageY
-        });
+    function handleMouseDown(event: React.MouseEvent) {
+        const elementCenter = getElementCenter();
+        setIsDragging(true);
+        setMouseDownPositionX(event.pageX - elementCenter.x);
+        setMouseDownPositionY(elementCenter.y - event.pageY);
+        setrotDegOnMouseDown(rotDeg);
     }
 
-    getElementCenter() {
+    function getElementCenter(): { x: number; y: number; } {
         let positions = {
             x: 0,
             y: 0
         };
-        const componentDom = this.ref.current;
+        const componentDom = ref.current;
         if (componentDom) {
             positions['x'] = componentDom.offsetLeft + (componentDom.offsetWidth / 2);
             positions['y'] = componentDom.offsetTop + (componentDom.offsetHeight / 2);
@@ -80,60 +60,52 @@ class PolarizationWheel extends React.Component<IProps, IState> {
         return positions;
     }
 
-    handleMouseMove(event: MouseEvent) {
-        if (this.state.isDragging) {
-            const deltaDeg = this.degFromMouseDown(event.pageX, event.pageY);
-            this.setState({
-                ...this.state,
-                rotStyle: {
-                    transform: `rotate(${ this.state.rotDeg + deltaDeg }deg)`
-                }
-            });
+    function handleMouseMove(event: MouseEvent) {
+        if (isDragging) {
+            const deltaDeg = degFromMouseDown(event.pageX, event.pageY);
+            setRotDeg(rotDegOnMouseDown + deltaDeg);
         }
     }
 
-    handleMouseUp(event: MouseEvent) {
-        if (this.state.isDragging) {
-            const deltaDeg = this.degFromMouseDown(event.pageX, event.pageY);
-            const newDeg = this.state.rotDeg + deltaDeg;
-
-            this.setState({
-                ...this.state,
-                isDragging: false,
-                rotDeg: newDeg,
-                rotStyle: {
-                    transform: `rotate(${ newDeg }deg)`
-                }
-            });
+    function handleMouseUp(event: MouseEvent) {
+        if (isDragging) {
+            const deltaDeg = degFromMouseDown(event.pageX, event.pageY);
+            const newDeg = rotDegOnMouseDown + deltaDeg;
+            setIsDragging(false);
+            setRotDeg(newDeg);
         }
     }
 
-    degFromMouseDown(posX: number, posY: number): number {
-        const elementCenter = this.getElementCenter();
+    function getNearestNintyDeg(deg: number): number {
+        return Math.round(deg/90) * 90;
+    }
+
+    function degFromMouseDown(posX: number, posY: number): number {
+        const elementCenter = getElementCenter();
         const dX = posX - elementCenter.x;
         const dY = elementCenter.y - posY;
-        let downAngle = this.radToDeg(Math.atan2(this.state.mouseDownPositionY, this.state.mouseDownPositionX));
-        let moveAngle = this.radToDeg(Math.atan2(dY, dX));
-        return Math.round(downAngle - moveAngle);
+        let downAngle = radToDeg(Math.atan2(mouseDownPositionY, mouseDownPositionX));
+        let moveAngle = radToDeg(Math.atan2(dY, dX));
+        return downAngle - moveAngle;
     }
 
-    radToDeg(rad: number): number {
+    function radToDeg(rad: number): number {
         return rad * 180 / Math.PI;
     }
 
-    render() {
-        return (
-            <div
-                ref={ this.ref }
-                className={ styles.polarizationWheel }
-                onMouseDown={ (event) => this.handleMouseDown(event) }
-                style={ this.state.rotStyle }
-                draggable="false"
-            >
-                { this.getPolarizationWheelFilters() }
-            </div>
-        );
-    }
+    return (
+        <animated.div
+            ref={ ref }
+            className={ styles.polarizationWheel }
+            onMouseDown={ (event) => handleMouseDown(event) }
+            style={{ transform: `rotate(${ isSnapping ? spring.x.to([0, 1], [0, 100]) : rotDeg }deg)` }}
+
+            //            style={{ transform: `rotate(${ isSnapping ? spring.deg.to([rotDeg, getNearestNintyDeg(rotDeg)], [rotDeg, getNearestNintyDeg(rotDeg)]) : rotDeg }deg)` }}
+            draggable='false'
+        >
+            { getPolarizationWheelFilters() }
+        </animated.div>
+    );
 }
 
 export default PolarizationWheel;
