@@ -1,5 +1,6 @@
 import React, { createRef, useEffect, useState } from 'react';
 import { useSpring, animated } from 'react-spring';
+import Polarization from "../models/quantum/Polarization";
 import styles from './PolarizationWheel.module.scss';
 import PolarizationWheelFilter from './PolarizationWheelFilter';
 
@@ -29,10 +30,16 @@ function PolarizationWheel() {
 
     function getPolarizationWheelFilters(): JSX.Element[] {
         const filters : JSX.Element[] = [];
+        const polarizations = [
+            Polarization.Zero,
+            Polarization.PlusFourtyFive,
+            Polarization.Ninety,Polarization.MinusFourtyFive
+        ];
         for (let i = 0; i < 4; i++) {
             filters.push(
                 <PolarizationWheelFilter
-                    deg={ -rotDeg }
+                    degCorrection={ -rotDeg }
+                    polarization={ polarizations[i] }
                     key={ i } />
             );
         }
