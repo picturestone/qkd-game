@@ -23,6 +23,7 @@ function PolarizationWheel() {
         }
     });
 
+    // TODO fix the spring so it snaps to the neares 90 degrees.
     const spring = useSpring({
         from: { x: 0},
         x: 1,
