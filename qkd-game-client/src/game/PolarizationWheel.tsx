@@ -1,6 +1,6 @@
 import React, { createRef, useEffect, useState } from 'react';
 import { useSpring, animated } from 'react-spring';
-import Polarization from "../models/quantum/Polarization";
+import Polarization from '../models/quantum/Polarization';
 import styles from './PolarizationWheel.module.scss';
 import PolarizationWheelFilter from './PolarizationWheelFilter';
 
@@ -23,10 +23,14 @@ function PolarizationWheel() {
         }
     });
 
-    // TODO fix the spring so it snaps to the neares 90 degrees.
-    const spring = useSpring({
-        from: { x: 0},
-        x: 1,
+    // Snapping completion ticks up once snapping is turned on.
+    const { snappingCompletion } = useSpring({
+        from: { snappingCompletion: 0 },
+        to: { snappingCompletion: isSnapping ? 1 : 0 },
+        onRest: () => {
+            setRotDeg(getNearestNintyDeg(rotDeg));
+            setIsSnapping(false);
+        }
     });
 
     function getPolarizationWheelFilters(): JSX.Element[] {
@@ -38,21 +42,21 @@ function PolarizationWheel() {
         ];
         for (let i = 0; i < 4; i++) {
             filters.push(
-                <PolarizationWheelFilter
-                    degCorrection={ -rotDeg }
-                    polarization={ polarizations[i] }
-                    key={ i } />
+                <div>
+                    <animated.div style={isSnapping 
+                            ? { transform: snappingCompletion.to([0, 1], [rotDeg, getNearestNintyDeg(rotDeg)]).to((x: number) => {
+                                return `rotate(${-x}deg)`;
+                            })}
+                            : { transform: `rotate(${-rotDeg}deg)`}}
+                    >
+                        <PolarizationWheelFilter
+                        polarization={ polarizations[i] }
+                        key={ i } />
+                    </animated.div>
+                </div>
             );
         }
         return filters;
-    }
-
-    function handleMouseDown(event: React.MouseEvent) {
-        const elementCenter = getElementCenter();
-        setIsDragging(true);
-        setMouseDownPositionX(event.pageX - elementCenter.x);
-        setMouseDownPositionY(elementCenter.y - event.pageY);
-        setrotDegOnMouseDown(rotDeg);
     }
 
     function getElementCenter(): { x: number; y: number; } {
@@ -68,19 +72,31 @@ function PolarizationWheel() {
         return positions;
     }
 
+    function handleMouseDown(event: React.MouseEvent) {
+        if (!isSnapping) {
+            const elementCenter = getElementCenter();
+            setIsDragging(true);
+            setMouseDownPositionX(event.pageX - elementCenter.x);
+            setMouseDownPositionY(elementCenter.y - event.pageY);
+            setrotDegOnMouseDown(rotDeg);
+        }
+    }
+
     function handleMouseMove(event: MouseEvent) {
-        if (isDragging) {
+        if (isDragging && !isSnapping) {
             const deltaDeg = degFromMouseDown(event.pageX, event.pageY);
             setRotDeg(rotDegOnMouseDown + deltaDeg);
         }
     }
 
     function handleMouseUp(event: MouseEvent) {
-        if (isDragging) {
+        if (isDragging && !isSnapping) {
             const deltaDeg = degFromMouseDown(event.pageX, event.pageY);
             const newDeg = rotDegOnMouseDown + deltaDeg;
             setIsDragging(false);
             setRotDeg(newDeg);
+            // Once mouse is let go snapping begins.
+            setIsSnapping(true);
         }
     }
 
@@ -106,9 +122,11 @@ function PolarizationWheel() {
             ref={ ref }
             className={ styles.polarizationWheel }
             onMouseDown={ (event) => handleMouseDown(event) }
-            style={{ transform: `rotate(${ isSnapping ? spring.x.to([0, 1], [0, 100]) : rotDeg }deg)` }}
-
-            //            style={{ transform: `rotate(${ isSnapping ? spring.deg.to([rotDeg, getNearestNintyDeg(rotDeg)], [rotDeg, getNearestNintyDeg(rotDeg)]) : rotDeg }deg)` }}
+            style={isSnapping 
+                ? { transform: snappingCompletion.to([0, 1], [rotDeg, getNearestNintyDeg(rotDeg)]).to((x: number) => {
+                    return `rotate(${x}deg)`;
+                })}
+                : { transform: `rotate(${rotDeg}deg)`}}
             draggable='false'
         >
             { getPolarizationWheelFilters() }

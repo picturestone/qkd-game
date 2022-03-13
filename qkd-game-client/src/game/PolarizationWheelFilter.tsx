@@ -5,7 +5,6 @@ import Polarization from "../models/quantum/Polarization";
 import styles from "./PolarizationWheelFilter.module.scss"
 
 interface IProps {
-    degCorrection: number;
     polarization: Polarization;
 }
 
@@ -15,7 +14,7 @@ function PolarizationWheelFilter(props: IProps) {
             draggable="false"
             className={ styles.filter }
         >
-            <div style={{ transform: `rotate(${props.degCorrection + props.polarization.valueOf()}deg)` }}>
+            <div style={{ transform: `rotate(${props.polarization.valueOf()}deg)` }}>
                 <FontAwesomeIcon icon={ faArrowsUpDown } />
             </div>
         </div>
