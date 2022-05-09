@@ -1,34 +1,42 @@
-.polarizationWheel {
+.polarizationWheelShadow {
     height: 200px;
     width: 200px;
+    border-radius: 50%;
+    box-shadow: 0 4px 5px 0 rgb(0 0 0 / 40%);
+}
+
+.polarizationWheel {
+    height: 100%;
+    width: 100%;
     border-radius: 50%;
     background-color: red;
     position: relative;
 
     & > div {
         position: absolute;
+        $sideSpacing: 4px;
 
         &:nth-child(1) {
-            top: 0;
+            top: $sideSpacing;
             left: 50%;
             transform: translateX(-50%);
         }
     
         &:nth-child(2) {
             top: 50%;
-            right: 0;
+            right: $sideSpacing;
             transform: translateY(-50%);
         }
     
         &:nth-child(3) {
-            bottom: 0;
+            bottom: $sideSpacing;
             left: 50%;
             transform: translateX(-50%);
         }
     
         &:nth-child(4) {
             top: 50%;
-            left: 0;
+            left: $sideSpacing;
             transform: translateY(-50%);
         }
     }

@@ -1,8 +1,12 @@
-import { useState } from "react";
+import React, { MouseEventHandler, useState } from "react";
 import { animated, useSpring, config } from "react-spring";
 import styles from "./RoundButton.module.scss";
 
-function RoundButton() {
+interface IProps {
+    onClick: MouseEventHandler;
+}
+
+function RoundButton(props: IProps) {
     const [isAnimating, setIsAnimating] = useState(false);
     const [isFlipped, setIsFlipped] = useState(false);
 
@@ -23,7 +27,10 @@ function RoundButton() {
 
     return (
         <animated.div
-            onClick={ () => setIsAnimating(true) }
+            onClick={ (event: React.MouseEvent) => {
+                setIsAnimating(true);
+                props.onClick(event);
+            }}
             className={ styles.roundButton }
             style={isAnimating 
                 ? { boxShadow: shadowCompletion.to([0, 1], [40, 20]).to((completion: number) => `0 -5px 5px 0 rgb(0 0 0 / ${completion}%)`)}

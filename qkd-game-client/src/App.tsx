@@ -2,8 +2,7 @@ import React from 'react';
 import logo from './logo.svg';
 import './App.css';
 import './game/PolarizationWheel';
-import PolarizationWheel from './game/PolarizationWheel';
-import PhotonSource from './game/PhotonSource';
+import Sender from './game/Sender';
 
 function App() {
   return (
@@ -22,8 +21,8 @@ function App() {
           Learn React
         </a>
       </header> */}
-      <PolarizationWheel />
-      <PhotonSource />
+    
+      <Sender />
     </div>
   );
 }
