@@ -1,0 +1,30 @@
+.sender {
+    display: flex;
+    flex-direction: column;
+}
+
+.polarizationWheelWrapper {
+    // Half the width of the photon source, minus half the width of a filter, minus the padding a filter has.
+    margin-left: 40px - 24px - 4px;
+    margin-bottom: -85px;
+    margin-top: -85px;
+    z-index: 1;
+}
+
+.polarizedPhotonOpticalFiberWrapper {
+    z-index: 1;
+    margin-left: 37px;
+    display: flex;
+    pointer-events: none;
+}
+
+.emittedPhotonOpticalFiberWrapper {
+    z-index: 1;
+    margin-left: 37px;
+    display: flex;
+    pointer-events: none;
+}
+
+.photonSourceWrapper {
+    z-index: 1;
+}
