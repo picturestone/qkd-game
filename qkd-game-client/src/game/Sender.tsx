@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import OpticalFiber from "./OpticalFiber";
-import Photon from "./Photon";
 import PhotonSource from "./PhotonSource";
 import PolarizationWheel from "./PolarizationWheel";
 import styles from "./Sender.module.scss";

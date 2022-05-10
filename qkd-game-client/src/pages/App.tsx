@@ -1,12 +1,17 @@
 import React from 'react';
 import logo from './logo.svg';
 import './App.css';
-import './game/PolarizationWheel';
-import Sender from './game/Sender';
+import Sender from '../game/Sender';
+import { Link} from 'react-router-dom';
 
 function App() {
   return (
     <div className="App">
+      <ul>
+        <li><Link to='/'>Home</Link></li>
+        <li><Link to='/lobbies'>Lobbies</Link></li>
+      </ul>
+
       {/* <header className="App-header">
         <img src={logo} className="App-logo" alt="logo" />
         <p>
