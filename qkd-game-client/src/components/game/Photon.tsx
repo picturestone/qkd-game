@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { animated, easings, useSpring } from "react-spring";
-import Qbit from "../models/quantum/Qbit";
+import Qbit from "../../models/quantum/Qbit";
 import styles from "./Photon.module.scss";
 
 interface IProps {

@@ -1,7 +1,7 @@
 import React from 'react';
 import logo from './logo.svg';
 import './App.css';
-import Sender from '../game/Sender';
+import Sender from '../components/game/Sender';
 import { Link} from 'react-router-dom';
 
 function App() {

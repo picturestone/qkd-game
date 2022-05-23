@@ -2,8 +2,10 @@ import ILobbyJson from '../models/api/ILobbyJson';
 import Lobby from '../models/Lobby'
 
 export default class LobbiesService {
+    private _baseUrl = '/api/lobbies';
+
     public getAll(): Promise<Lobby[]> {
-        return fetch('/api/lobbies')
+        return fetch(this._baseUrl)
             .then(data => {
                 return data.json();
             }).then((data) => {
@@ -18,13 +20,13 @@ export default class LobbiesService {
     }
 
     public get(id: string): Promise<Lobby> {
-        return fetch(`/api/lobbies/${id}`)
-        .then(data => {
-            return data.json();
-        }).then((data) => {
-            return this.jsonToModel(data);
-        }
-    );
+        return fetch(`${this._baseUrl}/${id}`)
+            .then(data => {
+                return data.json();
+            }).then((data) => {
+                return this.jsonToModel(data);
+            }
+        );
     }
 
     public create(lobby: Lobby): Promise<Lobby> {
@@ -33,12 +35,13 @@ export default class LobbiesService {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(this.modelToJson(lobby))
         };
-        return fetch('/api/lobbies', requestOptions)
+        return fetch(this._baseUrl, requestOptions)
             .then(data => {
                 return data.json();
             }).then((data) => {
                 return this.jsonToModel(data);
-            });
+            }
+        );
     }
 
     private jsonToModel(json: ILobbyJson): Lobby {
