@@ -11,7 +11,7 @@ router.get('/', function(req, res, next) {
       'name': 'lobby 2',
     },
     {
-      'name': 'lobby test',
+      'name': 'lobby bloof',
     }
   ]);
 });
