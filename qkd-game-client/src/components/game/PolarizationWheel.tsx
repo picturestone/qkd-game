@@ -1,7 +1,7 @@
 import React, { createRef, useEffect, useState } from 'react';
 import { useSpring, animated } from 'react-spring';
-import POLARIZATION from '../models/quantum/Polarization';
-import Qbit from '../models/quantum/Qbit';
+import POLARIZATION from '../../models/quantum/Polarization';
+import Qbit from '../../models/quantum/Qbit';
 import styles from './PolarizationWheel.module.scss';
 import PolarizationWheelFilter from './PolarizationWheelFilter';
 

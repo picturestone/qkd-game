@@ -1,7 +1,7 @@
 import { faArrowsUpDown } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React, { ReactNode } from "react";
-import Polarization from "../models/quantum/Polarization";
+import Polarization from "../../models/quantum/Polarization";
 import styles from "./PolarizationWheelFilter.module.scss"
 
 interface IProps {

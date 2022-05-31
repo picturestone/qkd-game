@@ -1,4 +1,6 @@
-@import '../node_modules/reset-css/sass/_reset.scss';
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 body {
   margin: 0;
@@ -12,4 +14,8 @@ body {
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
+}
+
+.max-w-8xl {
+  max-width: 90rem
 }

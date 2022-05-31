@@ -1,12 +1,19 @@
 import React from 'react';
 import logo from './logo.svg';
-import './App.css';
-import './game/PolarizationWheel';
-import Sender from './game/Sender';
+import './App_OLD.css';
+import Sender from '../components/game/Sender';
+import { Link} from 'react-router-dom';
 
-function App() {
+// TODO remove this file. Its only here to see how images can be integrated well. 
+
+function AppOLD() {
   return (
     <div className="App">
+      <ul>
+        <li><Link to='/'>Home</Link></li>
+        <li><Link to='/lobbies'>Lobbies</Link></li>
+      </ul>
+
       {/* <header className="App-header">
         <img src={logo} className="App-logo" alt="logo" />
         <p>
@@ -27,4 +34,4 @@ function App() {
   );
 }
 
-export default App;
+export default AppOLD;
