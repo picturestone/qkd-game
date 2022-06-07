@@ -1,4 +1,4 @@
-export default class Auth {
+export default class AuthStorage {
     private _tokenKey = 'bearerToken';
 
     setToken(token: string) {

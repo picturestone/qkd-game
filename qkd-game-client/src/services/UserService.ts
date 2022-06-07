@@ -1,4 +1,4 @@
-import Auth from '../helper/Auth';
+import AuthStorage from '../helper/AuthStorage';
 import IUserJson from '../models/api/IUserJson';
 import User from '../models/User';
 import apiService from './ApiService';
@@ -16,7 +16,7 @@ export default class UserService {
         return apiService
             .post(this._resUrl, this.modelToJson(user))
             .then((res) => {
-                new Auth().setToken(res.data);
+                new AuthStorage().setToken(res.data);
                 return res.data;
             });
     }

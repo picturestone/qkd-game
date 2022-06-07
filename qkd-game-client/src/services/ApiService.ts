@@ -1,11 +1,11 @@
 import axios from 'axios';
-import Auth from '../helper/Auth';
+import AuthStorage from '../helper/AuthStorage';
 
 // Add a request interceptor
 axios.interceptors.request.use(
     function (config) {
         if (config.headers) {
-            const bearerToken = new Auth().getToken();
+            const bearerToken = new AuthStorage().getToken();
             if (bearerToken) {
                 config.headers.Authorization = bearerToken;
             }
