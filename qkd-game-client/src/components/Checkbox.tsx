@@ -1,6 +1,6 @@
 interface IProps {
     className?: string;
-    onChange?: () => void;
+    onChange?: React.ChangeEventHandler<HTMLInputElement>;
     defaultChecked?: boolean;
 }
 
@@ -11,9 +11,9 @@ function Checkbox(props: React.PropsWithChildren<IProps>) {
                 type="checkbox"
                 value=""
                 className="w-4 h-4 text-gray-700 bg-white rounded border-gray-700 focus:ring-0"
-                onChange={() => {
+                onChange={(event) => {
                     if (props.onChange) {
-                        props.onChange();
+                        props.onChange(event);
                     }
                 }}
                 defaultChecked={props.defaultChecked}

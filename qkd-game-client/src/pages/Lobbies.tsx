@@ -4,7 +4,7 @@ import Nav from '../components/Nav';
 import WidthLimiter from '../components/WidthLimiter';
 import Button from '../components/Button';
 import { HiRefresh } from 'react-icons/hi';
-import LobbiesService from '../services/LobbiesService';
+import LobbiesService from '../services/LobbyService';
 import Lobby from '../models/Lobby';
 import { useNavigate } from 'react-router-dom';
 

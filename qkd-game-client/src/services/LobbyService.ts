@@ -1,7 +1,7 @@
 import ILobbyJson from '../models/api/ILobbyJson';
 import Lobby from '../models/Lobby'
 
-export default class LobbiesService {
+export default class LobbyService {
     private _baseUrl = '/api/lobbies';
 
     public getAll(): Promise<Lobby[]> {
