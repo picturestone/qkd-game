@@ -3,7 +3,7 @@ import logger from 'morgan';
 import cookieParser from 'cookie-parser';
 import path from 'path';
 import passport from 'passport';
-import 'dotenv/config'
+import 'dotenv/config';
 
 import indexRouter from './routes/index';
 import usersRouter from './routes/users';
@@ -24,8 +24,12 @@ app.use('/', indexRouter);
 app.use('/api/users', usersRouter);
 // TODO find better way to make nested route for all that are under /api.
 // TODO maybe add authenticate middleware for jwt
-app.use('/api/lobbies', passport.authenticate('jwt', { session: false }), lobbiesRouter);
+app.use(
+    '/api/lobbies',
+    passport.authenticate('jwt', { session: false }),
+    lobbiesRouter
+);
 
 app.listen(PORT, () => {
-  console.log(`Server is running at http://localhost:${PORT}`);
+    console.log(`Server is running at http://localhost:${PORT}`);
 });
