@@ -7,7 +7,7 @@ axios.interceptors.request.use(
         if (config.headers) {
             const bearerToken = new Auth().getToken();
             if (bearerToken) {
-                config.headers.Authorization = `Bearer ${bearerToken}`;
+                config.headers.Authorization = bearerToken;
             }
         }
         config.baseURL = process.env.API_BASE_URL || '/api';

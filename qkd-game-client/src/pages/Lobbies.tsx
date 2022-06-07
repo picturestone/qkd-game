@@ -26,8 +26,7 @@ function Lobbies() {
             },
             (err) => {
                 if (err.response.status === 401) {
-                    //navigate('/');
-                    console.log('navigate to /');
+                    navigate('/');
                 } else {
                     console.error(err);
                 }

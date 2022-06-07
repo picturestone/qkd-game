@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Lobby from '../models/Lobby';
 import LobbyService from '../services/LobbyService';
 import Button from './Button';
@@ -11,17 +12,24 @@ interface IProps {
 function LobbyForm(props: IProps) {
     const lobbyService = new LobbyService();
     const [lobbyName, setLobbyName] = useState(props.lobby?.name);
+    const navigate = useNavigate();
 
-    function handleSubmit() {
+    function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+        event.preventDefault();
         // TODO handle validation in a seperate function.
         if (lobbyName) {
             // TODO check if a new lobby is required or if an old one is updated.
-            lobbyService.create(new Lobby(lobbyName));
+            lobbyService.create(new Lobby(lobbyName)).then(() => {
+                navigate('/lobbies');
+            });
         }
     }
 
     return (
-        <form onSubmit={handleSubmit} className="flex flex-col">
+        <form
+            onSubmit={(event) => handleSubmit(event)}
+            className="flex flex-col"
+        >
             <div className="flex flex-row">
                 <label className="flex items-center">
                     <span>Lobby name</span>

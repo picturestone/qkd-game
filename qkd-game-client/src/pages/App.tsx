@@ -25,19 +25,19 @@ function App() {
         delay: 50,
     };
 
-    function handleSubmit() {
-        console.log('handle submit');
+    function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+        event.preventDefault();
         // TODO handle validation in a seperate function.
         if (codename && isCookiesConfirmed) {
             // TODO error handling, e.g. user exists.
             userService.create(new User(codename)).then((token) => {
-                console.log(token);
+                navigate('/lobbies');
             });
         }
     }
 
     return (
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={(event) => handleSubmit(event)}>
             <div className="w-screen h-[141.4vw] max-h-screen max-w-[70.72vh] mx-auto p-8">
                 <div className="mx-auto p-6 font-mono shadow-lg w-full h-full">
                     <div className="text-3xl">
