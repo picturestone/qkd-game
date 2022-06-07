@@ -1,17 +1,20 @@
-import styles from "./Lobbies.module.scss";
-import { Link } from 'react-router-dom';
+import React from 'react';
+import LobbyForm from '../components/LobbyForm';
+import Nav from '../components/Nav';
+import WidthLimiter from '../components/WidthLimiter';
 
 function LobbyDetail() {
-  return (
-    <div className={styles.lobbies}>
-      <h1>Lobby Detail Page</h1>
-
-      <ul>
-        <li><Link to='/'>Home</Link></li>
-        <li><Link to='/lobbies'>Lobbies</Link></li>
-      </ul>
-    </div>
-  );
+    // TODO
+    // Check if this is a new lobby or if an id is in the url
+    // If its new or if (there is an ID and owner of the lobby is the logged in user) -> display form
+    return (
+        <React.Fragment>
+            <Nav></Nav>
+            <WidthLimiter>
+                <LobbyForm></LobbyForm>
+            </WidthLimiter>
+        </React.Fragment>
+    );
 }
 
 export default LobbyDetail;
