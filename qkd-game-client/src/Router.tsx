@@ -6,6 +6,7 @@ import LobbyDetail from './pages/LobbyDetail';
 function Router() {
     return (
         // TODO think about nested routes.
+        // TODO protect routes like lobbies
         <Routes>
             <Route path="/" element={<App />}></Route>
             <Route path="/lobbies" element={<Lobbies />}></Route>

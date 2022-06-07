@@ -4,8 +4,12 @@ import Typewriter from 'typewriter-effect';
 import Button from '../components/Button';
 import Checkbox from '../components/Checkbox';
 import Input from '../components/Input';
+import User from '../models/User';
+import UserService from '../services/UserService';
 
 function App() {
+    const userService = new UserService();
+    const [codename, setCodename] = useState('');
     const headlineText = 'Welcome, agent';
     const [isHeadlinePrinted, setIsHeadlinePrinted] = useState(false);
     const p1 = '<br/><br/>Please choose your codename for today.';
@@ -21,8 +25,19 @@ function App() {
         delay: 50,
     };
 
+    function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+        event.preventDefault();
+        // TODO handle validation in a seperate function.
+        if (codename && isCookiesConfirmed) {
+            // TODO error handling, e.g. user exists.
+            userService.create(new User(codename)).then((token) => {
+                navigate('/lobbies');
+            });
+        }
+    }
+
     return (
-        <React.Fragment>
+        <form onSubmit={(event) => handleSubmit(event)}>
             <div className="w-screen h-[141.4vw] max-h-screen max-w-[70.72vh] mx-auto p-8">
                 <div className="mx-auto p-6 font-mono shadow-lg w-full h-full">
                     <div className="text-3xl">
@@ -70,6 +85,10 @@ function App() {
                     {isP1Printed ? (
                         <div className="my-8 flex items-center justify-between flex-wrap">
                             <Input
+                                value={codename}
+                                onChange={(event) =>
+                                    setCodename(event.target.value)
+                                }
                                 disabled={isCodenameConfirmed}
                                 type="text"
                                 className="my-2 mr-3 w-56 max-w-full px-2"
@@ -132,13 +151,9 @@ function App() {
                             </Checkbox>
                             <div className="my-8 flex items-center justify-end flex-wrap">
                                 <Button
-                                    type="button"
+                                    type="submit"
                                     className="my-2"
                                     disabled={!isCookiesConfirmed}
-                                    onClick={() => {
-                                        // TODO set name correctly
-                                        navigate('/lobbies');
-                                    }}
                                 >
                                     Confirm
                                 </Button>
@@ -149,7 +164,7 @@ function App() {
                     )}
                 </div>
             </div>
-        </React.Fragment>
+        </form>
     );
 }
 
