@@ -26,11 +26,12 @@ function App() {
     };
 
     function handleSubmit() {
+        console.log('handle submit');
         // TODO handle validation in a seperate function.
         if (codename && isCookiesConfirmed) {
             // TODO error handling, e.g. user exists.
-            userService.create(new User(codename)).then(() => {
-                navigate('/lobbies');
+            userService.create(new User(codename)).then((token) => {
+                console.log(token);
             });
         }
     }

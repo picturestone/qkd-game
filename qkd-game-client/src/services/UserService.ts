@@ -14,7 +14,7 @@ export default class UserService {
         );
     }
 
-    public create(user: User): Promise<User> {
+    public create(user: User): Promise<string> {
         const requestOptions = {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -24,7 +24,7 @@ export default class UserService {
             .then(data => {
                 return data.json();
             }).then((data) => {
-                return this.jsonToModel(data);
+                return data;
             }
         );
     }

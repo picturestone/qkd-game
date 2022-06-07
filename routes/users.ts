@@ -1,23 +1,17 @@
 import express from 'express';
 import User from '../models/User';
 import IUserJson from '../qkd-game-client/src/models/api/IUserJson';
+import UserDb from '../database/UserDb';
+import { generateAccessToken } from '../auth/jwt';
+
 const router = express.Router();
-
-// TODO use database instead of in-memory
-const users = new Array<User>();
-
-router.get('/', function(req, res) {
-  const lobbyJson = new Array<IUserJson>();
-  users.map((lobbyModel) => {
-    lobbyJson.push(modelToJson(lobbyModel));
-  })
-  res.send(lobbyJson);
-});
+const userDb = new UserDb();
 
 router.post('/', function(req, res) {
-  const lobbyModel = jsonToModel(req.body);
-  users.push(lobbyModel);
-  res.status(201).send(modelToJson(lobbyModel));
+  const userModel = jsonToModel(req.body);
+  userDb.create(userModel).then((createdUser) => {
+    res.status(201).send(`Bearer ${generateAccessToken(createdUser)}`);
+  })
 });
 
 function jsonToModel(json: IUserJson): User {
