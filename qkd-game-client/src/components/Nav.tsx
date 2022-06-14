@@ -1,7 +1,16 @@
-import { Link } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
 import WidthLimiter from './WidthLimiter';
 
 function Nav() {
+    const inactiveClasses =
+        'block py-2 pr-4 pl-3 text-gray-700 border-b border-gray-100 hover:bg-gray-50 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0';
+    const activeClasses =
+        'block py-2 pr-4 pl-3 text-white bg-blue-700 rounded md:bg-transparent md:text-blue-700 md:p-0';
+
+    function setNavLinkClasses(navData: { isActive: boolean }) {
+        return navData.isActive ? activeClasses : inactiveClasses;
+    }
+
     // TODO fix nav mobile not working correctly at the moment when switching to home page and trying to go back to lobbies. probably because of the way the routes are set up.
     return (
         <header className="sticky top-0 z-40 flex flex-none w-full py-3 mx-auto bg-white border-b border-gray-200 dark:border-gray-600 dark:bg-gray-800">
@@ -57,21 +66,21 @@ function Nav() {
                         >
                             <ul className="flex flex-col mt-4 md:flex-row md:space-x-8 md:mt-0 md:text-sm md:font-medium">
                                 <li>
-                                    <Link
+                                    <NavLink
                                         to="/"
-                                        className="block py-2 pr-4 pl-3 text-white bg-blue-700 rounded md:bg-transparent md:text-blue-700 md:p-0 dark:text-white"
+                                        className={setNavLinkClasses}
                                         aria-current="page"
                                     >
                                         Home
-                                    </Link>
+                                    </NavLink>
                                 </li>
                                 <li>
-                                    <Link
+                                    <NavLink
                                         to="/lobbies"
-                                        className="block py-2 pr-4 pl-3 text-gray-700 border-b border-gray-100 hover:bg-gray-50 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 dark:text-gray-400 md:dark:hover:text-white dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700"
+                                        className={setNavLinkClasses}
                                     >
                                         Lobbies
-                                    </Link>
+                                    </NavLink>
                                 </li>
                             </ul>
                         </div>
