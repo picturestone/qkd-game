@@ -2,6 +2,7 @@ import { Routes, Route } from 'react-router-dom';
 import App from './pages/App';
 import Lobbies from './pages/Lobbies';
 import LobbyDetail from './pages/LobbyDetail';
+import LobbyNew from './pages/LobbyNew';
 
 function Router() {
     return (
@@ -10,8 +11,8 @@ function Router() {
         <Routes>
             <Route path="/" element={<App />}></Route>
             <Route path="/lobbies" element={<Lobbies />}></Route>
-            <Route path="/lobbies/new" element={<LobbyDetail />}></Route>
-            <Route path="/lobbies/:lobbyid" element={<LobbyDetail />}></Route>
+            <Route path="/lobbies/new" element={<LobbyNew />}></Route>
+            <Route path="/lobbies/:lobbyId" element={<LobbyDetail />}></Route>
         </Routes>
     );
 }

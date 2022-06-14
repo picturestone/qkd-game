@@ -8,11 +8,20 @@ const lobbyDb = new LobbyDb();
 
 router.get('/', async function (req, res) {
     const lobbyJson = new Array<ILobbyJson>();
-    const lobbies = await lobbyDb.getAll();
+    const lobbies = await lobbyDb.findAll();
     lobbies.map((lobbyModel) => {
         lobbyJson.push(lobbyModel.toJson());
     });
     res.send(lobbyJson);
+});
+
+router.get('/:id', async function (req, res) {
+    const lobby = await lobbyDb.findById(req.params.id);
+    if (lobby) {
+        res.send(lobby.toJson());
+    } else {
+        res.status(404);
+    }
 });
 
 router.post('/', async function (req, res) {

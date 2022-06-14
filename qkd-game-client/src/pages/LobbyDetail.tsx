@@ -1,17 +1,38 @@
-import React from 'react';
-import LobbyForm from '../components/LobbyForm';
+import React, { useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom';
 import Nav from '../components/Nav';
 import WidthLimiter from '../components/WidthLimiter';
+import Lobby from '../models/Lobby';
+import LobbiesService from '../services/LobbyService';
 
 function LobbyDetail() {
-    // TODO
-    // Check if this is a new lobby or if an id is in the url
-    // If its new or if (there is an ID and owner of the lobby is the logged in user) -> display form
+    const params = useParams();
+    const lobbyId = params.lobbyId;
+    const lobbiesService = new LobbiesService();
+    const [lobby, setLobby] = useState<Lobby>();
+
+    useEffect(() => {
+        refreshLobbies();
+    }, []);
+
+    function refreshLobbies() {
+        if (lobbyId) {
+            lobbiesService.get(lobbyId).then(
+                (res) => {
+                    setLobby(res);
+                },
+                (err) => {
+                    console.error(err);
+                }
+            );
+        }
+    }
+
     return (
         <React.Fragment>
             <Nav></Nav>
             <WidthLimiter>
-                <LobbyForm></LobbyForm>
+                <h1 className="text-3xl font-mono py-3">{lobby?.name}</h1>
             </WidthLimiter>
         </React.Fragment>
     );
