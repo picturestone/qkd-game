@@ -1,3 +1,5 @@
+import IUserJson from '../qkd-game-client/src/models/api/IUserJson';
+
 export default class User {
     private _id?: string;
     private _name: string;
@@ -21,5 +23,16 @@ export default class User {
 
     public get name() {
         return this._name;
+    }
+
+    static fromJson(json: IUserJson) {
+        return new User(json.name, json.id);
+    }
+
+    toJson(): IUserJson {
+        return {
+            name: this._name,
+            id: this._id,
+        };
     }
 }
