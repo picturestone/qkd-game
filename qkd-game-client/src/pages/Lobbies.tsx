@@ -25,11 +25,7 @@ function Lobbies() {
                 setLobbies(res);
             },
             (err) => {
-                if (err.response.status === 401) {
-                    navigate('/');
-                } else {
-                    console.error(err);
-                }
+                console.error(err);
             }
         );
     }

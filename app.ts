@@ -5,9 +5,9 @@ import path from 'path';
 import passport from 'passport';
 import 'dotenv/config';
 
-import indexRouter from './routes/index';
-import usersRouter from './routes/users';
-import lobbiesRouter from './routes/lobbies';
+import indexRouter from './routes/indexRouter';
+import usersRouter from './routes/usersRouter';
+import lobbiesRouter from './routes/lobbiesRouter';
 
 const app = express();
 const PORT = process.env.PORT || '3001';
