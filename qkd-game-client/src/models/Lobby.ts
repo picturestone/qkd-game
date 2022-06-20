@@ -28,11 +28,11 @@ export default class Lobby {
         return this._name;
     }
 
-    public setId(id?: string) {
+    public set id(id: string | undefined) {
         this._id = id;
     }
 
-    public getId() {
+    public get id() {
         return this._id;
     }
 

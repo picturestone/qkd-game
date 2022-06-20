@@ -1,4 +1,5 @@
-import IO from '../helper/IO';
+import { Server } from 'socket.io';
+import IO from '../sockets/IO';
 import ILobbyJson from '../qkd-game-client/src/models/api/ILobbyJson';
 import User from './User';
 
@@ -11,27 +12,13 @@ export default class Lobby {
         this._name = name;
         this._owner = owner;
         this._id = id;
-        this.registerSocketIOEvents();
     }
 
-    private registerSocketIOEvents() {
-        const server = IO.getInstance().server;
-        server.on('connect', (socket) => {
-            socket.on('joinRoom', (roomId) => {
-                if (roomId === this._id) {
-                    console.log(socket);
-                    // TODO join the socket to the room, check if the user is authenticated via the token, broadcast to room that someone joined.
-                    // socket.join(this._id);
-                }
-            });
-        });
-    }
-
-    public setId(id?: string) {
+    public set id(id: string | undefined) {
         this._id = id;
     }
 
-    public getId() {
+    public get id() {
         return this._id;
     }
 

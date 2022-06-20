@@ -7,7 +7,7 @@ export default class LobbyDb {
 
     create(lobby: Lobby) {
         return new Promise<Lobby>((res) => {
-            lobby.setId(uuidv4());
+            lobby.id = uuidv4();
             LobbyDb._lobbies.push(lobby);
             res(lobby);
         });
@@ -15,9 +15,7 @@ export default class LobbyDb {
 
     findById(id: string) {
         return new Promise<Lobby | undefined>((res) => {
-            const lobby = LobbyDb._lobbies.find(
-                (lobby) => lobby.getId() === id
-            );
+            const lobby = LobbyDb._lobbies.find((lobby) => lobby.id === id);
             res(lobby);
         });
     }

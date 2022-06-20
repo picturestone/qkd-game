@@ -38,7 +38,7 @@ function LobbyTable(props: IProps) {
                                     className="flex items-center"
                                     type="button"
                                     onClick={() => {
-                                        navigate(`/lobbies/${lobby.getId()}`);
+                                        navigate(`/lobbies/${lobby.id}`);
                                     }}
                                 >
                                     <HiLogin></HiLogin>

@@ -11,6 +11,11 @@ const audience = 'qkd-game';
 const expiresIn = '1d';
 const userDb = new UserDb();
 
+interface IJwtPayload {
+    name: string;
+    id: string;
+}
+
 passport.use(
     new Strategy(
         {
@@ -20,8 +25,9 @@ passport.use(
             audience: audience,
         },
         function (jwt_payload, done) {
+            const jwtPayload = jwt_payload as IJwtPayload;
             userDb
-                .findById(jwt_payload.id)
+                .findById(jwtPayload.id)
                 .then((user) => {
                     if (user) {
                         return done(null, user);
@@ -37,11 +43,21 @@ passport.use(
 );
 
 export function generateAccessToken(user: User) {
-    return sign({ name: user.name, id: user.getId() }, secret, {
-        issuer: issuer,
-        audience: audience,
-        expiresIn: expiresIn,
-    });
+    let signedToken = '';
+    const id = user.id;
+    if (id) {
+        const jwtPayload: IJwtPayload = {
+            name: user.name,
+            id: id,
+        };
+        signedToken = sign(jwtPayload, secret, {
+            issuer: issuer,
+            audience: audience,
+            expiresIn: expiresIn,
+        });
+    }
+
+    return signedToken;
 }
 
 export const JWT_AUTH_MIDDLEWARE = passport.authenticate('jwt', {

@@ -1,5 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
-import User from "../models/User";
+import User from '../models/User';
 
 export default class UserDb {
     // TODO use database instead of in-memory
@@ -7,7 +7,7 @@ export default class UserDb {
 
     create(user: User) {
         return new Promise<User>((res) => {
-            user.setId(uuidv4());
+            user.id = uuidv4();
             UserDb._users.push(user);
             res(user);
         });
@@ -15,7 +15,7 @@ export default class UserDb {
 
     findById(id: string) {
         return new Promise<User | undefined>((res) => {
-            const user = UserDb._users.find(user => user.getId() === id);
+            const user = UserDb._users.find((user) => user.id === id);
             res(user);
         });
     }

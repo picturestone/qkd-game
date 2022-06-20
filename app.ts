@@ -10,6 +10,8 @@ import usersRouter from './routes/usersRouter';
 import lobbiesRouter from './routes/lobbiesRouter';
 import { SERVER_PORT } from './helper/Config';
 import { JWT_AUTH_MIDDLEWARE } from './auth/jwt';
+import { createServer, Server } from 'http';
+import IO from './sockets/IO';
 
 const app = express();
 
@@ -26,6 +28,9 @@ app.use('/api/users', usersRouter);
 // TODO maybe add authenticate middleware for jwt
 app.use('/api/lobbies', JWT_AUTH_MIDDLEWARE, lobbiesRouter);
 
-app.listen(SERVER_PORT, () => {
+const httpServer = createServer(app);
+IO.getInstance().configurate(httpServer);
+
+httpServer.listen(SERVER_PORT, () => {
     console.log(`Server is running at http://localhost:${SERVER_PORT}`);
 });

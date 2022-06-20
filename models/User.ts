@@ -9,11 +9,11 @@ export default class User {
         this._id = id;
     }
 
-    public setId(id?: string) {
+    public set id(id: string | undefined) {
         this._id = id;
     }
 
-    public getId() {
+    public get id() {
         return this._id;
     }
 
