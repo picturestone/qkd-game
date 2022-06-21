@@ -8,10 +8,12 @@ import 'dotenv/config';
 import indexRouter from './routes/indexRouter';
 import usersRouter from './routes/usersRouter';
 import lobbiesRouter from './routes/lobbiesRouter';
+import { SERVER_PORT } from './helper/Config';
+import { JWT_AUTH_MIDDLEWARE } from './auth/jwt';
+import { createServer, Server } from 'http';
+import IO from './sockets/IO';
 
 const app = express();
-const PORT = process.env.PORT || '3001';
-// TODO add env-checker function which checks if all required env params are set, e.g. jwt secret
 
 app.use(logger('dev'));
 app.use(express.json());
@@ -24,12 +26,11 @@ app.use('/', indexRouter);
 app.use('/api/users', usersRouter);
 // TODO find better way to make nested route for all that are under /api.
 // TODO maybe add authenticate middleware for jwt
-app.use(
-    '/api/lobbies',
-    passport.authenticate('jwt', { session: false }),
-    lobbiesRouter
-);
+app.use('/api/lobbies', JWT_AUTH_MIDDLEWARE, lobbiesRouter);
 
-app.listen(PORT, () => {
-    console.log(`Server is running at http://localhost:${PORT}`);
+const httpServer = createServer(app);
+IO.getInstance().configurate(httpServer);
+
+httpServer.listen(SERVER_PORT, () => {
+    console.log(`Server is running at http://localhost:${SERVER_PORT}`);
 });

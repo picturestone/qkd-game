@@ -12,23 +12,28 @@ interface IProps {
 
 function LobbyForm(props: IProps) {
     const authStorage = new AuthStorage();
+    const loggedInUser = authStorage.getLoggedInUser();
     const lobbyService = new LobbyService();
-    const [lobbyName, setLobbyName] = useState(
-        props.lobby ? props.lobby.name : ''
-    );
+    let initialLobbyName = '';
+    if (props.lobby) {
+        initialLobbyName = props.lobby.name;
+    } else if (loggedInUser) {
+        initialLobbyName = `${loggedInUser.name}s Lobby`;
+    }
+
+    const [lobbyName, setLobbyName] = useState(initialLobbyName);
     const navigate = useNavigate();
 
     function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
         event.preventDefault();
-        const loggedInUser = authStorage.getLoggedInUser();
         if (loggedInUser) {
             // TODO handle validation in a seperate function.
             if (lobbyName) {
                 // TODO check if a new lobby is required or if an old one is updated.
                 lobbyService
                     .create(new Lobby(lobbyName, loggedInUser))
-                    .then(() => {
-                        navigate('/lobbies');
+                    .then((lobby) => {
+                        navigate('/lobbies/' + lobby.id);
                     });
             }
         } else {

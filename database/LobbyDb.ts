@@ -7,12 +7,34 @@ export default class LobbyDb {
 
     create(lobby: Lobby) {
         return new Promise<Lobby>((res) => {
+            lobby.id = uuidv4();
             LobbyDb._lobbies.push(lobby);
             res(lobby);
         });
     }
 
-    getAll() {
+    findById(id: string) {
+        return new Promise<Lobby | undefined>((res) => {
+            const lobby = LobbyDb._lobbies.find((lobby) => lobby.id === id);
+            res(lobby);
+        });
+    }
+
+    put(updatedLobby: Lobby) {
+        return new Promise<Lobby | undefined>((res) => {
+            const lobbyIndex = LobbyDb._lobbies.findIndex(
+                (lobby) => lobby.id === updatedLobby.id
+            );
+            if (lobbyIndex === -1) {
+                res(undefined);
+            } else {
+                LobbyDb._lobbies[lobbyIndex] = updatedLobby;
+                res(updatedLobby);
+            }
+        });
+    }
+
+    findAll() {
         return new Promise<Lobby[]>((res) => {
             res(LobbyDb._lobbies);
         });
