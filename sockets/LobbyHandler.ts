@@ -13,7 +13,7 @@ export default function registerSocketIOEvents(
         ISocketData
     >
 ) {
-    server?.on('connect', (socket) => {
+    server.on('connect', (socket) => {
         socket.on('joinLobby', (lobbyId) => {
             new LobbyDb().findById(lobbyId).then((lobby) => {
                 if (lobby && lobby.id && !socket.rooms.has(lobby.id)) {

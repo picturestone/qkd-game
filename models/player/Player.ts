@@ -1,14 +1,14 @@
-import Channel from "../channel/Channel";
-import PlayerRole from "./PlayerRole";
+import PlayerController from './PlayerController';
 
-export default class Player<PlayerRoleType extends PlayerRole> {
-    private _role: PlayerRoleType;
+export default abstract class Player {
+    private _controller: PlayerController<Player>;
 
-    constructor(role: PlayerRoleType) {
-        this._role = role;
+    constructor(controller: PlayerController<Player>) {
+        this._controller = controller;
+        controller.controlledPlayer = this;
     }
 
-    get role(): PlayerRoleType {
-        return this._role;
+    get controller() {
+        return this._controller;
     }
 }

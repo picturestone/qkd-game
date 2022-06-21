@@ -1,8 +1,14 @@
+import { Socket } from 'socket.io';
+import IClientToServerEvents from '../qkd-game-client/src/models/api/IClientToServerEvents';
+import IInterServerEvents from '../qkd-game-client/src/models/api/IInterServerEvents';
+import IServerToClientEvents from '../qkd-game-client/src/models/api/IServerToClientEvents';
+import ISocketData from '../qkd-game-client/src/models/api/ISocketData';
 import IUserJson from '../qkd-game-client/src/models/api/IUserJson';
 
 export default class User {
-    private _id?: string;
     private _name: string;
+    private _id?: string;
+    private _socketId?: string;
 
     constructor(name: string, id?: string) {
         this._name = name;
@@ -23,6 +29,14 @@ export default class User {
 
     public get name() {
         return this._name;
+    }
+
+    public set socketId(socketId: string | undefined) {
+        this._socketId = socketId;
+    }
+
+    public get socketId() {
+        return this._socketId;
     }
 
     static fromJson(json: IUserJson) {

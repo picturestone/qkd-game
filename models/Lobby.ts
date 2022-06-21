@@ -1,4 +1,5 @@
 import ILobbyJson from '../qkd-game-client/src/models/api/ILobbyJson';
+import Game from './Game';
 import User from './User';
 
 export default class Lobby {

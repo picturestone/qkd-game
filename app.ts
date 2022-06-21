@@ -10,7 +10,7 @@ import usersRouter from './routes/usersRouter';
 import lobbiesRouter from './routes/lobbiesRouter';
 import { SERVER_PORT } from './helper/Config';
 import { JWT_AUTH_MIDDLEWARE } from './auth/jwt';
-import { createServer, Server } from 'http';
+import { createServer } from 'http';
 import IO from './sockets/IO';
 
 const app = express();
