@@ -25,7 +25,11 @@ router.get('/:id', async function (req, res) {
 });
 
 router.post('/', async function (req, res) {
-    const lobbyModel = Lobby.fromJson(req.body);
+    const lobbyJson: ILobbyJson = {
+        name: req.body.name,
+        owner: req.body,
+    };
+    const lobbyModel = Lobby.fromJson(lobbyJson);
     const savedLobby = await lobbyDb.create(lobbyModel);
     res.status(201).send(savedLobby.toJson());
 });

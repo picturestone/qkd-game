@@ -13,26 +13,50 @@ export default function registerSocketIOEvents(
         ISocketData
     >
 ) {
-    console.log('registering socket events');
     server?.on('connect', (socket) => {
-        socket.on('joinRoom', (roomId) => {
-            new LobbyDb().findById(roomId).then((lobby) => {
-                if (lobby && lobby.id) {
-                    console.log(
-                        'user ' +
-                            socket.request.user?.name +
-                            ' joins room ' +
-                            lobby.id
-                    );
+        socket.on('joinLobby', (lobbyId) => {
+            new LobbyDb().findById(lobbyId).then((lobby) => {
+                if (lobby && lobby.id && !socket.rooms.has(lobby.id)) {
                     socket.join(lobby.id);
                     server
                         .to(lobby.id)
                         .emit(
                             'chatMessage',
-                            `${socket.request.user?.name} joined the lobby. ${
-                                server.to(lobby.id).allSockets.length
-                            }`
+                            `${socket.request.user?.name} joined the lobby.`
                         );
+                }
+            });
+        });
+        socket.on('selectLobbyRole', (lobbyId, lobbyRole) => {
+            const lobbyDb = new LobbyDb();
+            lobbyDb.findById(lobbyId).then((lobby) => {
+                if (lobby && lobby.id) {
+                    // TODO remove user from other reserved roles.
+                    switch (lobbyRole) {
+                        case 'alice':
+                            if (!lobby.reservedAlice) {
+                                lobby.reservedAlice = socket.request.user;
+                            }
+                            break;
+                        case 'bob':
+                            if (!lobby.reservedBob) {
+                                lobby.reservedBob = socket.request.user;
+                            }
+                            break;
+                    }
+                    lobbyDb.put(lobby).then((updatedLobby) => {
+                        if (updatedLobby && updatedLobby.id) {
+                            server
+                                .to(updatedLobby.id)
+                                .emit('updatedLobby', updatedLobby.toJson());
+                            server
+                                .to(updatedLobby.id)
+                                .emit(
+                                    'chatMessage',
+                                    `${socket.request.user?.name} plays as ${lobbyRole}.`
+                                );
+                        }
+                    });
                 }
             });
         });

@@ -20,6 +20,20 @@ export default class LobbyDb {
         });
     }
 
+    put(updatedLobby: Lobby) {
+        return new Promise<Lobby | undefined>((res) => {
+            const lobbyIndex = LobbyDb._lobbies.findIndex(
+                (lobby) => lobby.id === updatedLobby.id
+            );
+            if (lobbyIndex === -1) {
+                res(undefined);
+            } else {
+                LobbyDb._lobbies[lobbyIndex] = updatedLobby;
+                res(updatedLobby);
+            }
+        });
+    }
+
     findAll() {
         return new Promise<Lobby[]>((res) => {
             res(LobbyDb._lobbies);

@@ -32,8 +32,8 @@ function LobbyForm(props: IProps) {
                 // TODO check if a new lobby is required or if an old one is updated.
                 lobbyService
                     .create(new Lobby(lobbyName, loggedInUser))
-                    .then(() => {
-                        navigate('/lobbies');
+                    .then((lobby) => {
+                        navigate('/lobbies/' + lobby.id);
                     });
             }
         } else {
