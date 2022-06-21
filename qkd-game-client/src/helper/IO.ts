@@ -1,3 +1,4 @@
+import { singletonHook } from 'react-singleton-hook';
 import { io, Socket } from 'socket.io-client';
 import IClientToServerEvents from '../models/api/IClientToServerEvents';
 import IServerToClientEvents from '../models/api/IServerToClientEvents';
@@ -16,4 +17,4 @@ function getSocket() {
     return socket;
 }
 
-export default getSocket;
+export const useSocket = singletonHook(undefined, getSocket);

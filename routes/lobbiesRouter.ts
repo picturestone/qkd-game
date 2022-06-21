@@ -33,7 +33,7 @@ router.get('/:id', async function (req, res) {
 router.post('/', async function (req, res) {
     const lobbyJson: ILobbyJson = {
         name: req.body.name,
-        owner: req.body,
+        owner: req.body.owner,
     };
     const lobbyModel = Lobby.fromJson(lobbyJson);
     const savedLobby = await lobbyDb.create(lobbyModel);
@@ -42,6 +42,7 @@ router.post('/', async function (req, res) {
 
 router.post('/:id/start', async function (req, res) {
     const lobby = await lobbyDb.findById(req.params.id);
+
     if (lobby && lobby.id) {
         if (req.user?.id === lobby.owner.id) {
             if (
@@ -51,9 +52,9 @@ router.post('/:id/start', async function (req, res) {
                 lobby.reservedBob.socketId
             ) {
                 const ioServer = IO.getInstance().server;
+
                 // Make all sockets in the lobby room leave.
                 ioServer.in(lobby.id).socketsLeave(lobby.id);
-
                 const aliceController = new UserAliceController(
                     lobby.reservedAlice
                 );

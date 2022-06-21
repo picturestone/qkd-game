@@ -27,4 +27,12 @@ export default class LobbyService {
             return Lobby.fromJson(res.data);
         });
     }
+
+    public startGame(lobby: Lobby): Promise<void> {
+        return apiService
+            .post(`${this._resUrl}/${lobby.id}/start`)
+            .then((res) => {
+                return;
+            });
+    }
 }

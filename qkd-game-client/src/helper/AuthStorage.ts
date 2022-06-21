@@ -8,24 +8,24 @@ export default class AuthStorage {
 
     setToken(token: string) {
         const decodedToken = jwtDecode<IUserJson>(token);
-        localStorage.setItem(
+        sessionStorage.setItem(
             this._userKey,
             JSON.stringify(
                 new User(decodedToken.name, decodedToken.id).toJson()
             )
         );
-        localStorage.setItem(this._tokenKey, token);
+        sessionStorage.setItem(this._tokenKey, token);
     }
 
     getToken() {
-        return localStorage.getItem(this._tokenKey);
+        return sessionStorage.getItem(this._tokenKey);
     }
 
     getLoggedInUser(): User | null {
         let user = null;
-        const localStorageEntry = localStorage.getItem(this._userKey);
-        if (localStorageEntry) {
-            user = User.fromJson(JSON.parse(localStorageEntry) as IUserJson);
+        const sessionStorageEntry = sessionStorage.getItem(this._userKey);
+        if (sessionStorageEntry) {
+            user = User.fromJson(JSON.parse(sessionStorageEntry) as IUserJson);
         }
         return user;
     }
