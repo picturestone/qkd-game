@@ -4,8 +4,8 @@ import LobbyDb from '../database/LobbyDb';
 import Game from '../models/Game';
 import Lobby from '../models/Lobby';
 import IO from '../sockets/IO';
-import UserAliceController from '../models/player/UserAliceController';
-import UserBobController from '../models/player/UserBobController';
+import HumanAliceController from '../models/player/HumanAliceController';
+import HumanBobController from '../models/player/HumanBobController';
 import ILobbyJson from '../qkd-game-client/src/models/api/ILobbyJson';
 
 const router = express.Router();
@@ -40,6 +40,7 @@ router.post('/', async function (req, res) {
     res.status(201).send(savedLobby.toJson());
 });
 
+// TODO this should really be done by a socket request, not a route. This emits an event to all clients which does not make sense if its a post request.
 router.post('/:id/start', async function (req, res) {
     const lobby = await lobbyDb.findById(req.params.id);
 
@@ -55,10 +56,10 @@ router.post('/:id/start', async function (req, res) {
 
                 // Make all sockets in the lobby room leave.
                 ioServer.in(lobby.id).socketsLeave(lobby.id);
-                const aliceController = new UserAliceController(
+                const aliceController = new HumanAliceController(
                     lobby.reservedAlice
                 );
-                const bobController = new UserBobController(lobby.reservedBob);
+                const bobController = new HumanBobController(lobby.reservedBob);
                 const game = new Game(aliceController, bobController);
                 const savedGame = await gameDb.create(game);
                 savedGame.startGame();

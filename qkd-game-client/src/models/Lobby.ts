@@ -1,4 +1,6 @@
+import AuthStorage from '../helper/AuthStorage';
 import ILobbyJson from './api/ILobbyJson';
+import { PLAYERROLE } from './api/PlayerRole';
 import User from './User';
 
 export default class Lobby {
@@ -60,6 +62,21 @@ export default class Lobby {
 
     public set reservedBob(value: User | undefined) {
         this._reservedBob = value;
+    }
+
+    get selectedRole(): PLAYERROLE | undefined {
+        let selectedRole = undefined;
+        const loggedInUserId = new AuthStorage().getLoggedInUser()?.id;
+        switch (loggedInUserId) {
+            case this._reservedAlice?.id:
+                selectedRole = PLAYERROLE.alice;
+                break;
+
+            case this.reservedBob?.id:
+                selectedRole = PLAYERROLE.bob;
+                break;
+        }
+        return selectedRole;
     }
 
     static fromJson(json: ILobbyJson) {

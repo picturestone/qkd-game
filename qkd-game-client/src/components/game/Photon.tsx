@@ -1,9 +1,9 @@
-import { useState } from "react";
-import { animated, easings, useSpring } from "react-spring";
-import Qbit from "../../models/quantum/Qbit";
-import styles from "./Photon.module.scss";
+import { useState } from 'react';
+import { animated, easings, useSpring } from 'react-spring';
+import Qbit from '../../models/quantum/Qbit';
+import styles from './Photon.module.scss';
 
-interface IProps {
+export interface IProps {
     cx?: number;
     cy?: number;
     qbit: Qbit;
@@ -19,8 +19,8 @@ function Photon(props: IProps) {
         reverse: isLightPulseFlipped,
         config: {
             duration: 1000,
-            easing: easings.easeInOutSine
-        }
+            easing: easings.easeInOutSine,
+        },
     });
 
     return (
@@ -29,9 +29,8 @@ function Photon(props: IProps) {
             r={radius}
             cx={props.cx}
             cy={props.cy}
-        >
-        </animated.circle>
-    )
+        ></animated.circle>
+    );
 }
 
 export default Photon;

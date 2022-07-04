@@ -1,9 +1,14 @@
 import IO from '../../sockets/IO';
+import Game from '../Game';
 import Qbit from '../quantum/Qbit';
 import User from '../User';
 import AliceController from './AliceController';
+import IHumanPlayer from './IHumanPlayer';
 
-export default class UserAliceController extends AliceController {
+export default class HumanAliceController
+    extends AliceController
+    implements IHumanPlayer
+{
     private _user: User;
 
     constructor(user: User) {
@@ -19,11 +24,15 @@ export default class UserAliceController extends AliceController {
         }
     }
 
-    startGame(): void {
-        this.socket.emit('startedGame');
+    get userId() {
+        return this._user.id;
+    }
+
+    startGame(game: Game): void {
+        this.socket.emit('startedGame', game.toJson());
     }
 
     sendQbit(qbit: Qbit): void {
-        throw new Error('Method not implemented.');
+        this.controlledPlayer.sendQbit(qbit);
     }
 }

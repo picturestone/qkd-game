@@ -1,6 +1,6 @@
 import React, { createRef, useEffect, useState } from 'react';
 import { useSpring, animated } from 'react-spring';
-import POLARIZATION from '../../models/quantum/Polarization';
+import POLARIZATION from '../../models/api/Polarization';
 import Qbit from '../../models/quantum/Qbit';
 import styles from './PolarizationWheel.module.scss';
 import PolarizationWheelFilter from './PolarizationWheelFilter';
@@ -22,25 +22,27 @@ function PolarizationWheel(props: IProps) {
         POLARIZATION.Zero,
         POLARIZATION.PlusFourtyFive,
         POLARIZATION.Ninety,
-        POLARIZATION.MinusFourtyFive
+        POLARIZATION.MinusFourtyFive,
     ];
 
     useEffect(() => {
         if (props.passingPhoton) {
             if (React.isValidElement(props.passingPhoton)) {
-                const photon = React.cloneElement(props.passingPhoton, {qbit: new Qbit(getPolarizationOfFilterAt(270))});
+                const photon = React.cloneElement(props.passingPhoton, {
+                    qbit: new Qbit(getPolarizationOfFilterAt(270)),
+                });
                 props.onPhotonPassed(photon);
-            } 
+            }
         }
 
-        window.addEventListener(('mouseup'), handleMouseUp);
-        window.addEventListener(('mousemove'), handleMouseMove);
+        window.addEventListener('mouseup', handleMouseUp);
+        window.addEventListener('mousemove', handleMouseMove);
 
         // Cleanup function for deconstructing component to remove old event listeners.
         return () => {
-            window.removeEventListener(('mouseup'), handleMouseUp);
-            window.removeEventListener(('mousemove'), handleMouseMove);
-        }
+            window.removeEventListener('mouseup', handleMouseUp);
+            window.removeEventListener('mousemove', handleMouseMove);
+        };
     });
 
     // Snapping completion ticks up once snapping is turned on.
@@ -48,28 +50,42 @@ function PolarizationWheel(props: IProps) {
         from: { snappingCompletion: 0 },
         to: { snappingCompletion: isSnapping ? 1 : 0 },
         config: {
-            'precision': 0.01,
+            precision: 0.01,
         },
         onRest: () => {
             setRotDeg(getNearestNintyDeg(rotDeg));
             setIsSnapping(false);
-        }
+        },
     });
 
     function getPolarizationWheelFilters(): JSX.Element[] {
-        const filters : JSX.Element[] = [];
-        
+        const filters: JSX.Element[] = [];
+
         for (let i = 0; i < 4; i++) {
             filters.push(
-                <div key={ i }>
-                    <animated.div style={isSnapping 
-                            ? { transform: snappingCompletion.to([0, 1], [rotDeg, getNearestNintyDeg(rotDeg)]).to((x: number) => {
-                                return `rotate(${-x}deg)`;
-                            })}
-                            : { transform: `rotate(${-rotDeg}deg)`}}
+                <div key={i}>
+                    <animated.div
+                        style={
+                            isSnapping
+                                ? {
+                                      transform: snappingCompletion
+                                          .to(
+                                              [0, 1],
+                                              [
+                                                  rotDeg,
+                                                  getNearestNintyDeg(rotDeg),
+                                              ]
+                                          )
+                                          .to((x: number) => {
+                                              return `rotate(${-x}deg)`;
+                                          }),
+                                  }
+                                : { transform: `rotate(${-rotDeg}deg)` }
+                        }
                     >
                         <PolarizationWheelFilter
-                        polarization={ polarizations[i] }/>
+                            polarization={polarizations[i]}
+                        />
                     </animated.div>
                 </div>
             );
@@ -79,22 +95,24 @@ function PolarizationWheel(props: IProps) {
 
     function getPolarizationOfFilterAt(deg: number) {
         // TODO Check if the photon even hits a filter with the current rotation.
-        let filterIndex = Math.round(((deg - rotDeg) % 360)/90);
-        while(filterIndex < 0) {
+        let filterIndex = Math.round(((deg - rotDeg) % 360) / 90);
+        while (filterIndex < 0) {
             filterIndex = filterIndex + polarizations.length;
         }
         return polarizations[filterIndex];
     }
 
-    function getElementCenter(): { x: number; y: number; } {
+    function getElementCenter(): { x: number; y: number } {
         let positions = {
             x: 0,
-            y: 0
+            y: 0,
         };
         const componentDom = ref.current;
         if (componentDom) {
-            positions['x'] = componentDom.offsetLeft + (componentDom.offsetWidth / 2);
-            positions['y'] = componentDom.offsetTop + (componentDom.offsetHeight / 2);
+            positions['x'] =
+                componentDom.offsetLeft + componentDom.offsetWidth / 2;
+            positions['y'] =
+                componentDom.offsetTop + componentDom.offsetHeight / 2;
         }
         return positions;
     }
@@ -128,36 +146,47 @@ function PolarizationWheel(props: IProps) {
     }
 
     function getNearestNintyDeg(deg: number): number {
-        return Math.round(deg/90) * 90;
+        return Math.round(deg / 90) * 90;
     }
 
     function degFromMouseDown(posX: number, posY: number): number {
         const elementCenter = getElementCenter();
         const dX = posX - elementCenter.x;
         const dY = elementCenter.y - posY;
-        let downAngle = radToDeg(Math.atan2(mouseDownPositionY, mouseDownPositionX));
+        let downAngle = radToDeg(
+            Math.atan2(mouseDownPositionY, mouseDownPositionX)
+        );
         let moveAngle = radToDeg(Math.atan2(dY, dX));
         return downAngle - moveAngle;
     }
 
     function radToDeg(rad: number): number {
-        return rad * 180 / Math.PI;
+        return (rad * 180) / Math.PI;
     }
 
     return (
-        <div className={ styles.polarizationWheelShadow }>
+        <div className={styles.polarizationWheelShadow}>
             <animated.div
-                ref={ ref }
-                className={ styles.polarizationWheel }
-                onMouseDown={ (event) => handleMouseDown(event) }
-                style={isSnapping 
-                    ? { transform: snappingCompletion.to([0, 1], [rotDeg, getNearestNintyDeg(rotDeg)]).to((x: number) => {
-                        return `rotate(${x}deg)`;
-                    })}
-                    : { transform: `rotate(${rotDeg}deg)`}}
-                draggable='false'
+                ref={ref}
+                className={styles.polarizationWheel}
+                onMouseDown={(event) => handleMouseDown(event)}
+                style={
+                    isSnapping
+                        ? {
+                              transform: snappingCompletion
+                                  .to(
+                                      [0, 1],
+                                      [rotDeg, getNearestNintyDeg(rotDeg)]
+                                  )
+                                  .to((x: number) => {
+                                      return `rotate(${x}deg)`;
+                                  }),
+                          }
+                        : { transform: `rotate(${rotDeg}deg)` }
+                }
+                draggable="false"
             >
-                { getPolarizationWheelFilters() }
+                {getPolarizationWheelFilters()}
             </animated.div>
         </div>
     );

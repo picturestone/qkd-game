@@ -8,6 +8,7 @@ import ISocketData from '../qkd-game-client/src/models/api/ISocketData';
 import { Server as HttpServer } from 'http';
 import User from '../models/User';
 import { default as registerLobbySocketIOEvents } from './LobbyHandler';
+import { default as registerGameSocketIOEvents } from './GameHandler';
 
 const wrap = (middleware: any) => (socket: Socket, next: any) =>
     middleware(socket.request, {}, next);
@@ -64,6 +65,7 @@ class IO {
         });
 
         registerLobbySocketIOEvents(this._server);
+        registerGameSocketIOEvents(this._server);
     }
 
     get server() {
