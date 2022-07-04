@@ -6,6 +6,7 @@ import WidthLimiter from '../components/WidthLimiter';
 import AuthStorage from '../helper/AuthStorage';
 import { useSocket } from '../helper/IO';
 import ILobbyJson from '../models/api/ILobbyJson';
+import { PLAYERROLE } from '../models/api/PlayerRole';
 import Lobby from '../models/Lobby';
 import LobbiesService from '../services/LobbyService';
 
@@ -20,7 +21,6 @@ function LobbyDetail() {
     // Adding chatText as a dependency would repeatetly register the handler with every chatText update.
     const chatTextRef = React.useRef(chatText);
 
-    // TODO fix reloading bug.
     useEffect(() => {
         chatTextRef.current = chatText;
     });
@@ -52,11 +52,12 @@ function LobbyDetail() {
     }
 
     function startedGameHandler() {
+        // TODO continue here
         // TODO navigate to game according to role. Might be good getting the game link from the request. Or at least which role etc.
         console.log('started game');
     }
 
-    function selectLobbyRole(lobbyRole: 'alice' | 'bob') {
+    function selectLobbyRole(lobbyRole: PLAYERROLE) {
         if (lobby && lobby.id) {
             socket?.emit('selectLobbyRole', lobby.id, lobbyRole);
         }
@@ -75,6 +76,21 @@ function LobbyDetail() {
         }
     }
 
+    function isLoggedInUserInRole(role: PLAYERROLE) {
+        let isInRole = false;
+        const loggedInUserId = new AuthStorage().getLoggedInUser()?.id;
+        switch (role) {
+            case PLAYERROLE.alice:
+                isInRole = lobby?.reservedAlice === loggedInUserId;
+                break;
+
+            case PLAYERROLE.bob:
+                isInRole = lobby?.reservedBob === loggedInUserId;
+                break;
+        }
+        return isInRole;
+    }
+
     return (
         <React.Fragment>
             <Nav></Nav>
@@ -82,13 +98,12 @@ function LobbyDetail() {
                 <h1 className="text-3xl font-mono py-3">{lobby?.name}</h1>
                 <Button
                     onClick={() => {
-                        selectLobbyRole('alice');
+                        selectLobbyRole(PLAYERROLE.alice);
                     }}
                     disabled={lobby?.reservedAlice ? true : false}
                 >
                     {lobby?.reservedAlice
-                        ? lobby.reservedAlice.id ===
-                          new AuthStorage().getLoggedInUser()?.id
+                        ? isLoggedInUserInRole(PLAYERROLE.alice)
                             ? `You play as `
                             : `${lobby.reservedAlice.name} plays as `
                         : 'Select role: '}
@@ -96,18 +111,18 @@ function LobbyDetail() {
                 </Button>
                 <Button
                     onClick={() => {
-                        selectLobbyRole('bob');
+                        selectLobbyRole(PLAYERROLE.bob);
                     }}
                     disabled={lobby?.reservedBob ? true : false}
                 >
                     {lobby?.reservedBob
-                        ? lobby.reservedBob.id ===
-                          new AuthStorage().getLoggedInUser()?.id
+                        ? isLoggedInUserInRole(PLAYERROLE.bob)
                             ? `You play as `
                             : `${lobby.reservedBob.name} plays as `
                         : 'Select role: '}
                     Bob
                 </Button>
+                {/* TODO make a "ready" feature for the player that are not hosting the lobby. */}
                 <Button
                     onClick={() => {
                         if (lobby) {

@@ -4,6 +4,7 @@ import IClientToServerEvents from '../qkd-game-client/src/models/api/IClientToSe
 import IInterServerEvents from '../qkd-game-client/src/models/api/IInterServerEvents';
 import IServerToClientEvents from '../qkd-game-client/src/models/api/IServerToClientEvents';
 import ISocketData from '../qkd-game-client/src/models/api/ISocketData';
+import { PLAYERROLE } from '../qkd-game-client/src/models/api/PlayerRole';
 
 export default function registerSocketIOEvents(
     server: Server<
@@ -33,12 +34,12 @@ export default function registerSocketIOEvents(
                 if (lobby && lobby.id) {
                     // TODO remove user from other reserved roles.
                     switch (lobbyRole) {
-                        case 'alice':
+                        case PLAYERROLE.alice:
                             if (!lobby.reservedAlice) {
                                 lobby.reservedAlice = socket.request.user;
                             }
                             break;
-                        case 'bob':
+                        case PLAYERROLE.bob:
                             if (!lobby.reservedBob) {
                                 lobby.reservedBob = socket.request.user;
                             }
