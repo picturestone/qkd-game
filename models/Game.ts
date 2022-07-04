@@ -3,9 +3,7 @@ import AliceController from './player/AliceController';
 import AlicePlayer from './player/AlicePlayer';
 import BobController from './player/BobController';
 import BobPlayer from './player/BobPlayer';
-import UserAliceController from './player/UserAliceController';
-import UserBobController from './player/UserBobController';
-import User from './User';
+import IGameJson from '../qkd-game-client/src/models/api/IGameJson';
 
 export default class Game {
     private _id?: string;
@@ -33,8 +31,8 @@ export default class Game {
 
     public startGame() {
         if (!this.isStartet) {
-            this._alicePlayer.controller.startGame();
-            this._bobPlayer.controller.startGame();
+            this._alicePlayer.controller.startGame(this);
+            this._bobPlayer.controller.startGame(this);
             this.isStartet = true;
         }
     }
@@ -45,5 +43,19 @@ export default class Game {
 
     public get id() {
         return this._id;
+    }
+
+    public get alicePlayer() {
+        return this._alicePlayer;
+    }
+
+    public get bobPlayer() {
+        return this._bobPlayer;
+    }
+
+    toJson(): IGameJson {
+        return {
+            id: this._id,
+        };
     }
 }

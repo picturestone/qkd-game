@@ -1,27 +1,40 @@
-import Randomizer from "../../helper/Randomizer";
-import Basis from "./Basis";
-import Polarization from "./Polarization";
+import Randomizer from '../../helper/Randomizer';
+import Basis from './Basis';
+import POLARIZATION from '../../qkd-game-client/src/models/api/Polarization';
+import IQbitJson from '../../qkd-game-client/src/models/api/IQbitJson';
 
 export default class Qbit {
-    private polarization: Polarization;
+    private polarization: POLARIZATION;
 
-    constructor(polarization: Polarization) {
+    constructor(polarization: POLARIZATION) {
         this.polarization = polarization;
     }
 
     /**
-     * 
+     *
      * @param basis The basis in which the polarization should be measured.
      */
-    measurePolarization(basis: Basis): Polarization {
-        let pol = Randomizer.getRandomEnum(Polarization);
+    measurePolarization(basis: Basis): POLARIZATION {
+        let pol = Randomizer.getRandomEnum(POLARIZATION);
 
-        if((this.polarization === Polarization.MinusFourtyFive || this.polarization === Polarization.PlusFourtyFive) && basis === Basis.Diagonal) {
+        if (
+            (this.polarization === POLARIZATION.MinusFourtyFive ||
+                this.polarization === POLARIZATION.PlusFourtyFive) &&
+            basis === Basis.Diagonal
+        ) {
             pol = this.polarization;
-        } else if ((this.polarization === Polarization.Zero || this.polarization === Polarization.Ninety) && basis === Basis.HorizontalVertical) {
+        } else if (
+            (this.polarization === POLARIZATION.Zero ||
+                this.polarization === POLARIZATION.Ninety) &&
+            basis === Basis.HorizontalVertical
+        ) {
             pol = this.polarization;
         }
 
         return pol;
+    }
+
+    static fromJson(json: IQbitJson) {
+        return new Qbit(json.polarization);
     }
 }

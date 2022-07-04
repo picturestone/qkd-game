@@ -1,7 +1,5 @@
-import Randomizer from '../../helper/Randomizer';
 import IChannelObserver from '../channel/ISourceObserver';
 import ISource from '../channel/ISource';
-import Basis from '../quantum/Basis';
 import Qbit from '../quantum/Qbit';
 import BobController from './BobController';
 import Player from './Player';
@@ -13,20 +11,24 @@ export default class BobPlayer
     // Is the source even necessary?
     private _quantumChannel: ISource<Qbit>;
     // TODO add classical channel: ISink<confirmation> or something.
+    private _controller: BobController;
 
     constructor(controller: BobController, quantumChannel: ISource<Qbit>) {
         super(controller);
+        this._controller = controller;
         this._quantumChannel = quantumChannel;
         this._quantumChannel.addObserver(this);
     }
 
+    get controller(): BobController {
+        return this._controller;
+    }
+
     // Called when qbit is added to quantum channel.
-    // TODO this function must be given to the role in the constructor because from here on the player cannot be notified
     onEnqueue(to: ISource<Qbit>): void {
         const qbit = to.dequeue();
-        const measuredPolarization = qbit?.measurePolarization(
-            Randomizer.getRandomEnum(Basis)
-        );
-        console.log(measuredPolarization);
+        if (qbit) {
+            this._controller.receiveQbit(qbit);
+        }
     }
 }

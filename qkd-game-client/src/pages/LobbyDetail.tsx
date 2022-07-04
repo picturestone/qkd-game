@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import Button from '../components/Button';
 import Nav from '../components/Nav';
 import WidthLimiter from '../components/WidthLimiter';
-import AuthStorage from '../helper/AuthStorage';
 import { useSocket } from '../helper/IO';
+import IGameJson from '../models/api/IGameJson';
 import ILobbyJson from '../models/api/ILobbyJson';
 import { PLAYERROLE } from '../models/api/PlayerRole';
+import Game from '../models/Game';
 import Lobby from '../models/Lobby';
 import LobbiesService from '../services/LobbyService';
 
@@ -15,6 +16,7 @@ function LobbyDetail() {
     const socket = useSocket();
     const lobbyId = params.lobbyId;
     const lobbiesService = new LobbiesService();
+    const navigate = useNavigate();
     const [lobby, setLobby] = useState<Lobby>();
     const [chatText, setChatText] = useState('');
     // Ref necessary because we want to register event handlers only once, but have a dependecy to chatText.
@@ -51,10 +53,9 @@ function LobbyDetail() {
         setLobby(Lobby.fromJson(lobbyJson));
     }
 
-    function startedGameHandler() {
-        // TODO continue here
-        // TODO navigate to game according to role. Might be good getting the game link from the request. Or at least which role etc.
-        console.log('started game');
+    function startedGameHandler(gameJson: IGameJson) {
+        const game = Game.fromJson(gameJson);
+        navigate(`/games/${game.id}/${lobby?.selectedRole}`);
     }
 
     function selectLobbyRole(lobbyRole: PLAYERROLE) {
@@ -76,21 +77,6 @@ function LobbyDetail() {
         }
     }
 
-    function isLoggedInUserInRole(role: PLAYERROLE) {
-        let isInRole = false;
-        const loggedInUserId = new AuthStorage().getLoggedInUser()?.id;
-        switch (role) {
-            case PLAYERROLE.alice:
-                isInRole = lobby?.reservedAlice === loggedInUserId;
-                break;
-
-            case PLAYERROLE.bob:
-                isInRole = lobby?.reservedBob === loggedInUserId;
-                break;
-        }
-        return isInRole;
-    }
-
     return (
         <React.Fragment>
             <Nav></Nav>
@@ -103,7 +89,7 @@ function LobbyDetail() {
                     disabled={lobby?.reservedAlice ? true : false}
                 >
                     {lobby?.reservedAlice
-                        ? isLoggedInUserInRole(PLAYERROLE.alice)
+                        ? lobby.selectedRole === PLAYERROLE.alice
                             ? `You play as `
                             : `${lobby.reservedAlice.name} plays as `
                         : 'Select role: '}
@@ -116,7 +102,7 @@ function LobbyDetail() {
                     disabled={lobby?.reservedBob ? true : false}
                 >
                     {lobby?.reservedBob
-                        ? isLoggedInUserInRole(PLAYERROLE.bob)
+                        ? lobby.selectedRole === PLAYERROLE.bob
                             ? `You play as `
                             : `${lobby.reservedBob.name} plays as `
                         : 'Select role: '}

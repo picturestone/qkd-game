@@ -1,3 +1,4 @@
+import Game from '../Game';
 import Player from './Player';
 
 export default abstract class PlayerController<PlayerType extends Player> {
@@ -15,5 +16,9 @@ export default abstract class PlayerController<PlayerType extends Player> {
         }
     }
 
-    abstract startGame(): void;
+    get userId(): string | undefined {
+        return undefined;
+    }
+
+    abstract startGame(game: Game): void;
 }
