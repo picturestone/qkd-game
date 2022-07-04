@@ -55,11 +55,25 @@ class IO {
         this._server.use(wrap(passport.initialize()));
         this._server.use(wrap(JWT_AUTH_MIDDLEWARE));
 
+        // TODO remove socketId reference on disconnect.
+        this._server.on('connect', (socket) => {
+            const user = socket.request.user;
+            if (user) {
+                user.socketId = socket.id;
+            }
+        });
+
         registerLobbySocketIOEvents(this._server);
     }
 
     get server() {
-        return this._server;
+        if (this._server) {
+            return this._server;
+        } else {
+            throw new Error(
+                'configurate() must be called to set up the server'
+            );
+        }
     }
 }
 
