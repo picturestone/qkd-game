@@ -1,39 +1,37 @@
 import React, { createRef, useEffect, useState } from 'react';
 import { useSpring, animated } from 'react-spring';
-import POLARIZATION from '../../models/api/Polarization';
-import Qbit from '../../models/quantum/Qbit';
-import styles from './PolarizationWheel.module.scss';
-import PolarizationWheelFilter from './PolarizationWheelFilter';
+import styles from './FilterWheel.module.scss';
+import Filter from './Filter';
 
-interface IProps {
-    onPhotonPassed: (photon: React.ReactNode) => void;
+interface IProps<FilterType> {
+    degOffset?: number;
+    degWherePhotonPasses: number;
+    onPhotonPassing: (selectedFilterType: FilterType) => void;
     passingPhoton: React.ReactNode;
+    filters: {
+        filterType: FilterType;
+        icon: JSX.Element;
+        iconRotation: number;
+    }[];
 }
 
-function PolarizationWheel(props: IProps) {
+function FilterWheel<FilterType>(props: IProps<FilterType>) {
     const ref = createRef<HTMLDivElement>();
-    const [rotDegOnMouseDown, setrotDegOnMouseDown] = useState(0);
+    const [rotDegOnMouseDown, setRotDegOnMouseDown] = useState(0);
     const [isDragging, setIsDragging] = useState(false);
     const [isSnapping, setIsSnapping] = useState(false);
     const [mouseDownPositionX, setMouseDownPositionX] = useState(0);
     const [mouseDownPositionY, setMouseDownPositionY] = useState(0);
-    const [rotDeg, setRotDeg] = useState(0);
-    const polarizations = [
-        POLARIZATION.Zero,
-        POLARIZATION.PlusFourtyFive,
-        POLARIZATION.Ninety,
-        POLARIZATION.MinusFourtyFive,
-    ];
+    let degOffset = 0;
+    if (props.degOffset) {
+        degOffset = props.degOffset;
+    }
+    const [rotDeg, setRotDeg] = useState(degOffset);
+    const degBetweenFilters = 360 / props.filters.length;
+    let elementCenter = getElementCenter();
 
     useEffect(() => {
-        if (props.passingPhoton) {
-            if (React.isValidElement(props.passingPhoton)) {
-                const photon = React.cloneElement(props.passingPhoton, {
-                    qbit: new Qbit(getPolarizationOfFilterAt(270)),
-                });
-                props.onPhotonPassed(photon);
-            }
-        }
+        elementCenter = getElementCenter();
 
         window.addEventListener('mouseup', handleMouseUp);
         window.addEventListener('mousemove', handleMouseMove);
@@ -43,7 +41,13 @@ function PolarizationWheel(props: IProps) {
             window.removeEventListener('mouseup', handleMouseUp);
             window.removeEventListener('mousemove', handleMouseMove);
         };
-    });
+    }, []);
+
+    useEffect(() => {
+        if (props.passingPhoton) {
+            props.onPhotonPassing(getFilterTypeAt(props.degWherePhotonPasses));
+        }
+    }, [props.passingPhoton]);
 
     // Snapping completion ticks up once snapping is turned on.
     const { snappingCompletion } = useSpring({
@@ -53,17 +57,30 @@ function PolarizationWheel(props: IProps) {
             precision: 0.01,
         },
         onRest: () => {
-            setRotDeg(getNearestNintyDeg(rotDeg));
+            setRotDeg(getNearestLockedDeg(rotDeg));
             setIsSnapping(false);
         },
     });
 
-    function getPolarizationWheelFilters(): JSX.Element[] {
+    function getFilters(): JSX.Element[] {
         const filters: JSX.Element[] = [];
 
-        for (let i = 0; i < 4; i++) {
+        for (let i = 0; i < props.filters.length; i++) {
+            const filter = props.filters[i];
+            // -90 because in unit circle the right hand side has 0 degrees, but here the right hand filter has 90 degrees.
+            const degInWheel = i * degBetweenFilters - 90;
+            const spacingTop = parseFloat(
+                Math.sin(degToRad(degInWheel)).toFixed(2)
+            );
+            const spacingLeft = parseFloat(
+                Math.cos(degToRad(degInWheel)).toFixed(2)
+            );
+            const divStyle = {
+                top: `${(spacingTop * 100) / 2 + 50}%`,
+                left: `${(spacingLeft * 100) / 2 + 50}%`,
+            };
             filters.push(
-                <div key={i}>
+                <div key={i} style={divStyle}>
                     <animated.div
                         style={
                             isSnapping
@@ -73,7 +90,7 @@ function PolarizationWheel(props: IProps) {
                                               [0, 1],
                                               [
                                                   rotDeg,
-                                                  getNearestNintyDeg(rotDeg),
+                                                  getNearestLockedDeg(rotDeg),
                                               ]
                                           )
                                           .to((x: number) => {
@@ -83,8 +100,9 @@ function PolarizationWheel(props: IProps) {
                                 : { transform: `rotate(${-rotDeg}deg)` }
                         }
                     >
-                        <PolarizationWheelFilter
-                            polarization={polarizations[i]}
+                        <Filter
+                            icon={filter.icon}
+                            iconRotation={filter.iconRotation}
                         />
                     </animated.div>
                 </div>
@@ -93,13 +111,16 @@ function PolarizationWheel(props: IProps) {
         return filters;
     }
 
-    function getPolarizationOfFilterAt(deg: number) {
+    function getFilterTypeAt(deg: number) {
         // TODO Check if the photon even hits a filter with the current rotation.
-        let filterIndex = Math.round(((deg - rotDeg) % 360) / 90);
+        let filterIndex = Math.round(
+            ((deg - rotDeg) % 360) / degBetweenFilters
+        );
+        console.log(rotDeg);
         while (filterIndex < 0) {
-            filterIndex = filterIndex + polarizations.length;
+            filterIndex = filterIndex + props.filters.length;
         }
-        return polarizations[filterIndex];
+        return props.filters[filterIndex].filterType;
     }
 
     function getElementCenter(): { x: number; y: number } {
@@ -119,11 +140,10 @@ function PolarizationWheel(props: IProps) {
 
     function handleMouseDown(event: React.MouseEvent) {
         if (!isSnapping) {
-            const elementCenter = getElementCenter();
             setIsDragging(true);
             setMouseDownPositionX(event.pageX - elementCenter.x);
             setMouseDownPositionY(elementCenter.y - event.pageY);
-            setrotDegOnMouseDown(rotDeg);
+            setRotDegOnMouseDown(rotDeg);
         }
     }
 
@@ -145,12 +165,13 @@ function PolarizationWheel(props: IProps) {
         }
     }
 
-    function getNearestNintyDeg(deg: number): number {
-        return Math.round(deg / 90) * 90;
+    function getNearestLockedDeg(deg: number): number {
+        return (
+            Math.round(deg / degBetweenFilters) * degBetweenFilters + degOffset
+        );
     }
 
     function degFromMouseDown(posX: number, posY: number): number {
-        const elementCenter = getElementCenter();
         const dX = posX - elementCenter.x;
         const dY = elementCenter.y - posY;
         let downAngle = radToDeg(
@@ -164,11 +185,15 @@ function PolarizationWheel(props: IProps) {
         return (rad * 180) / Math.PI;
     }
 
+    function degToRad(deg: number) {
+        return (deg * Math.PI) / 180;
+    }
+
     return (
-        <div className={styles.polarizationWheelShadow}>
+        <div className={styles.filterWheelShadow}>
             <animated.div
                 ref={ref}
-                className={styles.polarizationWheel}
+                className={styles.filterWheel}
                 onMouseDown={(event) => handleMouseDown(event)}
                 style={
                     isSnapping
@@ -176,7 +201,7 @@ function PolarizationWheel(props: IProps) {
                               transform: snappingCompletion
                                   .to(
                                       [0, 1],
-                                      [rotDeg, getNearestNintyDeg(rotDeg)]
+                                      [rotDeg, getNearestLockedDeg(rotDeg)]
                                   )
                                   .to((x: number) => {
                                       return `rotate(${x}deg)`;
@@ -186,10 +211,10 @@ function PolarizationWheel(props: IProps) {
                 }
                 draggable="false"
             >
-                {getPolarizationWheelFilters()}
+                <div className={styles.filterWheelFilters}>{getFilters()}</div>
             </animated.div>
         </div>
     );
 }
 
-export default PolarizationWheel;
+export default FilterWheel;

@@ -2,9 +2,11 @@ import React, { useState } from 'react';
 import Qbit from '../../models/quantum/Qbit';
 import OpticalFiber from './OpticalFiber';
 import PhotonSource from './PhotonSource';
-import PolarizationWheel from './PolarizationWheel';
+import FilterWheel from './FilterWheel';
 import styles from './Sender.module.scss';
+import { FaArrowsAltV } from 'react-icons/fa';
 import { IProps as IPhotonProps } from './Photon';
+import POLARIZATION from '../../models/api/Polarization';
 
 interface IProps {
     onPolarizedPhotonTransported: (qbit: Qbit) => void;
@@ -25,9 +27,14 @@ function Sender(props: IProps) {
         setPassingPhoton(photon);
     }
 
-    function handlePhotonPassed(photon: React.ReactNode) {
-        setPassingPhoton(null);
-        setPolarizedPhoton(photon);
+    function handlePhotonPassing(polarization: POLARIZATION) {
+        if (React.isValidElement(passingPhoton)) {
+            const polarizedPhoton = React.cloneElement(passingPhoton, {
+                qbit: new Qbit(polarization),
+            });
+            setPassingPhoton(null);
+            setPolarizedPhoton(polarizedPhoton);
+        }
     }
 
     function handlePolarizedPhotonTransported(photon: React.ReactNode) {
@@ -38,27 +45,51 @@ function Sender(props: IProps) {
 
     return (
         <div className={styles.sender}>
-            <div className={styles.polarizedPhotonOpticalFiberWrapper}>
+            <div className={styles.senderPolarizedPhotonOpticalFiberWrapper}>
                 <OpticalFiber
                     pathD="M 0 200 v -200"
                     photon={polarizedPhoton}
                     onAnimationEnd={handlePolarizedPhotonTransported}
                 ></OpticalFiber>
             </div>
-            <div className={styles.polarizationWheelWrapper}>
-                <PolarizationWheel
+            <div className={styles.senderFilterWheelWrapper}>
+                <FilterWheel<POLARIZATION>
                     passingPhoton={passingPhoton}
-                    onPhotonPassed={handlePhotonPassed}
+                    onPhotonPassing={handlePhotonPassing}
+                    degWherePhotonPasses={270}
+                    filters={[
+                        {
+                            filterType: POLARIZATION.Zero,
+                            icon: <FaArrowsAltV />,
+                            iconRotation: POLARIZATION.Zero.valueOf(),
+                        },
+                        {
+                            filterType: POLARIZATION.PlusFourtyFive,
+                            icon: <FaArrowsAltV />,
+                            iconRotation: POLARIZATION.PlusFourtyFive.valueOf(),
+                        },
+                        {
+                            filterType: POLARIZATION.Ninety,
+                            icon: <FaArrowsAltV />,
+                            iconRotation: POLARIZATION.Ninety.valueOf(),
+                        },
+                        {
+                            filterType: POLARIZATION.MinusFourtyFive,
+                            icon: <FaArrowsAltV />,
+                            iconRotation:
+                                POLARIZATION.MinusFourtyFive.valueOf(),
+                        },
+                    ]}
                 />
             </div>
-            <div className={styles.emittedPhotonOpticalFiberWrapper}>
+            <div className={styles.senderEmittedPhotonOpticalFiberWrapper}>
                 <OpticalFiber
                     pathD="M 0 200 v -200"
                     photon={emittedPhoton}
                     onAnimationEnd={handleEmittedPhotonTransported}
                 ></OpticalFiber>
             </div>
-            <div className={styles.photonSourceWrapper}>
+            <div className={styles.senderPhotonSourceWrapper}>
                 <PhotonSource onPhotonEmission={handlePhotonEmission} />
             </div>
         </div>
