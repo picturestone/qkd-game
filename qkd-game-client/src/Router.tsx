@@ -2,6 +2,7 @@ import { Routes, Route } from 'react-router-dom';
 import { PLAYERROLE } from './models/api/PlayerRole';
 import App from './pages/App';
 import GameAlice from './pages/GameAlice';
+import GameBob from './pages/GameBob';
 import Lobbies from './pages/Lobbies';
 import LobbyDetail from './pages/LobbyDetail';
 import LobbyNew from './pages/LobbyNew';
@@ -21,7 +22,7 @@ function Router() {
             ></Route>
             <Route
                 path={`/games/:gameId/${PLAYERROLE.bob}`}
-                element={<GameAlice />}
+                element={<GameBob />}
             ></Route>
         </Routes>
     );
