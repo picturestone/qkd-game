@@ -16,7 +16,6 @@ export default function registerSocketIOEvents(
 ) {
     server.on('connect', (socket) => {
         socket.on('sendQbit', (gameId, qbitJson) => {
-            // TODO Check if the sending player is alice or eve, send qbit over channel accordingly.
             new GameDb().findById(gameId).then((game) => {
                 if (game && game.id) {
                     const sentQbit = Qbit.fromJson(qbitJson);
@@ -28,6 +27,22 @@ export default function registerSocketIOEvents(
                             case aliceController.userId:
                                 aliceController.sendQbit(sentQbit);
                                 break;
+                        }
+                    }
+                }
+            });
+        });
+        socket.on('measureEnqueuedQbit', (gameId, basis, cb) => {
+            new GameDb().findById(gameId).then((game) => {
+                if (game && game.id) {
+                    const userId = socket.request.user?.id;
+                    if (userId) {
+                        const bobController = game.bobPlayer.controller;
+
+                        if (userId === bobController.userId) {
+                            const measuredPolarization =
+                                bobController.measureEnqueuedQbit(basis);
+                            cb(measuredPolarization);
                         }
                     }
                 }

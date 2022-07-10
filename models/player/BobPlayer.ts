@@ -25,10 +25,11 @@ export default class BobPlayer
     }
 
     // Called when qbit is added to quantum channel.
-    onEnqueue(to: ISource<Qbit>): void {
-        const qbit = to.dequeue();
-        if (qbit) {
-            this._controller.receiveQbit(qbit);
-        }
+    onEnqueue(): void {
+        this._controller.onEnqueue();
+    }
+
+    dequeueQbit() {
+        return this._quantumChannel.dequeue();
     }
 }

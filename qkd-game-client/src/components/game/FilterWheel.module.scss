@@ -1,0 +1,28 @@
+.filterWheelShadow {
+    height: 200px;
+    width: 200px;
+    border-radius: 50%;
+    box-shadow: 0 4px 5px 0 rgb(0 0 0 / 40%);
+}
+
+.filterWheel {
+    height: 100%;
+    width: 100%;
+    border-radius: 50%;
+    background-color: red;
+    position: relative;
+}
+
+.filterWheelFilters {
+    position: absolute;
+    $sideSpacing: 28px;
+    top: $sideSpacing;
+    left: $sideSpacing;
+    right: $sideSpacing;
+    bottom: $sideSpacing;
+
+    & > div {
+        position: absolute;
+        transform: translate(-50%, -50%);
+    }
+}
