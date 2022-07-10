@@ -17,37 +17,24 @@ interface IProps<FilterType> {
 
 function FilterWheel<FilterType>(props: IProps<FilterType>) {
     const ref = createRef<HTMLDivElement>();
-    const [rotDegOnMouseDown, setRotDegOnMouseDown] = useState(0);
-    const [isDragging, setIsDragging] = useState(false);
     const [isSnapping, setIsSnapping] = useState(false);
-    const [mouseDownPositionX, setMouseDownPositionX] = useState(0);
-    const [mouseDownPositionY, setMouseDownPositionY] = useState(0);
     let degOffset = 0;
     if (props.degOffset) {
         degOffset = props.degOffset;
     }
-    const [rotDeg, setRotDeg] = useState(degOffset);
+    const [currentRotDeg, setCurrentRotDeg] = useState(degOffset);
+    const [targetRotDeg, setTargetRotDeg] = useState(degOffset);
     const degBetweenFilters = 360 / props.filters.length;
-    let elementCenter = getElementCenter();
-
-    useEffect(() => {
-        elementCenter = getElementCenter();
-
-        window.addEventListener('mouseup', handleMouseUp);
-        window.addEventListener('mousemove', handleMouseMove);
-
-        // Cleanup function for deconstructing component to remove old event listeners.
-        return () => {
-            window.removeEventListener('mouseup', handleMouseUp);
-            window.removeEventListener('mousemove', handleMouseMove);
-        };
-    }, []);
 
     useEffect(() => {
         if (props.passingPhoton) {
             props.onPhotonPassing(getFilterTypeAt(props.degWherePhotonPasses));
         }
     }, [props.passingPhoton]);
+
+    useEffect(() => {
+        setIsSnapping(true);
+    }, [targetRotDeg]);
 
     // Snapping completion ticks up once snapping is turned on.
     const { snappingCompletion } = useSpring({
@@ -57,10 +44,19 @@ function FilterWheel<FilterType>(props: IProps<FilterType>) {
             precision: 0.01,
         },
         onRest: () => {
-            setRotDeg(getNearestLockedDeg(rotDeg));
+            setCurrentRotDeg(targetRotDeg);
             setIsSnapping(false);
         },
     });
+
+    function handleFilterClick(filterIndex: number) {
+        // TODO make the rotation more beautiful when looping around.
+        let newTargetRotDeg =
+            props.degWherePhotonPasses -
+            filterIndex * degBetweenFilters -
+            degOffset;
+        setTargetRotDeg(newTargetRotDeg);
+    }
 
     function getFilters(): JSX.Element[] {
         const filters: JSX.Element[] = [];
@@ -88,21 +84,21 @@ function FilterWheel<FilterType>(props: IProps<FilterType>) {
                                       transform: snappingCompletion
                                           .to(
                                               [0, 1],
-                                              [
-                                                  rotDeg,
-                                                  getNearestLockedDeg(rotDeg),
-                                              ]
+                                              [currentRotDeg, targetRotDeg]
                                           )
                                           .to((x: number) => {
                                               return `rotate(${-x}deg)`;
                                           }),
                                   }
-                                : { transform: `rotate(${-rotDeg}deg)` }
+                                : { transform: `rotate(${-currentRotDeg}deg)` }
                         }
                     >
                         <Filter
                             icon={filter.icon}
                             iconRotation={filter.iconRotation}
+                            onClick={() => {
+                                handleFilterClick(i);
+                            }}
                         />
                     </animated.div>
                 </div>
@@ -114,75 +110,12 @@ function FilterWheel<FilterType>(props: IProps<FilterType>) {
     function getFilterTypeAt(deg: number) {
         // TODO Check if the photon even hits a filter with the current rotation.
         let filterIndex = Math.round(
-            ((deg - rotDeg) % 360) / degBetweenFilters
+            (((deg - currentRotDeg) % 360) - degOffset) / degBetweenFilters
         );
-        console.log(rotDeg);
         while (filterIndex < 0) {
             filterIndex = filterIndex + props.filters.length;
         }
         return props.filters[filterIndex].filterType;
-    }
-
-    function getElementCenter(): { x: number; y: number } {
-        let positions = {
-            x: 0,
-            y: 0,
-        };
-        const componentDom = ref.current;
-        if (componentDom) {
-            positions['x'] =
-                componentDom.offsetLeft + componentDom.offsetWidth / 2;
-            positions['y'] =
-                componentDom.offsetTop + componentDom.offsetHeight / 2;
-        }
-        return positions;
-    }
-
-    function handleMouseDown(event: React.MouseEvent) {
-        if (!isSnapping) {
-            setIsDragging(true);
-            setMouseDownPositionX(event.pageX - elementCenter.x);
-            setMouseDownPositionY(elementCenter.y - event.pageY);
-            setRotDegOnMouseDown(rotDeg);
-        }
-    }
-
-    function handleMouseMove(event: MouseEvent) {
-        if (isDragging && !isSnapping) {
-            const deltaDeg = degFromMouseDown(event.pageX, event.pageY);
-            setRotDeg(rotDegOnMouseDown + deltaDeg);
-        }
-    }
-
-    function handleMouseUp(event: MouseEvent) {
-        if (isDragging && !isSnapping) {
-            const deltaDeg = degFromMouseDown(event.pageX, event.pageY);
-            const newDeg = rotDegOnMouseDown + deltaDeg;
-            setIsDragging(false);
-            setRotDeg(newDeg);
-            // Once mouse is let go snapping begins.
-            setIsSnapping(true);
-        }
-    }
-
-    function getNearestLockedDeg(deg: number): number {
-        return (
-            Math.round(deg / degBetweenFilters) * degBetweenFilters + degOffset
-        );
-    }
-
-    function degFromMouseDown(posX: number, posY: number): number {
-        const dX = posX - elementCenter.x;
-        const dY = elementCenter.y - posY;
-        let downAngle = radToDeg(
-            Math.atan2(mouseDownPositionY, mouseDownPositionX)
-        );
-        let moveAngle = radToDeg(Math.atan2(dY, dX));
-        return downAngle - moveAngle;
-    }
-
-    function radToDeg(rad: number): number {
-        return (rad * 180) / Math.PI;
     }
 
     function degToRad(deg: number) {
@@ -194,20 +127,16 @@ function FilterWheel<FilterType>(props: IProps<FilterType>) {
             <animated.div
                 ref={ref}
                 className={styles.filterWheel}
-                onMouseDown={(event) => handleMouseDown(event)}
                 style={
                     isSnapping
                         ? {
                               transform: snappingCompletion
-                                  .to(
-                                      [0, 1],
-                                      [rotDeg, getNearestLockedDeg(rotDeg)]
-                                  )
+                                  .to([0, 1], [currentRotDeg, targetRotDeg])
                                   .to((x: number) => {
                                       return `rotate(${x}deg)`;
                                   }),
                           }
-                        : { transform: `rotate(${rotDeg}deg)` }
+                        : { transform: `rotate(${currentRotDeg}deg)` }
                 }
                 draggable="false"
             >

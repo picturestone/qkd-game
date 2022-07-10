@@ -36,9 +36,9 @@ export default function registerSocketIOEvents(
             new GameDb().findById(gameId).then((game) => {
                 if (game && game.id) {
                     const userId = socket.request.user?.id;
-
                     if (userId) {
                         const bobController = game.bobPlayer.controller;
+
                         if (userId === bobController.userId) {
                             const measuredPolarization =
                                 bobController.measureEnqueuedQbit(basis);

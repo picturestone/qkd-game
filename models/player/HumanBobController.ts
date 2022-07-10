@@ -27,6 +27,10 @@ export default class HumanBobController
         }
     }
 
+    get userId() {
+        return this._user.id;
+    }
+
     startGame(game: Game): void {
         this.socket.emit('startedGame', game.toJson());
     }

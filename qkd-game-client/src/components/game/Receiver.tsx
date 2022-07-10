@@ -8,6 +8,8 @@ import styles from './Receiver.module.scss';
 interface IProps {
     receivedPhoton?: React.ReactNode;
     onReceivedPhotonTransported: () => void;
+    onPhotonPassing: (basis: BASIS) => void;
+    onMeasuredPhotonTransported: () => void;
 }
 
 function Receiver(props: IProps) {
@@ -21,16 +23,15 @@ function Receiver(props: IProps) {
 
     function handlePhotonPassing(basis: BASIS) {
         if (React.isValidElement(passingPhoton)) {
-            // Make request according to basis.
             setMeasuredPhoton(passingPhoton);
             setPassingPhoton(null);
-            console.log(basis);
+            props.onPhotonPassing(basis);
         }
     }
 
-    function handleMeasuredPhotonTransported(photon: React.ReactNode) {
-        // TODO check if request is done, make the lightbulb light up accordingly.
-        console.log('passed');
+    function handleMeasuredPhotonTransported() {
+        setMeasuredPhoton(null);
+        props.onMeasuredPhotonTransported();
     }
 
     return (

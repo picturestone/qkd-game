@@ -12,6 +12,7 @@ interface IProps {
     onPolarizedPhotonTransported: (qbit: Qbit) => void;
 }
 
+// TODO fix very fast clicking on emitter
 function Sender(props: IProps) {
     const [emittedPhoton, setEmittedPhoton] = useState<React.ReactNode>(null);
     const [passingPhoton, setPassingPhoton] = useState<React.ReactNode>(null);
