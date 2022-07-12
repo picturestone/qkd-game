@@ -1,0 +1,24 @@
+.bitBox {
+    width: 120px;
+    height: 200px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 4px 5px 0 rgb(0 0 0 / 40%);
+}
+
+.topPlate {
+    width: 100%;
+    flex: 1 1 auto;
+    background-color: darkgrey;
+}
+
+.frontPlate {
+    width: 100%;
+    background-color: grey;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px;
+}

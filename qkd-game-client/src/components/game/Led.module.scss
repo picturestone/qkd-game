@@ -1,0 +1,22 @@
+.ledContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+}
+
+.ledLight {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background-color: #450000;
+}
+
+.ledLightOn {
+    background-color: #ff0000;
+    box-shadow: 0 0 11px 6px #ff0000;
+}
+
+.label {
+    margin-top: 4px;
+    text-align: center;
+}

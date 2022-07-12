@@ -16,6 +16,9 @@ function GameBob() {
     const [receivedPhoton, setReceivedPhoton] = useState<React.ReactNode>(null);
     const [measuredPolarization, setMeasuredPolarization] =
         useState<POLARIZATION | null>(null);
+    const [showPolarization, setShowPolarization] = useState<
+        POLARIZATION | undefined
+    >(undefined);
     const [isMeasuredPhotonTransported, setIsMeasuredPhotonTransported] =
         useState(false);
     const gameId = params.gameId;
@@ -31,9 +34,7 @@ function GameBob() {
 
     useEffect(() => {
         if (measuredPolarization && isMeasuredPhotonTransported) {
-            // TODO add a box with 2 leds
-            // and let the one corresponding light up as soon as the request is resolved.
-            console.log(measuredPolarization);
+            setShowPolarization(measuredPolarization);
         }
     }, [measuredPolarization, isMeasuredPhotonTransported]);
 
@@ -42,6 +43,7 @@ function GameBob() {
             <Photon qbit={new Qbit(Randomizer.getRandomEnum(POLARIZATION))} />
         );
         setMeasuredPolarization(null);
+        setShowPolarization(undefined);
         setIsMeasuredPhotonTransported(false);
     }
 
@@ -52,8 +54,7 @@ function GameBob() {
                 gameId,
                 basis,
                 (polarization) => {
-                    console.log(polarization);
-                    if (polarization) {
+                    if (polarization !== undefined) {
                         setMeasuredPolarization(polarization);
                     }
                 }
@@ -71,6 +72,7 @@ function GameBob() {
             <WidthLimiter>
                 <Receiver
                     receivedPhoton={receivedPhoton}
+                    showPolarization={showPolarization}
                     onReceivedPhotonTransported={function (): void {
                         setReceivedPhoton(null);
                     }}
