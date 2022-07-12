@@ -25,7 +25,6 @@ function BitBox(props: IProps) {
                     }
                     label="1"
                 ></Led>
-                <p>{props.showPolarization}</p>
             </div>
         </div>
     );
