@@ -1,12 +1,15 @@
 import React, { useState } from 'react';
 import { FaArrowsAlt } from 'react-icons/fa';
 import BASIS from '../../models/api/Basis';
+import POLARIZATION from '../../models/api/Polarization';
+import BitBox from './BitBox';
 import FilterWheel from './FilterWheel';
 import OpticalFiber from './OpticalFiber';
 import styles from './Receiver.module.scss';
 
 interface IProps {
     receivedPhoton?: React.ReactNode;
+    showPolarization?: POLARIZATION;
     onReceivedPhotonTransported: () => void;
     onPhotonPassing: (basis: BASIS) => void;
     onMeasuredPhotonTransported: () => void;
@@ -69,6 +72,9 @@ function Receiver(props: IProps) {
                     photon={measuredPhoton}
                     onAnimationEnd={handleMeasuredPhotonTransported}
                 ></OpticalFiber>
+            </div>
+            <div className={styles.receiverBitBoxWrapper}>
+                <BitBox showPolarization={props.showPolarization}></BitBox>
             </div>
         </div>
     );
