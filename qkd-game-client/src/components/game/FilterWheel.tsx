@@ -1,7 +1,8 @@
 import React, { createRef, useEffect, useState } from 'react';
-import { useSpring, animated } from 'react-spring';
+import { useSpring, animated } from '@react-spring/web';
 import styles from './FilterWheel.module.scss';
 import Filter from './Filter';
+import degToRad from '../../helper/DegToRad';
 
 interface IProps<FilterType> {
     degOffset?: number;
@@ -116,10 +117,6 @@ function FilterWheel<FilterType>(props: IProps<FilterType>) {
             filterIndex = filterIndex + props.filters.length;
         }
         return props.filters[filterIndex].filterType;
-    }
-
-    function degToRad(deg: number) {
-        return (deg * Math.PI) / 180;
     }
 
     return (

@@ -1,6 +1,6 @@
-import React, { MouseEventHandler, useState } from "react";
-import { animated, useSpring, config } from "react-spring";
-import styles from "./RoundButton.module.scss";
+import React, { MouseEventHandler, useState } from 'react';
+import { animated, useSpring, config } from '@react-spring/web';
+import styles from './RoundButton.module.scss';
 
 interface IProps {
     onClick: MouseEventHandler;
@@ -22,19 +22,28 @@ function RoundButton(props: IProps) {
                 setIsAnimating(false);
             }
         },
-        config: config.stiff
+        config: config.stiff,
     });
 
     return (
         <animated.div
-            onClick={ (event: React.MouseEvent) => {
+            onClick={(event: React.MouseEvent) => {
                 setIsAnimating(true);
                 props.onClick(event);
             }}
-            className={ styles.roundButton }
-            style={isAnimating 
-                ? { boxShadow: shadowCompletion.to([0, 1], [40, 20]).to((completion: number) => `0 -5px 5px 0 rgb(0 0 0 / ${completion}%)`)}
-                : { }}
+            className={styles.roundButton}
+            style={
+                isAnimating
+                    ? {
+                          boxShadow: shadowCompletion
+                              .to([0, 1], [40, 20])
+                              .to(
+                                  (completion: number) =>
+                                      `0 -5px 5px 0 rgb(0 0 0 / ${completion}%)`
+                              ),
+                      }
+                    : {}
+            }
         />
     );
 }

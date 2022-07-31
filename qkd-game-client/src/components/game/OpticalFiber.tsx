@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { useSpring } from 'react-spring';
+import { useSpring } from '@react-spring/web';
 import styles from './OpticalFiber.module.scss';
 
 interface IProps {
