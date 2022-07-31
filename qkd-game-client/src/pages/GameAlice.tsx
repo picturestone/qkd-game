@@ -40,6 +40,7 @@ function GameAlice() {
                             contentRotation: 45,
                         },
                     ]}
+                    selectedArc={null}
                 ></ArcSelector>
 
                 <Sender

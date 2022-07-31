@@ -10,14 +10,10 @@ export interface IProps<ArcType> {
         contentRotation: number;
     }[];
     onArcSelected: (selectedArc: ArcType | null) => void;
+    selectedArc: ArcType | null;
 }
 
 function ArcSelector<ArcType>(props: IProps<ArcType>) {
-    // set state for currently highlighted section
-    const [selectedArcIndex, setSelectedArcIndex] = useState<number | null>(
-        null
-    );
-
     function getArcs(): JSX.Element[] {
         const arcs: JSX.Element[] = [];
         const angle = 360 / props.arcs.length;
@@ -32,14 +28,13 @@ function ArcSelector<ArcType>(props: IProps<ArcType>) {
             const rotation = i * angle;
             const arcContentRotation =
                 -rotation + props.arcs[i].contentRotation;
+            const isSelectedArc = props.selectedArc === props.arcs[i].arcType;
             arcs.push(
                 <Group
                     onClick={() => {
-                        if (selectedArcIndex === i) {
-                            setSelectedArcIndex(null);
+                        if (isSelectedArc) {
                             props.onArcSelected(null);
                         } else {
-                            setSelectedArcIndex(i);
                             props.onArcSelected(props.arcs[i].arcType);
                         }
                     }}
@@ -47,7 +42,7 @@ function ArcSelector<ArcType>(props: IProps<ArcType>) {
                     y={yPos}
                     rotation={rotation}
                     scale={
-                        selectedArcIndex === i
+                        isSelectedArc
                             ? { x: highlightingFactor, y: highlightingFactor }
                             : { x: 1, y: 1 }
                     }
