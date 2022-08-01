@@ -1,16 +1,18 @@
-import { useState } from 'react';
 import { Arc, Layer, Group, Stage } from 'react-konva';
 import { Html } from 'react-konva-utils';
 import degToRad from '../../helper/DegToRad';
 
-export interface IProps<ArcType> {
-    arcs: {
-        arcType: ArcType;
-        content: JSX.Element;
-        contentRotation: number;
-    }[];
-    onArcSelected: (selectedArc: ArcType | null) => void;
-    selectedArc: ArcType | null;
+export interface IArcData<ArcType> {
+    arcType: ArcType;
+    content: JSX.Element;
+    contentRotation: number;
+}
+
+interface IProps<ArcType> {
+    arcs: IArcData<ArcType>[];
+    onArcSelected: (selectedArc?: IArcData<ArcType>) => void;
+    selectedArc?: ArcType;
+    rotationDeg?: number;
 }
 
 function ArcSelector<ArcType>(props: IProps<ArcType>) {
@@ -25,7 +27,9 @@ function ArcSelector<ArcType>(props: IProps<ArcType>) {
         const halfingRadius = innerRadius + (outerRadius - innerRadius) / 2;
 
         for (let i = 0; i < props.arcs.length; i++) {
-            const rotation = i * angle;
+            const rotation = props.rotationDeg
+                ? i * angle + props.rotationDeg
+                : i * angle;
             const arcContentRotation =
                 -rotation + props.arcs[i].contentRotation;
             const isSelectedArc = props.selectedArc === props.arcs[i].arcType;
@@ -33,9 +37,9 @@ function ArcSelector<ArcType>(props: IProps<ArcType>) {
                 <Group
                     onClick={() => {
                         if (isSelectedArc) {
-                            props.onArcSelected(null);
+                            props.onArcSelected(undefined);
                         } else {
-                            props.onArcSelected(props.arcs[i].arcType);
+                            props.onArcSelected(props.arcs[i]);
                         }
                     }}
                     x={xPos}
@@ -53,11 +57,39 @@ function ArcSelector<ArcType>(props: IProps<ArcType>) {
                         innerRadius={innerRadius}
                         outerRadius={outerRadius}
                         fill="red"
+                        onMouseEnter={(e) => {
+                            const stage = e.target.getStage();
+                            if (stage) {
+                                const container = stage.container();
+                                container.style.cursor = 'pointer';
+                            }
+                        }}
+                        onMouseLeave={(e) => {
+                            const stage = e.target.getStage();
+                            if (stage) {
+                                const container = stage.container();
+                                container.style.cursor = 'default';
+                            }
+                        }}
                     ></Arc>
                     <Group
                         rotation={arcContentRotation}
                         x={Math.cos(degToRad(angle / 2)) * halfingRadius}
                         y={Math.sin(degToRad(angle / 2)) * halfingRadius}
+                        onMouseEnter={(e) => {
+                            const stage = e.target.getStage();
+                            if (stage) {
+                                const container = stage.container();
+                                container.style.cursor = 'pointer';
+                            }
+                        }}
+                        onMouseLeave={(e) => {
+                            const stage = e.target.getStage();
+                            if (stage) {
+                                const container = stage.container();
+                                container.style.cursor = 'default';
+                            }
+                        }}
                     >
                         <Html>
                             <div

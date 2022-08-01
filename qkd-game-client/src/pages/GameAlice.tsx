@@ -1,13 +1,11 @@
 import React, { useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import ArcSelector from '../components/game/ArcSelector';
+import NoteTable from '../components/game/NoteTable';
 import Sender from '../components/game/Sender';
 import Nav from '../components/Nav';
 import WidthLimiter from '../components/WidthLimiter';
 import { useSocket } from '../helper/IO';
-import BASIS from '../models/api/Basis';
 import Qbit from '../models/quantum/Qbit';
-import { FaArrowsAlt } from 'react-icons/fa';
 
 function GameAlice() {
     const params = useParams();
@@ -24,30 +22,12 @@ function GameAlice() {
         <React.Fragment>
             <Nav></Nav>
             <WidthLimiter>
-                <ArcSelector<BASIS>
-                    onArcSelected={(selectedArc: BASIS | null) => {
-                        console.log(selectedArc);
-                    }}
-                    arcs={[
-                        {
-                            arcType: BASIS.horizontalVertical,
-                            content: <FaArrowsAlt />,
-                            contentRotation: 0,
-                        },
-                        {
-                            arcType: BASIS.diagonal,
-                            content: <FaArrowsAlt />,
-                            contentRotation: 45,
-                        },
-                    ]}
-                    selectedArc={null}
-                ></ArcSelector>
-
                 <Sender
                     onPolarizedPhotonTransported={
                         handlePolarizedPhotonTransported
                     }
                 />
+                <NoteTable noOfQubits={10}></NoteTable>
             </WidthLimiter>
         </React.Fragment>
     );
