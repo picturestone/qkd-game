@@ -5,7 +5,7 @@ import { FaArrowsAlt, FaArrowsAltV, FaQuestion } from 'react-icons/fa';
 import POLARIZATION from '../../models/api/Polarization';
 import Button from '../Button';
 
-type availableArcs = 'basis' | 'polarization' | 'bitVal';
+type availableArcs = 'basis' | 'bitVal';
 
 interface IProps {
     noOfQubits: number;
@@ -13,7 +13,6 @@ interface IProps {
 
 interface INoteTableColumnData {
     basis?: IArcData<BASIS>;
-    polarization?: IArcData<POLARIZATION>;
     bitVal?: IArcData<0 | 1>;
     openedArcFor?: availableArcs;
 }
@@ -144,64 +143,6 @@ function NoteTable(props: IProps) {
         );
     }
 
-    function getPolarizationArcButtonContent(forIndex: number) {
-        return noteTableData[forIndex].polarization ? (
-            <div
-                style={{
-                    transform: `rotate(${noteTableData[forIndex].polarization?.contentRotation}deg)`,
-                }}
-            >
-                {noteTableData[forIndex].polarization?.content}
-            </div>
-        ) : (
-            <FaQuestion />
-        );
-    }
-
-    function getPolarizationArc(relatedColIndex: number) {
-        return (
-            <ArcSelector<POLARIZATION>
-                rotationDeg={45}
-                onArcSelected={(selectedArc?: IArcData<POLARIZATION>) => {
-                    replaceColData(
-                        {
-                            ...noteTableData[relatedColIndex],
-                            polarization: selectedArc,
-                            openedArcFor: undefined,
-                        },
-                        relatedColIndex
-                    );
-                }}
-                arcs={[
-                    {
-                        arcType: POLARIZATION.Ninety,
-                        content: <FaArrowsAltV />,
-                        contentRotation: POLARIZATION.Ninety.valueOf(),
-                    },
-                    {
-                        arcType: POLARIZATION.MinusFourtyFive,
-                        content: <FaArrowsAltV />,
-                        contentRotation: POLARIZATION.MinusFourtyFive.valueOf(),
-                    },
-                    {
-                        arcType: POLARIZATION.Zero,
-                        content: <FaArrowsAltV />,
-                        contentRotation: POLARIZATION.Zero.valueOf(),
-                    },
-
-                    {
-                        arcType: POLARIZATION.PlusFourtyFive,
-                        content: <FaArrowsAltV />,
-                        contentRotation: POLARIZATION.PlusFourtyFive.valueOf(),
-                    },
-                ]}
-                selectedArc={
-                    noteTableData[relatedColIndex].polarization?.arcType
-                }
-            ></ArcSelector>
-        );
-    }
-
     function getBitValueArc(relatedColIndex: number) {
         return (
             <ArcSelector<0 | 1>
@@ -254,7 +195,6 @@ function NoteTable(props: IProps) {
             if (i >= noteTableData.length) {
                 addColData({
                     basis: undefined,
-                    polarization: undefined,
                     bitVal: undefined,
                     openedArcFor: undefined,
                 });
@@ -278,28 +218,6 @@ function NoteTable(props: IProps) {
 
                             <div className={getArcContainerClasses(i, 'basis')}>
                                 {getBasisArc(i)}
-                            </div>
-                        </div>
-                        <div className={dataColClasses + ' relative'}>
-                            <Button
-                                className="w-full h-full flex items-center justify-center"
-                                onClick={() => {
-                                    handleArcOpenButtonClicked(
-                                        i,
-                                        'polarization'
-                                    );
-                                }}
-                            >
-                                {getPolarizationArcButtonContent(i)}
-                            </Button>
-
-                            <div
-                                className={getArcContainerClasses(
-                                    i,
-                                    'polarization'
-                                )}
-                            >
-                                {getPolarizationArc(i)}
                             </div>
                         </div>
                         <div className={dataColClasses + ' relative'}>
@@ -331,7 +249,6 @@ function NoteTable(props: IProps) {
             <div className="flex flex-col">
                 <div className={headerColClasses}>Qubit No.</div>
                 <div className={headerColClasses}>Basis</div>
-                <div className={headerColClasses}>Pol.</div>
                 <div className={headerColClasses}>Bit val.</div>
             </div>
             {getDataCols()}
