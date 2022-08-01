@@ -17,4 +17,6 @@ function getSocket() {
     return socket;
 }
 
+// TODO Singleton hook is not yet using the new render method of react 18.
+// See https://github.com/Light-Keeper/react-singleton-hook/issues/479
 export const useSocket = singletonHook(undefined, getSocket);
