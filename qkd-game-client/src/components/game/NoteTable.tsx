@@ -126,6 +126,15 @@ function NoteTable(props: IProps) {
                         relatedColIndex
                     );
                 }}
+                onStageClicked={() => {
+                    replaceColData(
+                        {
+                            ...noteTableData[relatedColIndex],
+                            openedArcFor: undefined,
+                        },
+                        relatedColIndex
+                    );
+                }}
                 arcs={[
                     {
                         arcType: BASIS.horizontalVertical,
@@ -151,6 +160,15 @@ function NoteTable(props: IProps) {
                         {
                             ...noteTableData[relatedColIndex],
                             bitVal: selectedArc,
+                            openedArcFor: undefined,
+                        },
+                        relatedColIndex
+                    );
+                }}
+                onStageClicked={() => {
+                    replaceColData(
+                        {
+                            ...noteTableData[relatedColIndex],
                             openedArcFor: undefined,
                         },
                         relatedColIndex

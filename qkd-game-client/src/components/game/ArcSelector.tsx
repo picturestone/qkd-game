@@ -11,6 +11,7 @@ export interface IArcData<ArcType> {
 interface IProps<ArcType> {
     arcs: IArcData<ArcType>[];
     onArcSelected: (selectedArc?: IArcData<ArcType>) => void;
+    onStageClicked?: () => void;
     selectedArc?: ArcType;
     rotationDeg?: number;
 }
@@ -44,8 +45,9 @@ function ArcSelector<ArcType>(props: IProps<ArcType>) {
             const isSelectedArc = props.selectedArc === props.arcs[i].arcType;
             arcs.push(
                 <Group
-                    onClick={() => {
+                    onClick={(e) => {
                         handleArcClicked(props.arcs[i]);
+                        e.cancelBubble = true;
                     }}
                     x={xPos}
                     y={yPos}
@@ -116,7 +118,16 @@ function ArcSelector<ArcType>(props: IProps<ArcType>) {
     }
 
     return (
-        <Stage width={200} height={200}>
+        // TODO implement closing on click outside.
+        <Stage
+            width={200}
+            height={200}
+            onClick={() => {
+                if (props.onStageClicked) {
+                    props.onStageClicked();
+                }
+            }}
+        >
             <Layer>{getArcs()}</Layer>
         </Stage>
     );
