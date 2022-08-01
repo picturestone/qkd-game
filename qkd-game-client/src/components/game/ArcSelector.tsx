@@ -16,6 +16,15 @@ interface IProps<ArcType> {
 }
 
 function ArcSelector<ArcType>(props: IProps<ArcType>) {
+    function handleArcClicked(clickedArc: IArcData<ArcType>) {
+        const isSelectedArc = props.selectedArc === clickedArc.arcType;
+        if (isSelectedArc) {
+            props.onArcSelected(undefined);
+        } else {
+            props.onArcSelected(clickedArc);
+        }
+    }
+
     function getArcs(): JSX.Element[] {
         const arcs: JSX.Element[] = [];
         const angle = 360 / props.arcs.length;
@@ -36,11 +45,7 @@ function ArcSelector<ArcType>(props: IProps<ArcType>) {
             arcs.push(
                 <Group
                     onClick={() => {
-                        if (isSelectedArc) {
-                            props.onArcSelected(undefined);
-                        } else {
-                            props.onArcSelected(props.arcs[i]);
-                        }
+                        handleArcClicked(props.arcs[i]);
                     }}
                     x={xPos}
                     y={yPos}
@@ -91,6 +96,7 @@ function ArcSelector<ArcType>(props: IProps<ArcType>) {
                             }
                         }}
                     >
+                        {/* TODO fix issue where click on icon is probably not bubbled up, thus not registered. */}
                         <Html>
                             <div
                                 style={{
