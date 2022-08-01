@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
+import NoteTable from '../components/game/NoteTable';
 import Photon from '../components/game/Photon';
 import Receiver from '../components/game/Receiver';
 import Nav from '../components/Nav';
@@ -33,7 +34,7 @@ function GameBob() {
     }, [socket]);
 
     useEffect(() => {
-        if (measuredPolarization && isMeasuredPhotonTransported) {
+        if (measuredPolarization !== null && isMeasuredPhotonTransported) {
             setShowPolarization(measuredPolarization);
         }
     }, [measuredPolarization, isMeasuredPhotonTransported]);
@@ -70,17 +71,28 @@ function GameBob() {
         <React.Fragment>
             <Nav></Nav>
             <WidthLimiter>
-                <Receiver
-                    receivedPhoton={receivedPhoton}
-                    showPolarization={showPolarization}
-                    onReceivedPhotonTransported={function (): void {
-                        setReceivedPhoton(null);
-                    }}
-                    onPhotonPassing={handlePhotonPassing}
-                    onMeasuredPhotonTransported={
-                        handleMeasuredPhotonTransported
-                    }
-                ></Receiver>
+                <div className="flex justify-between">
+                    <div className="flex-none">
+                        <Receiver
+                            receivedPhoton={receivedPhoton}
+                            showPolarization={showPolarization}
+                            onReceivedPhotonTransported={function (): void {
+                                setReceivedPhoton(null);
+                            }}
+                            onPhotonPassing={handlePhotonPassing}
+                            onMeasuredPhotonTransported={
+                                handleMeasuredPhotonTransported
+                            }
+                        ></Receiver>
+                    </div>
+                    <div className="flex flex-1 justify-between ml-6 w-full min-w-0 items-start">
+                        <div className="flex-initial w-full min-w-0">
+                            <div className="flex overflow-x-auto overflow-y-hidden pt-11 pb-20 pl-2 pr-20 border-2 shadow-inner">
+                                <NoteTable noOfQubits={20}></NoteTable>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </WidthLimiter>
         </React.Fragment>
     );

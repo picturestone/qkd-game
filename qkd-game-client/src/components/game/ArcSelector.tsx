@@ -98,12 +98,10 @@ function ArcSelector<ArcType>(props: IProps<ArcType>) {
                             }
                         }}
                     >
-                        {/* TODO fix issue where click on icon is probably not bubbled up, thus not registered. */}
-                        <Html>
+                        <Html divProps={{ style: { pointerEvents: 'none' } }}>
                             <div
                                 style={{
                                     transform: 'translate(-50%, -50%)',
-                                    pointerEvents: 'none',
                                 }}
                             >
                                 {props.arcs[i].content}
