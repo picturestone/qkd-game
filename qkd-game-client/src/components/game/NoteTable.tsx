@@ -1,14 +1,14 @@
 import { useState } from 'react';
 import ArcSelector, { IArcData } from './ArcSelector';
 import BASIS from '../../models/api/Basis';
-import { FaArrowsAlt, FaArrowsAltV, FaQuestion } from 'react-icons/fa';
-import POLARIZATION from '../../models/api/Polarization';
+import { FaArrowsAlt, FaQuestion } from 'react-icons/fa';
 import Button from '../Button';
 
 type availableArcs = 'basis' | 'bitVal';
 
 interface IProps {
     noOfQubits: number;
+    className?: string;
 }
 
 interface INoteTableColumnData {
@@ -25,9 +25,8 @@ interface INoteTableColumnData {
 function NoteTable(props: IProps) {
     const cellHeightClass = 'h-8';
     const headerColClasses =
-        cellHeightClass + ' text-base border-l border-b flex items-center';
-    const dataColClasses =
-        cellHeightClass + ' text-base border-l border-b flex items-center';
+        cellHeightClass + ' text-base flex items-center whitespace-nowrap';
+    const dataColClasses = cellHeightClass + ' text-base flex items-center';
 
     const [noteTableData, setNoteTableData] = useState<INoteTableColumnData[]>(
         []
@@ -55,14 +54,9 @@ function NoteTable(props: IProps) {
         if (noteTableData[forIndex].openedArcFor === forArc) {
             closeArcSelector(forIndex);
         } else {
-            closeAllArcSelectors();
-            replaceColData(
-                {
-                    ...noteTableData[forIndex],
-                    openedArcFor: forArc,
-                },
-                forIndex
-            );
+            const newTableData = getCloseAllArcSelectorsTable();
+            newTableData[forIndex].openedArcFor = forArc;
+            setNoteTableData(newTableData);
         }
     }
 
@@ -76,7 +70,7 @@ function NoteTable(props: IProps) {
         );
     }
 
-    function closeAllArcSelectors() {
+    function getCloseAllArcSelectorsTable(): INoteTableColumnData[] {
         const newTableData = noteTableData.map((curCol) => {
             return {
                 ...curCol,
@@ -84,7 +78,7 @@ function NoteTable(props: IProps) {
             };
         });
 
-        setNoteTableData(newTableData);
+        return newTableData;
     }
 
     function getArcContainerClasses(
@@ -263,7 +257,7 @@ function NoteTable(props: IProps) {
     }
 
     return (
-        <div className="flex border-t border-r">
+        <div className={props.className ? 'flex ' + props.className : 'flex'}>
             <div className="flex flex-col">
                 <div className={headerColClasses}>Qubit No.</div>
                 <div className={headerColClasses}>Basis</div>
