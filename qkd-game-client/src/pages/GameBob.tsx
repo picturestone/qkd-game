@@ -33,7 +33,7 @@ function GameBob() {
     }, [socket]);
 
     useEffect(() => {
-        if (measuredPolarization && isMeasuredPhotonTransported) {
+        if (measuredPolarization !== null && isMeasuredPhotonTransported) {
             setShowPolarization(measuredPolarization);
         }
     }, [measuredPolarization, isMeasuredPhotonTransported]);
