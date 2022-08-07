@@ -1,6 +1,5 @@
-import Player from "../player/Player";
-import Qbit from "../quantum/Qbit";
-import Channel from "./Channel";
+import Qbit from '../quantum/Qbit';
+import Channel from './Channel';
 
 export default class QuantumChannel extends Channel<Qbit> {
     private qbitQueue: Qbit[];

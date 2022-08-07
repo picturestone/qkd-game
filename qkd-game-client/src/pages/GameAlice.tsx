@@ -1,8 +1,11 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+import { FaArrowsAlt } from 'react-icons/fa';
 import { useParams } from 'react-router-dom';
+import DecisionCommunicator from '../components/game/DecisionCommunicator';
 import NoteTable from '../components/game/NoteTable';
 import PolarizationTable from '../components/game/PolarizationTable';
 import Sender from '../components/game/Sender';
+import MessageLog from '../components/MessageLog';
 import Nav from '../components/Nav';
 import WidthLimiter from '../components/WidthLimiter';
 import { useSocket } from '../helper/IO';
@@ -11,7 +14,12 @@ import Qbit from '../models/quantum/Qbit';
 function GameAlice() {
     const params = useParams();
     const socket = useSocket();
+    const [messages, setMessages] = useState<string[]>([]);
     const gameId = params.gameId;
+
+    function appendMessage(message: string) {
+        setMessages((prevMessages) => [...prevMessages, message]);
+    }
 
     function handlePolarizedPhotonTransported(qbit: Qbit) {
         if (gameId) {
@@ -31,14 +39,52 @@ function GameAlice() {
                             }
                         />
                     </div>
-                    <div className="flex flex-1 justify-between ml-6 w-full min-w-0 items-start">
-                        <div className="flex-initial mr-6 w-full min-w-0">
-                            <div className="flex overflow-x-auto overflow-y-hidden pt-11 pb-20 pl-2 pr-20 border-2 shadow-inner">
-                                <NoteTable noOfQubits={20}></NoteTable>
+                    <div className="flex flex-col flex-1 w-full min-w-0 ml-6">
+                        <div className="flex justify-between items-start">
+                            <div className="flex-initial mr-6 w-full min-w-0">
+                                <div className="flex overflow-x-auto overflow-y-hidden pt-11 pb-20 pl-2 pr-20 border-2 shadow-inner">
+                                    <NoteTable noOfQubits={20}></NoteTable>
+                                </div>
+                            </div>
+                            <div className="flex-none py-10">
+                                <PolarizationTable></PolarizationTable>
                             </div>
                         </div>
-                        <div className="flex-none py-10">
-                            <PolarizationTable></PolarizationTable>
+                        <div className="flex mt-10">
+                            <div className="flex-none mr-6 w-44">
+                                <div className="p-2 shadow-inner border-2">
+                                    <DecisionCommunicator
+                                        text={
+                                            'Which basis was used for qubit no i?'
+                                        }
+                                        onButtonOneClicked={function (): void {
+                                            appendMessage('hello');
+                                        }}
+                                        onButtonTwoClicked={function (): void {
+                                            throw new Error(
+                                                'Function not implemented.'
+                                            );
+                                        }}
+                                        buttonOneContent={
+                                            <div>
+                                                <FaArrowsAlt />
+                                            </div>
+                                        }
+                                        buttonTwoContent={
+                                            <div
+                                                style={{
+                                                    transform: 'rotate(45deg)',
+                                                }}
+                                            >
+                                                <FaArrowsAlt />
+                                            </div>
+                                        }
+                                    ></DecisionCommunicator>
+                                </div>
+                            </div>
+                            <div className="flex-1">
+                                <MessageLog messages={messages}></MessageLog>
+                            </div>
                         </div>
                     </div>
                 </div>

@@ -13,4 +13,10 @@ export default interface IClientToServerEvents {
         basis: BASIS,
         cb: (polarization: POLARIZATION | undefined) => void
     ) => void;
+    publishBasis: (gameId: string, qbitNo: number, basis: BASIS) => void;
+    publishDiscard: (
+        gameId: string,
+        qbitNo: number,
+        isDiscarded: boolean
+    ) => void;
 }
