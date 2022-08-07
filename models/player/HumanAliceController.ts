@@ -35,4 +35,11 @@ export default class HumanAliceController
     sendQbit(qbit: Qbit): void {
         this.controlledPlayer.sendQbit(qbit);
     }
+
+    onQbitDiscardEnqueue(): void {
+        const qbitDiscard = this.controlledPlayer.dequeueQbitDiscard();
+        if (qbitDiscard) {
+            this.socket.emit('discardPublished', qbitDiscard);
+        }
+    }
 }

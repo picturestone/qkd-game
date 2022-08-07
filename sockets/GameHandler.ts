@@ -91,24 +91,25 @@ export default function registerSocketIOEvents(
                 }
             });
         });
-        socket.on('publishBasis', (gameId, qbitNo, basis) => {
+        socket.on('publishBasis', (gameId, basisComparisonData) => {
             isGameExisting(gameId).then((game) => {
                 const userId = getUserId(socket);
                 const aliceController = isUserAlice(game, userId);
                 if (aliceController) {
-                    // TODO send event to all game participants with message.
-                    // TODO how can eve be in the middle? Maybe callback with special message for yourself.
-                    // Maybe classical channel is indeed needed?
+                    aliceController.controlledPlayer.sendBasisComparison(
+                        basisComparisonData
+                    );
                 }
             });
         });
-        socket.on('publishDiscard', (gameId, qbitNo, isDiscarded) => {
+        socket.on('publishDiscard', (gameId, qbitDiscardedData) => {
             isGameExisting(gameId).then((game) => {
                 const userId = getUserId(socket);
                 const bobController = isUserBob(game, userId);
                 if (bobController) {
-                    // TODO send event to all game participants with message.
-                    // TODO how can eve be in the middle? Maybe callback with special message for yourself.
+                    bobController.controlledPlayer.sendQbitDiscard(
+                        qbitDiscardedData
+                    );
                 }
             });
         });

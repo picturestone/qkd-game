@@ -7,6 +7,7 @@ import User from '../User';
 import BobController from './BobController';
 import IHumanPlayer from './IHumanPlayer';
 import POLARIZATION from '../../qkd-game-client/src/models/api/Polarization';
+import IBasisComparisonData from '../../qkd-game-client/src/models/api/IBasisComparisonData';
 
 export default class HumanBobController
     extends BobController
@@ -44,7 +45,14 @@ export default class HumanBobController
         return measuredPolarization;
     }
 
-    onEnqueue(): void {
+    onQbitEnqueue(): void {
         this.socket.emit('qbitEnqueued');
+    }
+
+    onBasisComparisonEnqueue(): void {
+        const basisComparison = this.controlledPlayer.dequeueBasisComparison();
+        if (basisComparison) {
+            this.socket.emit('basisPublished', basisComparison);
+        }
     }
 }

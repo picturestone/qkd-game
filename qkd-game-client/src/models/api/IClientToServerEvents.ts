@@ -1,4 +1,6 @@
 import BASIS from './Basis';
+import IBasisComparisonData from './IBasisComparisonData';
+import IQbitDiscardData from './IQbitDiscardedData';
 import IQbitJson from './IQbitJson';
 import { PLAYERROLE } from './PlayerRole';
 import POLARIZATION from './Polarization';
@@ -13,10 +15,12 @@ export default interface IClientToServerEvents {
         basis: BASIS,
         cb: (polarization: POLARIZATION | undefined) => void
     ) => void;
-    publishBasis: (gameId: string, qbitNo: number, basis: BASIS) => void;
+    publishBasis: (
+        gameId: string,
+        basisComparisonData: IBasisComparisonData
+    ) => void;
     publishDiscard: (
         gameId: string,
-        qbitNo: number,
-        isDiscarded: boolean
+        qbitDiscardedData: IQbitDiscardData
     ) => void;
 }
