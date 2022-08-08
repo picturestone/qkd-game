@@ -72,15 +72,16 @@ router.post('/:id/start', async function (req, res) {
                 // TODO maybe send game as json.
                 res.status(201).send();
             } else {
+                console.log('hi');
                 res.statusMessage =
                     'Alice and Bob roles have not been taken, or their sockets are not connected';
-                res.status(400);
+                res.status(400).send();
             }
         } else {
-            res.status(401);
+            res.status(401).send();
         }
     } else {
-        res.status(404);
+        res.status(404).send();
     }
 });
 

@@ -55,7 +55,7 @@ function LobbyDetail() {
         navigate(`/games/${game.id}/${lobby?.selectedRole}`);
     }
 
-    function selectLobbyRole(lobbyRole: PLAYERROLE) {
+    function selectLobbyRole(lobbyRole: PLAYERROLE | undefined) {
         if (lobby && lobby.id) {
             socket?.emit('selectLobbyRole', lobby.id, lobbyRole);
         }
@@ -102,11 +102,11 @@ function LobbyDetail() {
             <WidthLimiter>
                 <h1 className="text-3xl font-mono py-3">{lobby?.name}</h1>
                 <div className="flex flex-col items-stretch w-1/2">
-                    <div className="flex mb-6 items-center">
+                    <div className="flex mb-10 items-center">
                         <div className="w-1/3 flex-none">Select your role:</div>
                         <div className="w-2/3 flex-none flex flex-col items-start">
                             <Button
-                                className="mb-3"
+                                className="mb-1"
                                 onClick={() => {
                                     selectLobbyRole(PLAYERROLE.alice);
                                 }}
@@ -120,6 +120,7 @@ function LobbyDetail() {
                                 Alice
                             </Button>
                             <Button
+                                className="mb-1"
                                 onClick={() => {
                                     selectLobbyRole(PLAYERROLE.bob);
                                 }}
@@ -132,14 +133,21 @@ function LobbyDetail() {
                                     : ''}
                                 Bob
                             </Button>
+                            <Button
+                                onClick={() => {
+                                    selectLobbyRole(undefined);
+                                }}
+                            >
+                                Deselect
+                            </Button>
                         </div>
                     </div>
-                    <div className="flex mb-10">
+                    <div className="flex mb-6">
                         <div className="w-1/3 flex-none"></div>
                         <div className="w-2/3 flex-none">{getButton()}</div>
                     </div>
                 </div>
-                <MessageLog messages={[]}></MessageLog>
+                <MessageLog messages={messages}></MessageLog>
             </WidthLimiter>
         </React.Fragment>
     );

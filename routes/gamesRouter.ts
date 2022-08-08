@@ -18,10 +18,10 @@ router.get('/:id', async function (req, res) {
         ) {
             res.send(game.toJson());
         } else {
-            res.status(401);
+            res.status(401).send();
         }
     } else {
-        res.status(404);
+        res.status(404).send();
     }
 });
 

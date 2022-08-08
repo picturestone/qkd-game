@@ -8,7 +8,10 @@ import POLARIZATION from './Polarization';
 export default interface IClientToServerEvents {
     hello: () => void;
     joinLobby: (lobbyId: string) => void;
-    selectLobbyRole: (lobbyId: string, lobbyRole: PLAYERROLE) => void;
+    selectLobbyRole: (
+        lobbyId: string,
+        lobbyRole: PLAYERROLE | undefined
+    ) => void;
     sendQbit: (gameId: string, qbit: IQbitJson) => void;
     measureEnqueuedQbit: (
         gameId: string,
