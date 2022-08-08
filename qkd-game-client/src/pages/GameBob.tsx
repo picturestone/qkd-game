@@ -1,13 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
+import DecisionCommunicator from '../components/game/DecisionCommunicator';
 import NoteTable from '../components/game/NoteTable';
 import Photon from '../components/game/Photon';
 import Receiver from '../components/game/Receiver';
+import MessageLog from '../components/MessageLog';
 import Nav from '../components/Nav';
 import WidthLimiter from '../components/WidthLimiter';
 import { useSocket } from '../helper/IO';
 import Randomizer from '../helper/Randomizer';
 import BASIS from '../models/api/Basis';
+import IBasisComparisonData from '../models/api/IBasisComparisonData';
 import POLARIZATION from '../models/api/Polarization';
 import Qbit from '../models/quantum/Qbit';
 
@@ -23,12 +26,15 @@ function GameBob() {
     const [isMeasuredPhotonTransported, setIsMeasuredPhotonTransported] =
         useState(false);
     const gameId = params.gameId;
+    const [messages, setMessages] = useState<string[]>([]);
 
     useEffect(() => {
         if (socket) {
             socket.on('qbitEnqueued', qbitEnqueuedHandler);
+            socket.on('basisPublished', appendBasisComparisonMessage);
             return () => {
                 socket.off('qbitEnqueued', qbitEnqueuedHandler);
+                socket.off('basisPublished', appendBasisComparisonMessage);
             };
         }
     }, [socket]);
@@ -38,6 +44,27 @@ function GameBob() {
             setShowPolarization(measuredPolarization);
         }
     }, [measuredPolarization, isMeasuredPhotonTransported]);
+
+    function appendMessage(message: string) {
+        setMessages((prevMessages) => [...prevMessages, message]);
+    }
+
+    function appendBasisComparisonMessage(
+        basisComparison: IBasisComparisonData
+    ) {
+        let readableBasis = '';
+        switch (basisComparison.basis) {
+            case BASIS.diagonal:
+                readableBasis = 'diagonal';
+                break;
+            case BASIS.horizontalVertical:
+                readableBasis = 'horizontal-vertical';
+                break;
+        }
+        appendMessage(
+            `Alice: Qubit no. ${basisComparison.qbitNo} was sent with ${readableBasis} basis.`
+        );
+    }
 
     function qbitEnqueuedHandler() {
         setReceivedPhoton(
@@ -67,6 +94,14 @@ function GameBob() {
         setIsMeasuredPhotonTransported(true);
     }
 
+    function handleKeepButtonClicked() {
+        // TODO send event
+    }
+
+    function handleDiscardButtonClicked() {
+        // TODO send event
+    }
+
     return (
         <React.Fragment>
             <Nav></Nav>
@@ -85,10 +120,34 @@ function GameBob() {
                             }
                         ></Receiver>
                     </div>
-                    <div className="flex flex-1 justify-between ml-6 w-full min-w-0 items-start">
-                        <div className="flex-initial w-full min-w-0">
-                            <div className="flex overflow-x-auto overflow-y-hidden pt-11 pb-20 pl-2 pr-20 border-2 shadow-inner">
-                                <NoteTable noOfQubits={20}></NoteTable>
+                    <div className="flex flex-col flex-1 w-full min-w-0 ml-6">
+                        <div className="flex justify-between items-start">
+                            <div className="flex-initial mr-6 w-full min-w-0">
+                                <div className="flex overflow-x-auto overflow-y-hidden pt-11 pb-20 pl-2 pr-20 border-2 shadow-inner">
+                                    <NoteTable noOfQubits={20}></NoteTable>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="flex mt-10">
+                            <div className="flex-none mr-6 w-56">
+                                <div className="p-2 shadow-inner border-2">
+                                    <DecisionCommunicator
+                                        text={
+                                            'Did you use the same basis for qubit no i? If yes: keep; If no: discard;'
+                                        }
+                                        onButtonOneClicked={
+                                            handleKeepButtonClicked
+                                        }
+                                        onButtonTwoClicked={
+                                            handleDiscardButtonClicked
+                                        }
+                                        buttonOneContent={<div>Keep</div>}
+                                        buttonTwoContent={<div>Discard</div>}
+                                    ></DecisionCommunicator>
+                                </div>
+                            </div>
+                            <div className="flex-1">
+                                <MessageLog messages={messages}></MessageLog>
                             </div>
                         </div>
                     </div>

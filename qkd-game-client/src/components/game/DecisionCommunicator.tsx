@@ -15,7 +15,7 @@ function BasisCommunicator(props: IProps) {
     return (
         <div className="flex flex-col">
             <div className="text-base">{props.text}</div>
-            <div className="flex justify-between mt-4">
+            <div className="flex justify-between mt-4 flex-nowrap">
                 <Button onClick={props.onButtonOneClicked}>
                     {props.buttonOneContent}
                 </Button>
