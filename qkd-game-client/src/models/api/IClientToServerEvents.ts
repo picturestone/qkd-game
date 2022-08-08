@@ -17,10 +17,12 @@ export default interface IClientToServerEvents {
     ) => void;
     publishBasis: (
         gameId: string,
-        basisComparisonData: IBasisComparisonData
+        basisComparisonData: IBasisComparisonData,
+        cb: (basisComparisonData: IBasisComparisonData) => void
     ) => void;
     publishDiscard: (
         gameId: string,
-        qbitDiscardedData: IQbitDiscardData
+        qbitDiscardedData: IQbitDiscardData,
+        cb: (qbitDiscardedData: IQbitDiscardData) => void
     ) => void;
 }

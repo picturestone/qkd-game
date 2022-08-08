@@ -10,6 +10,7 @@ interface IProps {
     onButtonTwoClicked: () => void;
 }
 
+// TODO extend with setting for `i`, a number field which raises with button click per default, and it can be set manually as well.
 function BasisCommunicator(props: IProps) {
     return (
         <div className="flex flex-col">

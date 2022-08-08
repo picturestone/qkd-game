@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { FaArrowsAlt } from 'react-icons/fa';
 import { useParams } from 'react-router-dom';
 import DecisionCommunicator from '../components/game/DecisionCommunicator';
@@ -10,6 +10,8 @@ import Nav from '../components/Nav';
 import WidthLimiter from '../components/WidthLimiter';
 import { useSocket } from '../helper/IO';
 import Qbit from '../models/quantum/Qbit';
+import BASIS from '../models/api/Basis';
+import IBasisComparisonData from '../models/api/IBasisComparisonData';
 
 function GameAlice() {
     const params = useParams();
@@ -25,6 +27,55 @@ function GameAlice() {
         if (gameId) {
             socket?.emit('sendQbit', gameId, qbit.toJson());
         }
+    }
+
+    // TODO set correct qbit numbers!
+    function handleHorizontalVerticalBasisButtonClicked() {
+        if (gameId) {
+            const basisComparison = {
+                qbitNo: 1,
+                basis: BASIS.horizontalVertical,
+            };
+            socket?.emit(
+                'publishBasis',
+                gameId,
+                basisComparison,
+                appendBasisComparisonMessage
+            );
+        }
+    }
+
+    // TODO set correct qbit numbers!
+    function handleDiagonalBasisButtonClicked() {
+        if (gameId) {
+            const basisComparison = {
+                qbitNo: 1,
+                basis: BASIS.diagonal,
+            };
+            socket?.emit(
+                'publishBasis',
+                gameId,
+                basisComparison,
+                appendBasisComparisonMessage
+            );
+        }
+    }
+
+    function appendBasisComparisonMessage(
+        basisComparison: IBasisComparisonData
+    ) {
+        let readableBasis = '';
+        switch (basisComparison.basis) {
+            case BASIS.diagonal:
+                readableBasis = 'diagonal';
+                break;
+            case BASIS.horizontalVertical:
+                readableBasis = 'horizontal-vertical';
+                break;
+        }
+        appendMessage(
+            `You: Qubit no. ${basisComparison.qbitNo} was sent with ${readableBasis} basis.`
+        );
     }
 
     return (
@@ -57,14 +108,12 @@ function GameAlice() {
                                         text={
                                             'Which basis was used for qubit no i?'
                                         }
-                                        onButtonOneClicked={function (): void {
-                                            appendMessage('hello');
-                                        }}
-                                        onButtonTwoClicked={function (): void {
-                                            throw new Error(
-                                                'Function not implemented.'
-                                            );
-                                        }}
+                                        onButtonOneClicked={
+                                            handleHorizontalVerticalBasisButtonClicked
+                                        }
+                                        onButtonTwoClicked={
+                                            handleDiagonalBasisButtonClicked
+                                        }
                                         buttonOneContent={
                                             <div>
                                                 <FaArrowsAlt />

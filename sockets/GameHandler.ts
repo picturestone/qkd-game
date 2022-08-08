@@ -91,7 +91,7 @@ export default function registerSocketIOEvents(
                 }
             });
         });
-        socket.on('publishBasis', (gameId, basisComparisonData) => {
+        socket.on('publishBasis', (gameId, basisComparisonData, cb) => {
             isGameExisting(gameId).then((game) => {
                 const userId = getUserId(socket);
                 const aliceController = isUserAlice(game, userId);
@@ -99,10 +99,11 @@ export default function registerSocketIOEvents(
                     aliceController.controlledPlayer.sendBasisComparison(
                         basisComparisonData
                     );
+                    cb(basisComparisonData);
                 }
             });
         });
-        socket.on('publishDiscard', (gameId, qbitDiscardedData) => {
+        socket.on('publishDiscard', (gameId, qbitDiscardedData, cb) => {
             isGameExisting(gameId).then((game) => {
                 const userId = getUserId(socket);
                 const bobController = isUserBob(game, userId);
@@ -110,6 +111,7 @@ export default function registerSocketIOEvents(
                     bobController.controlledPlayer.sendQbitDiscard(
                         qbitDiscardedData
                     );
+                    cb(qbitDiscardedData);
                 }
             });
         });
