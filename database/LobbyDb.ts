@@ -39,4 +39,18 @@ export default class LobbyDb {
             res(LobbyDb._lobbies);
         });
     }
+
+    delete(id: string) {
+        return new Promise<Lobby | undefined>((res) => {
+            const index = LobbyDb._lobbies.findIndex(
+                (lobby) => lobby.id === id
+            );
+            const removedLobbies = LobbyDb._lobbies.splice(index, 1);
+            let retVal: Lobby | undefined = undefined;
+            if (removedLobbies.length > 0) {
+                retVal = removedLobbies[0];
+            }
+            res(retVal);
+        });
+    }
 }

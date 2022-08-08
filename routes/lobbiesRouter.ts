@@ -41,48 +41,4 @@ router.post('/', async function (req, res) {
     res.status(201).send(savedLobby.toJson());
 });
 
-// TODO this should really be done by a socket request, not a route. This emits an event to all clients which does not make sense if its a post request.
-router.post('/:id/start', async function (req, res) {
-    const lobby = await lobbyDb.findById(req.params.id);
-
-    if (lobby && lobby.id) {
-        if (req.user?.id === lobby.owner.id) {
-            if (
-                lobby.reservedAlice &&
-                lobby.reservedAlice.socketId &&
-                lobby.reservedBob &&
-                lobby.reservedBob.socketId
-            ) {
-                const ioServer = IO.getInstance().server;
-
-                // TODO delete the lobby from the lobby list.
-                // Make all sockets in the lobby room leave.
-                ioServer.in(lobby.id).socketsLeave(lobby.id);
-                const aliceController = new HumanAliceController(
-                    lobby.reservedAlice
-                );
-                const bobController = new HumanBobController(lobby.reservedBob);
-                const game = new Game(
-                    aliceController,
-                    bobController,
-                    lobby.noOfQbits
-                );
-                const savedGame = await gameDb.create(game);
-                savedGame.startGame();
-                // TODO maybe send game as json.
-                res.status(201).send();
-            } else {
-                console.log('hi');
-                res.statusMessage =
-                    'Alice and Bob roles have not been taken, or their sockets are not connected';
-                res.status(400).send();
-            }
-        } else {
-            res.status(401).send();
-        }
-    } else {
-        res.status(404).send();
-    }
-});
-
 export default router;

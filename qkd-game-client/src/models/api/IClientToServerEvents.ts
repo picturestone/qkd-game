@@ -8,6 +8,7 @@ import POLARIZATION from './Polarization';
 export default interface IClientToServerEvents {
     hello: () => void;
     joinLobby: (lobbyId: string) => void;
+    startGame: (lobbyId: string) => void;
     selectLobbyRole: (
         lobbyId: string,
         lobbyRole: PLAYERROLE | undefined

@@ -81,8 +81,8 @@ function LobbyDetail() {
             button = (
                 <Button
                     onClick={() => {
-                        if (lobby) {
-                            lobbiesService.startGame(lobby);
+                        if (lobby && lobby.id) {
+                            socket?.emit('startGame', lobby.id);
                         }
                     }}
                 >
