@@ -62,7 +62,11 @@ router.post('/:id/start', async function (req, res) {
                     lobby.reservedAlice
                 );
                 const bobController = new HumanBobController(lobby.reservedBob);
-                const game = new Game(aliceController, bobController);
+                const game = new Game(
+                    aliceController,
+                    bobController,
+                    lobby.noOfQbits
+                );
                 const savedGame = await gameDb.create(game);
                 savedGame.startGame();
                 // TODO maybe send game as json.

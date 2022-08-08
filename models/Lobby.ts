@@ -65,6 +65,14 @@ export default class Lobby {
         this._reservedBob = value;
     }
 
+    public set noOfQbits(value: number) {
+        this._noOfQbits = value;
+    }
+
+    public get noOfQbits() {
+        return this._noOfQbits;
+    }
+
     static fromJson(json: ILobbyJson) {
         const reservedAliceUser = json.reservedAlice
             ? User.fromJson(json.reservedAlice)

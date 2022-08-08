@@ -12,13 +12,16 @@ export default class Game {
     private isStartet = false;
     private _alicePlayer: AlicePlayer;
     private _bobPlayer: BobPlayer;
+    private _noOfQbits: number;
 
     constructor(
         aliceController: AliceController,
         bobController: BobController,
+        noOfQbits: number,
         id?: string
     ) {
         this._id = id;
+        this._noOfQbits = noOfQbits;
 
         const aliceBobQuantumConnection = new QuantumChannel();
         const aliceBobBasisComparisonConnection = new BasisComparisonChannel();
@@ -64,6 +67,7 @@ export default class Game {
     toJson(): IGameJson {
         return {
             id: this._id,
+            noOfQbits: this._noOfQbits,
         };
     }
 }

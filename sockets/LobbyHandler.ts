@@ -30,6 +30,7 @@ export default function registerSocketIOEvents(
         });
         socket.on('selectLobbyRole', (lobbyId, lobbyRole) => {
             const lobbyDb = new LobbyDb();
+
             lobbyDb.findById(lobbyId).then((lobby) => {
                 if (lobby && lobby.id) {
                     // TODO remove user from other reserved roles.

@@ -12,6 +12,7 @@ import { SERVER_PORT } from './helper/Config';
 import { JWT_AUTH_MIDDLEWARE } from './auth/jwt';
 import { createServer } from 'http';
 import IO from './sockets/IO';
+import gamesRouter from './routes/gamesRouter';
 
 const app = express();
 
@@ -27,6 +28,7 @@ app.use('/api/users', usersRouter);
 // TODO find better way to make nested route for all that are under /api.
 // TODO maybe add authenticate middleware for jwt
 app.use('/api/lobbies', JWT_AUTH_MIDDLEWARE, lobbiesRouter);
+app.use('/api/games', JWT_AUTH_MIDDLEWARE, gamesRouter);
 
 const httpServer = createServer(app);
 IO.getInstance().configurate(httpServer);
