@@ -6,7 +6,11 @@ interface IProps {
 
 function Checkbox(props: React.PropsWithChildren<IProps>) {
     return (
-        <label className={`flex items-start ${props.className}`}>
+        <label
+            className={`flex items-start w-4 h-4 ${
+                props.className ? props.className : ''
+            }`}
+        >
             <input
                 type="checkbox"
                 value=""

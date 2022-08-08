@@ -3,6 +3,7 @@ import ArcSelector, { IArcData } from './ArcSelector';
 import BASIS from '../../models/api/Basis';
 import { FaArrowsAlt, FaQuestion } from 'react-icons/fa';
 import Button from '../Button';
+import Checkbox from '../Checkbox';
 
 type availableArcs = 'basis' | 'bitVal';
 
@@ -15,6 +16,7 @@ interface INoteTableColumnData {
     basis?: IArcData<BASIS>;
     bitVal?: IArcData<0 | 1>;
     openedArcFor?: availableArcs;
+    isDiscarded: boolean;
 }
 
 // TODO for sender: Show basis and bit value
@@ -209,10 +211,17 @@ function NoteTable(props: IProps) {
                     basis: undefined,
                     bitVal: undefined,
                     openedArcFor: undefined,
+                    isDiscarded: false,
                 });
             } else {
                 dataCols.push(
-                    <div className="flex flex-col" key={i}>
+                    // TODO add strike through styling with grey
+                    <div className="flex flex-col relative" key={i}>
+                        {noteTableData[i].isDiscarded ? (
+                            <div className="w-0.5 h-full left-1/2 bg-slate-800 absolute -translate-x-1/2 pointer-events-none"></div>
+                        ) : (
+                            ''
+                        )}
                         <div className={dataColClasses}>
                             <span className="w-full h-full flex items-center justify-center">
                                 {i + 1}
@@ -248,6 +257,17 @@ function NoteTable(props: IProps) {
                                 {getBitValueArc(i)}
                             </div>
                         </div>
+                        <div className={dataColClasses + ' justify-center'}>
+                            <Checkbox
+                                className=""
+                                defaultChecked={noteTableData[i].isDiscarded}
+                                onChange={() => {
+                                    noteTableData[i].isDiscarded =
+                                        !noteTableData[i].isDiscarded;
+                                    replaceColData(noteTableData[i], i);
+                                }}
+                            ></Checkbox>
+                        </div>
                     </div>
                 );
             }
@@ -262,6 +282,7 @@ function NoteTable(props: IProps) {
                 <div className={headerColClasses}>Qubit No.</div>
                 <div className={headerColClasses}>Basis</div>
                 <div className={headerColClasses}>Bit val.</div>
+                <div className={headerColClasses}>Discard</div>
             </div>
             {getDataCols()}
         </div>

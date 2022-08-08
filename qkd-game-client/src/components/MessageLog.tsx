@@ -45,7 +45,7 @@ function MessageLog(props: IProps) {
     return (
         <div
             ref={messageLogRef}
-            className="flex flex-col border-2 overflow-y-scroll w-full h-72"
+            className="flex flex-col border-2 overflow-y-scroll w-full h-72 px-1"
         >
             {getMessages()}
         </div>
