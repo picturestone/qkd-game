@@ -13,11 +13,14 @@ import BASIS from '../models/api/Basis';
 import IBasisComparisonData from '../models/api/IBasisComparisonData';
 import IQbitDiscardData from '../models/api/IQbitDiscardedData';
 import POLARIZATION from '../models/api/Polarization';
+import Game from '../models/Game';
 import Qbit from '../models/quantum/Qbit';
+import GameService from '../services/GameServices';
 
 function GameBob() {
     const params = useParams();
     const socket = useSocket();
+    const gameService = new GameService();
     const [receivedPhoton, setReceivedPhoton] = useState<React.ReactNode>(null);
     const [measuredPolarization, setMeasuredPolarization] =
         useState<POLARIZATION | null>(null);
@@ -28,6 +31,11 @@ function GameBob() {
         useState(false);
     const gameId = params.gameId;
     const [messages, setMessages] = useState<string[]>([]);
+    const [game, setGame] = useState<Game>();
+
+    useEffect(() => {
+        loadGame();
+    }, []);
 
     useEffect(() => {
         if (socket) {
@@ -45,6 +53,19 @@ function GameBob() {
             setShowPolarization(measuredPolarization);
         }
     }, [measuredPolarization, isMeasuredPhotonTransported]);
+
+    function loadGame() {
+        if (gameId) {
+            gameService.get(gameId).then(
+                (res) => {
+                    setGame(res);
+                },
+                (err) => {
+                    console.error(err);
+                }
+            );
+        }
+    }
 
     function appendMessage(message: string) {
         setMessages((prevMessages) => [...prevMessages, message]);
@@ -155,9 +176,15 @@ function GameBob() {
                     </div>
                     <div className="flex flex-col flex-1 w-full min-w-0 ml-6">
                         <div className="flex justify-between items-start">
-                            <div className="flex-initial mr-6 w-full min-w-0">
+                            <div className="flex-initial w-full min-w-0">
                                 <div className="flex overflow-x-auto overflow-y-hidden pt-11 pb-20 pl-2 pr-20 border-2 shadow-inner">
-                                    <NoteTable noOfQubits={20}></NoteTable>
+                                    <NoteTable
+                                        noOfQubits={
+                                            game?.noOfQbits
+                                                ? game?.noOfQbits
+                                                : 0
+                                        }
+                                    ></NoteTable>
                                 </div>
                             </div>
                         </div>

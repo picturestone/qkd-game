@@ -215,7 +215,6 @@ function NoteTable(props: IProps) {
                 });
             } else {
                 dataCols.push(
-                    // TODO add strike through styling with grey
                     <div className="flex flex-col relative" key={i}>
                         {noteTableData[i].isDiscarded ? (
                             <div className="w-0.5 h-full left-1/2 bg-slate-800 absolute -translate-x-1/2 pointer-events-none"></div>
@@ -259,7 +258,7 @@ function NoteTable(props: IProps) {
                         </div>
                         <div className={dataColClasses + ' justify-center'}>
                             <Checkbox
-                                className=""
+                                className="w-4 h-4"
                                 defaultChecked={noteTableData[i].isDiscarded}
                                 onChange={() => {
                                     noteTableData[i].isDiscarded =

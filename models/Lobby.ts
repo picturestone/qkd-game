@@ -7,10 +7,12 @@ export default class Lobby {
     private _owner: User;
     private _reservedAlice?: User;
     private _reservedBob?: User;
+    private _noOfQbits: number;
 
     constructor(
         name: string,
         owner: User,
+        noOfQbits: number,
         id?: string,
         reservedAlice?: User,
         reservedBob?: User
@@ -20,6 +22,7 @@ export default class Lobby {
         this._id = id;
         this._reservedAlice = reservedAlice;
         this._reservedBob = reservedBob;
+        this._noOfQbits = noOfQbits;
     }
 
     public set id(id: string | undefined) {
@@ -62,6 +65,14 @@ export default class Lobby {
         this._reservedBob = value;
     }
 
+    public set noOfQbits(value: number) {
+        this._noOfQbits = value;
+    }
+
+    public get noOfQbits() {
+        return this._noOfQbits;
+    }
+
     static fromJson(json: ILobbyJson) {
         const reservedAliceUser = json.reservedAlice
             ? User.fromJson(json.reservedAlice)
@@ -72,6 +83,7 @@ export default class Lobby {
         return new Lobby(
             json.name,
             User.fromJson(json.owner),
+            json.noOfQbits,
             json.id,
             reservedAliceUser,
             reservedBobUser
@@ -82,6 +94,7 @@ export default class Lobby {
         return {
             name: this._name,
             owner: this._owner.toJson(),
+            noOfQbits: this._noOfQbits,
             id: this._id,
             reservedAlice: this._reservedAlice?.toJson(),
             reservedBob: this._reservedBob?.toJson(),
