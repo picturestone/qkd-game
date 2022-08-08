@@ -13,6 +13,7 @@ export default class BobPlayer
     extends Player
     implements IQuantumChannelObserver, IBasisComparisonChannelObserver
 {
+    // TODO rename these to source and sink channels, like with eve player.
     private _quantumChannel: QuantumChannel;
     private _basisComparisonChannel: BasisComparisonChannel;
     private _qbitDiscardChannel: ISink<IQbitDiscardData>;
@@ -33,23 +34,23 @@ export default class BobPlayer
         this._qbitDiscardChannel = qbitDiscardChannel;
     }
 
-    onBasisComparisonEnqueue(): void {
-        this._controller.onBasisComparisonEnqueue();
-    }
-
-    onQbitEnqueue(): void {
-        this._controller.onQbitEnqueue();
-    }
-
     get controller(): BobController {
         return this._controller;
     }
 
-    dequeueQbit() {
+    public onBasisComparisonEnqueue(): void {
+        this._controller.onBasisComparisonEnqueue();
+    }
+
+    public onQbitEnqueue(): void {
+        this._controller.onQbitEnqueue();
+    }
+
+    public dequeueQbit() {
         return this._quantumChannel.dequeue();
     }
 
-    dequeueBasisComparison() {
+    public dequeueBasisComparison() {
         return this._basisComparisonChannel.dequeue();
     }
 

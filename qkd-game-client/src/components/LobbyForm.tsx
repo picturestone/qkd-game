@@ -4,6 +4,7 @@ import AuthStorage from '../helper/AuthStorage';
 import Lobby from '../models/Lobby';
 import LobbyService from '../services/LobbyService';
 import Button from './Button';
+import Checkbox from './Checkbox';
 import Input from './Input';
 
 interface IProps {
@@ -23,6 +24,7 @@ function LobbyForm(props: IProps) {
 
     const [lobbyName, setLobbyName] = useState(initialLobbyName);
     const [noOfQbits, setNoOfQbits] = useState(10);
+    const [isEveAllowed, setIsEveAllowed] = useState(false);
     const navigate = useNavigate();
 
     function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
@@ -32,7 +34,14 @@ function LobbyForm(props: IProps) {
             if (lobbyName) {
                 // TODO check if a new lobby is required or if an old one is updated.
                 lobbyService
-                    .create(new Lobby(lobbyName, loggedInUser, noOfQbits))
+                    .create(
+                        new Lobby(
+                            lobbyName,
+                            loggedInUser,
+                            noOfQbits,
+                            isEveAllowed
+                        )
+                    )
                     .then((lobby) => {
                         navigate('/lobbies/' + lobby.id);
                     });
@@ -68,6 +77,16 @@ function LobbyForm(props: IProps) {
                         type="number"
                     ></Input>
                 </label>
+            </div>
+            <div className="flex flex-row">
+                <Checkbox
+                    defaultChecked={isEveAllowed}
+                    onChange={() => {
+                        setIsEveAllowed(!isEveAllowed);
+                    }}
+                >
+                    Is Eve role allowed?
+                </Checkbox>
             </div>
             <div className="flex flex-row">
                 <Button type="submit">Save</Button>

@@ -1,0 +1,130 @@
+import QuantumChannel from './channel/QuantumChannel';
+import AliceController from './player/AliceController';
+import AlicePlayer from './player/AlicePlayer';
+import BobController from './player/BobController';
+import BobPlayer from './player/BobPlayer';
+import IGameJson from '../qkd-game-client/src/models/api/IGameJson';
+import BasisComparisonChannel from './channel/BasisComparisonChannel';
+import qbitDiscardChannel from './channel/QbitDiscardChannel';
+import EveController from './player/EveController';
+import EvePlayer from './player/EvePlayer';
+
+export default class Game {
+    private _id?: string;
+    private isStartet = false;
+    private _alicePlayer: AlicePlayer;
+    private _bobPlayer: BobPlayer;
+    private _evePlayer?: EvePlayer;
+    private _noOfQbits: number;
+
+    constructor(
+        aliceController: AliceController,
+        bobController: BobController,
+        noOfQbits: number,
+        eveController?: EveController,
+        id?: string
+    ) {
+        this._id = id;
+        this._noOfQbits = noOfQbits;
+
+        if (eveController) {
+            this.createAliceBobEveGame(
+                aliceController,
+                bobController,
+                eveController
+            );
+        } else {
+            this.createAliceBobGame(aliceController, bobController);
+        }
+    }
+
+    createAliceBobEveGame(
+        aliceController: AliceController,
+        bobController: BobController,
+        eveController: EveController
+    ) {
+        const aliceEveQuantumConnection = new QuantumChannel();
+        const aliceEveBasisComparisonConnection = new BasisComparisonChannel();
+        const aliceEveQbitDiscardConnection = new qbitDiscardChannel();
+        const eveBobQuantumConnection = new QuantumChannel();
+        const eveBobBasisComparisonConnection = new BasisComparisonChannel();
+        const eveBobQbitDiscardConnection = new qbitDiscardChannel();
+        this._alicePlayer = new AlicePlayer(
+            aliceController,
+            aliceEveQuantumConnection,
+            aliceEveBasisComparisonConnection,
+            aliceEveQbitDiscardConnection
+        );
+        this._evePlayer = new EvePlayer(
+            eveController,
+            aliceEveQuantumConnection,
+            eveBobQuantumConnection,
+            aliceEveBasisComparisonConnection,
+            eveBobBasisComparisonConnection,
+            aliceEveQbitDiscardConnection,
+            eveBobQbitDiscardConnection
+        );
+        this._bobPlayer = new BobPlayer(
+            bobController,
+            eveBobQuantumConnection,
+            eveBobBasisComparisonConnection,
+            eveBobQbitDiscardConnection
+        );
+    }
+
+    private createAliceBobGame(
+        aliceController: AliceController,
+        bobController: BobController
+    ) {
+        const aliceBobQuantumConnection = new QuantumChannel();
+        const aliceBobBasisComparisonConnection = new BasisComparisonChannel();
+        const aliceBobQbitDiscardConnection = new qbitDiscardChannel();
+        this._alicePlayer = new AlicePlayer(
+            aliceController,
+            aliceBobQuantumConnection,
+            aliceBobBasisComparisonConnection,
+            aliceBobQbitDiscardConnection
+        );
+        this._bobPlayer = new BobPlayer(
+            bobController,
+            aliceBobQuantumConnection,
+            aliceBobBasisComparisonConnection,
+            aliceBobQbitDiscardConnection
+        );
+    }
+
+    public startGame() {
+        if (!this.isStartet) {
+            this._alicePlayer.controller.startGame(this);
+            this._bobPlayer.controller.startGame(this);
+            this.isStartet = true;
+        }
+    }
+
+    public set id(id: string | undefined) {
+        this._id = id;
+    }
+
+    public get id() {
+        return this._id;
+    }
+
+    public get alicePlayer() {
+        return this._alicePlayer;
+    }
+
+    public get bobPlayer() {
+        return this._bobPlayer;
+    }
+
+    public get evePlayer() {
+        return this._evePlayer;
+    }
+
+    toJson(): IGameJson {
+        return {
+            id: this._id,
+            noOfQbits: this._noOfQbits,
+        };
+    }
+}

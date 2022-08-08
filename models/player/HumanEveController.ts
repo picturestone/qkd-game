@@ -1,13 +1,14 @@
+import Basis from '../../qkd-game-client/src/models/api/Basis';
+import POLARIZATION from '../../qkd-game-client/src/models/api/Polarization';
 import IO from '../../sockets/IO';
 import Game from '../Game';
-import Basis from '../../qkd-game-client/src/models/api/Basis';
+import Qbit from '../quantum/Qbit';
 import User from '../User';
-import BobController from './BobController';
+import EveController from './EveController';
 import IHumanPlayer from './IHumanPlayer';
-import POLARIZATION from '../../qkd-game-client/src/models/api/Polarization';
 
-export default class HumanBobController
-    extends BobController
+export default class HumanEveController
+    extends EveController
     implements IHumanPlayer
 {
     private _user: User;
@@ -21,7 +22,7 @@ export default class HumanBobController
         if (this._user.socketId) {
             return IO.getInstance().server.to(this._user.socketId);
         } else {
-            throw new Error('SocketID on bob user is not defined.');
+            throw new Error('SocketID on eve user is not defined.');
         }
     }
 
@@ -31,6 +32,17 @@ export default class HumanBobController
 
     startGame(game: Game): void {
         this.socket.emit('startedGame', game.toJson());
+    }
+
+    sendQbit(qbit: Qbit): void {
+        this.controlledPlayer.sendQbit(qbit);
+    }
+
+    onQbitDiscardEnqueue(): void {
+        const qbitDiscard = this.controlledPlayer.dequeueQbitDiscard();
+        if (qbitDiscard) {
+            this.socket.emit('discardPublished', qbitDiscard);
+        }
     }
 
     measureEnqueuedQbit(basis: Basis): POLARIZATION | undefined {

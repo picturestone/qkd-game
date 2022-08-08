@@ -5,6 +5,7 @@ import Game from '../models/Game';
 import Lobby from '../models/Lobby';
 import HumanAliceController from '../models/player/HumanAliceController';
 import HumanBobController from '../models/player/HumanBobController';
+import HumanEveController from '../models/player/HumanEveController';
 import User from '../models/User';
 import IClientToServerEvents from '../qkd-game-client/src/models/api/IClientToServerEvents';
 import IInterServerEvents from '../qkd-game-client/src/models/api/IInterServerEvents';
@@ -22,6 +23,93 @@ function removeFromOtherRoles(user: User | undefined, lobby: Lobby) {
         if (lobby.reservedBob?.id === userId) {
             lobby.reservedBob = undefined;
         }
+    }
+}
+
+function startAliceBobGame(
+    lobby: Lobby,
+    server: Server<
+        IClientToServerEvents,
+        IServerToClientEvents,
+        IInterServerEvents,
+        ISocketData
+    >
+) {
+    if (
+        lobby.reservedAlice &&
+        lobby.reservedAlice.socketId &&
+        lobby.reservedBob &&
+        lobby.reservedBob.socketId &&
+        lobby.id
+    ) {
+        // Make all sockets in the lobby room leave.
+        const ioServer = IO.getInstance().server;
+        ioServer.in(lobby.id).socketsLeave(lobby.id);
+        // Create game.
+        const aliceController = new HumanAliceController(lobby.reservedAlice);
+        const bobController = new HumanBobController(lobby.reservedBob);
+        const game = new Game(aliceController, bobController, lobby.noOfQbits);
+        new GameDb().create(game).then((savedGame) => {
+            if (lobby && lobby.id) {
+                // Delete old lobby.
+                new LobbyDb().delete(lobby.id).then(() => {
+                    // Notify users.
+                    savedGame.startGame();
+                });
+            }
+        });
+    } else if (lobby.id) {
+        server
+            .to(lobby.id)
+            .emit(
+                'chatMessage',
+                `Game can only start if the Alice and Bob roles are occupied.`
+            );
+    }
+}
+
+function startAliceBobEveGame(
+    lobby: Lobby,
+    server: Server<
+        IClientToServerEvents,
+        IServerToClientEvents,
+        IInterServerEvents,
+        ISocketData
+    >
+) {
+    if (
+        lobby.reservedAlice &&
+        lobby.reservedAlice.socketId &&
+        lobby.reservedBob &&
+        lobby.reservedBob.socketId &&
+        lobby.reservedEve &&
+        lobby.reservedEve.socketId &&
+        lobby.id
+    ) {
+        // Make all sockets in the lobby room leave.
+        const ioServer = IO.getInstance().server;
+        ioServer.in(lobby.id).socketsLeave(lobby.id);
+        // Create game. TODO create game with eve
+        const aliceController = new HumanAliceController(lobby.reservedAlice);
+        const bobController = new HumanBobController(lobby.reservedBob);
+        const eveController = new HumanEveController(lobby.reservedEve);
+        const game = new Game(aliceController, bobController, lobby.noOfQbits);
+        new GameDb().create(game).then((savedGame) => {
+            if (lobby && lobby.id) {
+                // Delete old lobby.
+                new LobbyDb().delete(lobby.id).then(() => {
+                    // Notify users.
+                    savedGame.startGame();
+                });
+            }
+        });
+    } else if (lobby.id) {
+        server
+            .to(lobby.id)
+            .emit(
+                'chatMessage',
+                `Game can only start if the Alice, Bob and Eve roles are occupied.`
+            );
     }
 }
 
@@ -111,47 +199,15 @@ export default function registerSocketIOEvents(
                 }
             });
         });
+        // TODO start game with eve.
         socket.on('startGame', (lobbyId) => {
             new LobbyDb().findById(lobbyId).then((lobby) => {
                 if (lobby && lobby.id) {
                     if (socket.request.user?.id === lobby.owner.id) {
-                        if (
-                            lobby.reservedAlice &&
-                            lobby.reservedAlice.socketId &&
-                            lobby.reservedBob &&
-                            lobby.reservedBob.socketId
-                        ) {
-                            const ioServer = IO.getInstance().server;
-
-                            // TODO delete the lobby from the lobby list.
-                            // Make all sockets in the lobby room leave.
-                            ioServer.in(lobby.id).socketsLeave(lobby.id);
-                            const aliceController = new HumanAliceController(
-                                lobby.reservedAlice
-                            );
-                            const bobController = new HumanBobController(
-                                lobby.reservedBob
-                            );
-                            const game = new Game(
-                                aliceController,
-                                bobController,
-                                lobby.noOfQbits
-                            );
-                            new GameDb().create(game).then((savedGame) => {
-                                if (lobby && lobby.id) {
-                                    new LobbyDb().delete(lobby.id).then(() => {
-                                        // Notify users.
-                                        savedGame.startGame();
-                                    });
-                                }
-                            });
+                        if (lobby.isEveAllowed) {
+                            startAliceBobEveGame(lobby, server);
                         } else {
-                            server
-                                .to(lobbyId)
-                                .emit(
-                                    'chatMessage',
-                                    `Game can only start when the Alice and Bob roles are occupied.`
-                                );
+                            startAliceBobGame(lobby, server);
                         }
                     } // TODO maybe send unauthorized in else.
                 } // TODO maybe send 404 in else.

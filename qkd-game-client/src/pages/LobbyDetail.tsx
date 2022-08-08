@@ -139,6 +139,24 @@ function LobbyDetail() {
                                     : ''}
                                 Bob
                             </Button>
+                            {lobby?.isEveAllowed ? (
+                                <Button
+                                    className="mb-1"
+                                    onClick={() => {
+                                        selectLobbyRole(PLAYERROLE.eve);
+                                    }}
+                                    disabled={lobby?.reservedEve ? true : false}
+                                >
+                                    {lobby?.reservedEve
+                                        ? lobby.selectedRole === PLAYERROLE.eve
+                                            ? `You play as `
+                                            : `${lobby.reservedEve.name} plays as `
+                                        : ''}
+                                    Eve
+                                </Button>
+                            ) : (
+                                ''
+                            )}
                             <Button
                                 onClick={() => {
                                     selectLobbyRole(undefined);
