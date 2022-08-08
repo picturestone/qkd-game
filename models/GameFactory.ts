@@ -8,54 +8,29 @@ import BasisComparisonChannel from './channel/BasisComparisonChannel';
 import qbitDiscardChannel from './channel/QbitDiscardChannel';
 import EveController from './player/EveController';
 import EvePlayer from './player/EvePlayer';
+import Game from './Game';
 
-export default class Game {
-    private _id?: string;
-    private isStartet = false;
-    private _alicePlayer: AlicePlayer;
-    private _bobPlayer: BobPlayer;
-    private _evePlayer?: EvePlayer;
-    private _noOfQbits: number;
-
-    constructor(
-        aliceController: AliceController,
-        bobController: BobController,
+export default class GameFactory {
+    public static createAliceBobEveGame(
         noOfQbits: number,
-        eveController?: EveController,
-        id?: string
-    ) {
-        this._id = id;
-        this._noOfQbits = noOfQbits;
-
-        if (eveController) {
-            this.createAliceBobEveGame(
-                aliceController,
-                bobController,
-                eveController
-            );
-        } else {
-            this.createAliceBobGame(aliceController, bobController);
-        }
-    }
-
-    createAliceBobEveGame(
         aliceController: AliceController,
         bobController: BobController,
-        eveController: EveController
-    ) {
+        eveController: EveController,
+        id?: string
+    ): Game {
         const aliceEveQuantumConnection = new QuantumChannel();
         const aliceEveBasisComparisonConnection = new BasisComparisonChannel();
         const aliceEveQbitDiscardConnection = new qbitDiscardChannel();
         const eveBobQuantumConnection = new QuantumChannel();
         const eveBobBasisComparisonConnection = new BasisComparisonChannel();
         const eveBobQbitDiscardConnection = new qbitDiscardChannel();
-        this._alicePlayer = new AlicePlayer(
+        const alicePlayer = new AlicePlayer(
             aliceController,
             aliceEveQuantumConnection,
             aliceEveBasisComparisonConnection,
             aliceEveQbitDiscardConnection
         );
-        this._evePlayer = new EvePlayer(
+        const evePlayer = new EvePlayer(
             eveController,
             aliceEveQuantumConnection,
             eveBobQuantumConnection,
@@ -64,67 +39,36 @@ export default class Game {
             aliceEveQbitDiscardConnection,
             eveBobQbitDiscardConnection
         );
-        this._bobPlayer = new BobPlayer(
+        const bobPlayer = new BobPlayer(
             bobController,
             eveBobQuantumConnection,
             eveBobBasisComparisonConnection,
             eveBobQbitDiscardConnection
         );
+        return new Game(noOfQbits, alicePlayer, bobPlayer, evePlayer, id);
     }
 
-    private createAliceBobGame(
+    public static createAliceBobGame(
+        noOfQbits: number,
         aliceController: AliceController,
-        bobController: BobController
-    ) {
+        bobController: BobController,
+        id?: string
+    ): Game {
         const aliceBobQuantumConnection = new QuantumChannel();
         const aliceBobBasisComparisonConnection = new BasisComparisonChannel();
         const aliceBobQbitDiscardConnection = new qbitDiscardChannel();
-        this._alicePlayer = new AlicePlayer(
+        const alicePlayer = new AlicePlayer(
             aliceController,
             aliceBobQuantumConnection,
             aliceBobBasisComparisonConnection,
             aliceBobQbitDiscardConnection
         );
-        this._bobPlayer = new BobPlayer(
+        const bobPlayer = new BobPlayer(
             bobController,
             aliceBobQuantumConnection,
             aliceBobBasisComparisonConnection,
             aliceBobQbitDiscardConnection
         );
-    }
-
-    public startGame() {
-        if (!this.isStartet) {
-            this._alicePlayer.controller.startGame(this);
-            this._bobPlayer.controller.startGame(this);
-            this.isStartet = true;
-        }
-    }
-
-    public set id(id: string | undefined) {
-        this._id = id;
-    }
-
-    public get id() {
-        return this._id;
-    }
-
-    public get alicePlayer() {
-        return this._alicePlayer;
-    }
-
-    public get bobPlayer() {
-        return this._bobPlayer;
-    }
-
-    public get evePlayer() {
-        return this._evePlayer;
-    }
-
-    toJson(): IGameJson {
-        return {
-            id: this._id,
-            noOfQbits: this._noOfQbits,
-        };
+        return new Game(noOfQbits, alicePlayer, bobPlayer, undefined, id);
     }
 }

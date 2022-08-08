@@ -6,38 +6,29 @@ import BobPlayer from './player/BobPlayer';
 import IGameJson from '../qkd-game-client/src/models/api/IGameJson';
 import BasisComparisonChannel from './channel/BasisComparisonChannel';
 import qbitDiscardChannel from './channel/QbitDiscardChannel';
+import EveController from './player/EveController';
+import EvePlayer from './player/EvePlayer';
 
 export default class Game {
     private _id?: string;
     private isStartet = false;
     private _alicePlayer: AlicePlayer;
     private _bobPlayer: BobPlayer;
+    private _evePlayer?: EvePlayer;
     private _noOfQbits: number;
 
     constructor(
-        aliceController: AliceController,
-        bobController: BobController,
         noOfQbits: number,
+        alicePlayer: AlicePlayer,
+        bobPlayer: BobPlayer,
+        evePlayer?: EvePlayer,
         id?: string
     ) {
         this._id = id;
         this._noOfQbits = noOfQbits;
-
-        const aliceBobQuantumConnection = new QuantumChannel();
-        const aliceBobBasisComparisonConnection = new BasisComparisonChannel();
-        const aliceBobQbitDiscardConnection = new qbitDiscardChannel();
-        this._alicePlayer = new AlicePlayer(
-            aliceController,
-            aliceBobQuantumConnection,
-            aliceBobBasisComparisonConnection,
-            aliceBobQbitDiscardConnection
-        );
-        this._bobPlayer = new BobPlayer(
-            bobController,
-            aliceBobQuantumConnection,
-            aliceBobBasisComparisonConnection,
-            aliceBobQbitDiscardConnection
-        );
+        this._alicePlayer = alicePlayer;
+        this._bobPlayer = bobPlayer;
+        this._evePlayer = evePlayer;
     }
 
     public startGame() {
@@ -62,6 +53,10 @@ export default class Game {
 
     public get bobPlayer() {
         return this._bobPlayer;
+    }
+
+    public get evePlayer() {
+        return this._evePlayer;
     }
 
     toJson(): IGameJson {

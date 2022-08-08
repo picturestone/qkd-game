@@ -2,6 +2,7 @@ import { Server } from 'socket.io';
 import GameDb from '../database/GameDb';
 import LobbyDb from '../database/LobbyDb';
 import Game from '../models/Game';
+import GameFactory from '../models/GameFactory';
 import Lobby from '../models/Lobby';
 import HumanAliceController from '../models/player/HumanAliceController';
 import HumanBobController from '../models/player/HumanBobController';
@@ -48,7 +49,11 @@ function startAliceBobGame(
         // Create game.
         const aliceController = new HumanAliceController(lobby.reservedAlice);
         const bobController = new HumanBobController(lobby.reservedBob);
-        const game = new Game(aliceController, bobController, lobby.noOfQbits);
+        const game = GameFactory.createAliceBobGame(
+            lobby.noOfQbits,
+            aliceController,
+            bobController
+        );
         new GameDb().create(game).then((savedGame) => {
             if (lobby && lobby.id) {
                 // Delete old lobby.
@@ -93,7 +98,12 @@ function startAliceBobEveGame(
         const aliceController = new HumanAliceController(lobby.reservedAlice);
         const bobController = new HumanBobController(lobby.reservedBob);
         const eveController = new HumanEveController(lobby.reservedEve);
-        const game = new Game(aliceController, bobController, lobby.noOfQbits);
+        const game = GameFactory.createAliceBobEveGame(
+            lobby.noOfQbits,
+            aliceController,
+            bobController,
+            eveController
+        );
         new GameDb().create(game).then((savedGame) => {
             if (lobby && lobby.id) {
                 // Delete old lobby.
