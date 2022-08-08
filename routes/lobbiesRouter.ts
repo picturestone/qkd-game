@@ -34,6 +34,7 @@ router.post('/', async function (req, res) {
     const lobbyJson: ILobbyJson = {
         name: req.body.name,
         owner: req.body.owner,
+        noOfQbits: req.body.noOfQbits,
     };
     const lobbyModel = Lobby.fromJson(lobbyJson);
     const savedLobby = await lobbyDb.create(lobbyModel);

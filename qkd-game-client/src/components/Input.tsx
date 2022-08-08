@@ -1,6 +1,6 @@
 interface IProps {
     disabled?: boolean;
-    type?: 'text' | 'password';
+    type?: 'text' | 'password' | 'number';
     className?: string;
     onChange?: React.ChangeEventHandler<HTMLInputElement>;
     value?: string;

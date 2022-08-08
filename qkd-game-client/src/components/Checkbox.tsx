@@ -7,7 +7,7 @@ interface IProps {
 function Checkbox(props: React.PropsWithChildren<IProps>) {
     return (
         <label
-            className={`flex items-start w-4 h-4 ${
+            className={`flex items-start ${
                 props.className ? props.className : ''
             }`}
         >

@@ -22,6 +22,7 @@ function LobbyForm(props: IProps) {
     }
 
     const [lobbyName, setLobbyName] = useState(initialLobbyName);
+    const [noOfQbits, setNoOfQbits] = useState(10);
     const navigate = useNavigate();
 
     function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
@@ -31,7 +32,7 @@ function LobbyForm(props: IProps) {
             if (lobbyName) {
                 // TODO check if a new lobby is required or if an old one is updated.
                 lobbyService
-                    .create(new Lobby(lobbyName, loggedInUser))
+                    .create(new Lobby(lobbyName, loggedInUser, noOfQbits))
                     .then((lobby) => {
                         navigate('/lobbies/' + lobby.id);
                     });
@@ -53,6 +54,18 @@ function LobbyForm(props: IProps) {
                         value={lobbyName}
                         onChange={(event) => setLobbyName(event.target.value)}
                         type="text"
+                    ></Input>
+                </label>
+            </div>
+            <div className="flex flex-row">
+                <label className="flex items-center">
+                    <span>No. of qbits</span>
+                    <Input
+                        value={noOfQbits.toString()}
+                        onChange={(event) =>
+                            setNoOfQbits(parseInt(event.target.value))
+                        }
+                        type="number"
                     ></Input>
                 </label>
             </div>

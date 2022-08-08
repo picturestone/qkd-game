@@ -9,16 +9,19 @@ export default class Lobby {
     private _owner: User;
     private _reservedAlice?: User;
     private _reservedBob?: User;
+    private _noOfQbits: number;
 
     constructor(
         name: string,
         owner: User,
+        noOfQbits: number,
         id?: string,
         reservedAlice?: User,
         reservedBob?: User
     ) {
         this._name = name;
         this._owner = owner;
+        this._noOfQbits = noOfQbits;
         this._id = id;
         this._reservedAlice = reservedAlice;
         this._reservedBob = reservedBob;
@@ -89,6 +92,7 @@ export default class Lobby {
         return new Lobby(
             json.name,
             User.fromJson(json.owner),
+            json.noOfQbits,
             json.id,
             reservedAliceUser,
             reservedBobUser
@@ -99,6 +103,7 @@ export default class Lobby {
         return {
             name: this._name,
             owner: this._owner.toJson(),
+            noOfQbits: this._noOfQbits,
             id: this._id,
             reservedAlice: this._reservedAlice?.toJson(),
             reservedBob: this._reservedBob?.toJson(),
