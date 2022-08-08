@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { FaArrowsAlt } from 'react-icons/fa';
 import { useParams } from 'react-router-dom';
 import DecisionCommunicator from '../components/game/DecisionCommunicator';
@@ -12,12 +12,22 @@ import { useSocket } from '../helper/IO';
 import Qbit from '../models/quantum/Qbit';
 import BASIS from '../models/api/Basis';
 import IBasisComparisonData from '../models/api/IBasisComparisonData';
+import IQbitDiscardData from '../models/api/IQbitDiscardedData';
 
 function GameAlice() {
     const params = useParams();
     const socket = useSocket();
     const [messages, setMessages] = useState<string[]>([]);
     const gameId = params.gameId;
+
+    useEffect(() => {
+        if (socket) {
+            socket.on('discardPublished', appendQbitDiscardMessage);
+            return () => {
+                socket.off('discardPublished', appendQbitDiscardMessage);
+            };
+        }
+    }, [socket]);
 
     function appendMessage(message: string) {
         setMessages((prevMessages) => [...prevMessages, message]);
@@ -76,6 +86,14 @@ function GameAlice() {
         appendMessage(
             `You: Qubit no. ${basisComparison.qbitNo} was sent with ${readableBasis} basis.`
         );
+    }
+
+    function appendQbitDiscardMessage(qbitDiscard: IQbitDiscardData) {
+        if (qbitDiscard.isDiscarded) {
+            appendMessage(`Bob: Discard qubit no. ${qbitDiscard.qbitNo}.`);
+        } else {
+            appendMessage(`Bob: Keep qubit no. ${qbitDiscard.qbitNo}.`);
+        }
     }
 
     return (

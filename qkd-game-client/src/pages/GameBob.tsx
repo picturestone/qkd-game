@@ -11,6 +11,7 @@ import { useSocket } from '../helper/IO';
 import Randomizer from '../helper/Randomizer';
 import BASIS from '../models/api/Basis';
 import IBasisComparisonData from '../models/api/IBasisComparisonData';
+import IQbitDiscardData from '../models/api/IQbitDiscardedData';
 import POLARIZATION from '../models/api/Polarization';
 import Qbit from '../models/quantum/Qbit';
 
@@ -66,6 +67,14 @@ function GameBob() {
         );
     }
 
+    function appendQbitDiscardMessage(qbitDiscard: IQbitDiscardData) {
+        if (qbitDiscard.isDiscarded) {
+            appendMessage(`You: Discard qubit no. ${qbitDiscard.qbitNo}.`);
+        } else {
+            appendMessage(`You: Keep qubit no. ${qbitDiscard.qbitNo}.`);
+        }
+    }
+
     function qbitEnqueuedHandler() {
         setReceivedPhoton(
             <Photon qbit={new Qbit(Randomizer.getRandomEnum(POLARIZATION))} />
@@ -94,12 +103,36 @@ function GameBob() {
         setIsMeasuredPhotonTransported(true);
     }
 
+    // TODO set qbit no correctly.
     function handleKeepButtonClicked() {
-        // TODO send event
+        if (gameId) {
+            const qbitDiscard = {
+                qbitNo: 1,
+                isDiscarded: false,
+            };
+            socket?.emit(
+                'publishDiscard',
+                gameId,
+                qbitDiscard,
+                appendQbitDiscardMessage
+            );
+        }
     }
 
+    // TODO set qbit no correctly.
     function handleDiscardButtonClicked() {
-        // TODO send event
+        if (gameId) {
+            const qbitDiscard = {
+                qbitNo: 1,
+                isDiscarded: true,
+            };
+            socket?.emit(
+                'publishDiscard',
+                gameId,
+                qbitDiscard,
+                appendQbitDiscardMessage
+            );
+        }
     }
 
     return (
