@@ -54,6 +54,7 @@ router.post('/:id/start', async function (req, res) {
             ) {
                 const ioServer = IO.getInstance().server;
 
+                // TODO delete the lobby from the lobby list.
                 // Make all sockets in the lobby room leave.
                 ioServer.in(lobby.id).socketsLeave(lobby.id);
                 const aliceController = new HumanAliceController(

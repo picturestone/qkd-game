@@ -4,4 +4,5 @@ import PlayerController from './PlayerController';
 
 export default abstract class AliceController extends PlayerController<AlicePlayer> {
     abstract sendQbit(qbit: Qbit): void;
+    abstract onQbitDiscardEnqueue(): void;
 }

@@ -4,6 +4,8 @@ import AlicePlayer from './player/AlicePlayer';
 import BobController from './player/BobController';
 import BobPlayer from './player/BobPlayer';
 import IGameJson from '../qkd-game-client/src/models/api/IGameJson';
+import BasisComparisonChannel from './channel/BasisComparisonChannel';
+import qbitDiscardChannel from './channel/QbitDiscardChannel';
 
 export default class Game {
     private _id?: string;
@@ -19,13 +21,19 @@ export default class Game {
         this._id = id;
 
         const aliceBobQuantumConnection = new QuantumChannel();
+        const aliceBobBasisComparisonConnection = new BasisComparisonChannel();
+        const aliceBobQbitDiscardConnection = new qbitDiscardChannel();
         this._alicePlayer = new AlicePlayer(
             aliceController,
-            aliceBobQuantumConnection
+            aliceBobQuantumConnection,
+            aliceBobBasisComparisonConnection,
+            aliceBobQbitDiscardConnection
         );
         this._bobPlayer = new BobPlayer(
             bobController,
-            aliceBobQuantumConnection
+            aliceBobQuantumConnection,
+            aliceBobBasisComparisonConnection,
+            aliceBobQbitDiscardConnection
         );
     }
 

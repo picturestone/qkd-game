@@ -1,21 +1,33 @@
-import Player from "../player/Player";
-import Qbit from "../quantum/Qbit";
-import Channel from "./Channel";
+import Qbit from '../quantum/Qbit';
+import Channel from './Channel';
+import IQuantumChannelObserver from './IQuantumChannelObserver';
 
 export default class QuantumChannel extends Channel<Qbit> {
-    private qbitQueue: Qbit[];
+    private _qbitQueue: Qbit[];
+    private _observers: IQuantumChannelObserver[];
 
     constructor() {
         super();
-        this.qbitQueue = [];
+        this._qbitQueue = [];
+        this._observers = [];
     }
 
     dequeue(): Qbit | undefined {
-        return this.qbitQueue.shift();
+        return this._qbitQueue.shift();
     }
 
     enqueue(value: Qbit): void {
-        this.qbitQueue.push(value);
-        super.notifyObservers();
+        this._qbitQueue.push(value);
+        this.notifyObservers();
+    }
+
+    public notifyObservers(): void {
+        this._observers.forEach((observer) => {
+            observer.onQbitEnqueue();
+        });
+    }
+
+    public addObserver(observer: IQuantumChannelObserver) {
+        this._observers.push(observer);
     }
 }
