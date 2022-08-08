@@ -1,3 +1,4 @@
+import { AxiosError } from 'axios';
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import Button from '../components/Button';
@@ -67,8 +68,13 @@ function LobbyDetail() {
                 (res) => {
                     setLobby(res);
                 },
-                (err) => {
-                    console.error(err);
+                (err: AxiosError) => {
+                    // TODO show popup that the lobby does not exist anymore after redirecting to the lobby browser.
+                    if (err.response?.status === 404) {
+                        navigate(`/lobbies`);
+                    } else {
+                        console.log(err);
+                    }
                 }
             );
         }

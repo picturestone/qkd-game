@@ -176,7 +176,7 @@ function GameBob() {
                     </div>
                     <div className="flex flex-col flex-1 w-full min-w-0 ml-6">
                         <div className="flex justify-between items-start">
-                            <div className="flex-initial mr-6 w-full min-w-0">
+                            <div className="flex-initial w-full min-w-0">
                                 <div className="flex overflow-x-auto overflow-y-hidden pt-11 pb-20 pl-2 pr-20 border-2 shadow-inner">
                                     <NoteTable
                                         noOfQubits={
