@@ -1,7 +1,5 @@
 import IBasisComparisonData from '../../qkd-game-client/src/models/api/IBasisComparisonData';
-import IQbitDiscardData from '../../qkd-game-client/src/models/api/IQbitDiscardedData';
 import ISink from '../channel/ISink';
-import ISource from '../channel/ISource';
 import QbitDiscardChannel from '../channel/QbitDiscardChannel';
 import IQbitDiscardChannelObserver from '../channel/IQbitDiscardChannelObserver';
 import Qbit from '../quantum/Qbit';
@@ -12,6 +10,7 @@ export default class AlicePlayer
     extends Player
     implements IQbitDiscardChannelObserver
 {
+    // TODO rename these to source and sink channels, like with eve player.
     private _quantumChannel: ISink<Qbit>;
     private _basisComparisonChannel: ISink<IBasisComparisonData>;
     private _qbitDiscardChannel: QbitDiscardChannel;
@@ -31,12 +30,12 @@ export default class AlicePlayer
         this._qbitDiscardChannel.addObserver(this);
     }
 
-    onQbitDiscardEnqueue(): void {
-        this._controller.onQbitDiscardEnqueue();
-    }
-
     get controller(): AliceController {
         return this._controller;
+    }
+
+    public onQbitDiscardEnqueue(): void {
+        this._controller.onQbitDiscardEnqueue();
     }
 
     public sendQbit(qbit: Qbit) {
@@ -47,7 +46,7 @@ export default class AlicePlayer
         this._basisComparisonChannel.enqueue(basisComparison);
     }
 
-    dequeueQbitDiscard() {
+    public dequeueQbitDiscard() {
         return this._qbitDiscardChannel.dequeue();
     }
 }

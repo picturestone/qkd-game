@@ -4,7 +4,9 @@ import AuthStorage from '../helper/AuthStorage';
 import Lobby from '../models/Lobby';
 import LobbyService from '../services/LobbyService';
 import Button from './Button';
+import Checkbox from './Checkbox';
 import Input from './Input';
+import NumberInput from './NumberInput';
 
 interface IProps {
     lobby?: Lobby;
@@ -23,6 +25,7 @@ function LobbyForm(props: IProps) {
 
     const [lobbyName, setLobbyName] = useState(initialLobbyName);
     const [noOfQbits, setNoOfQbits] = useState(10);
+    const [isEveAllowed, setIsEveAllowed] = useState(false);
     const navigate = useNavigate();
 
     function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
@@ -32,7 +35,14 @@ function LobbyForm(props: IProps) {
             if (lobbyName) {
                 // TODO check if a new lobby is required or if an old one is updated.
                 lobbyService
-                    .create(new Lobby(lobbyName, loggedInUser, noOfQbits))
+                    .create(
+                        new Lobby(
+                            lobbyName,
+                            loggedInUser,
+                            noOfQbits,
+                            isEveAllowed
+                        )
+                    )
                     .then((lobby) => {
                         navigate('/lobbies/' + lobby.id);
                     });
@@ -60,14 +70,21 @@ function LobbyForm(props: IProps) {
             <div className="flex flex-row">
                 <label className="flex items-center">
                     <span>No. of qbits</span>
-                    <Input
-                        value={noOfQbits.toString()}
-                        onChange={(event) =>
-                            setNoOfQbits(parseInt(event.target.value))
-                        }
-                        type="number"
-                    ></Input>
+                    <NumberInput
+                        value={noOfQbits}
+                        onChange={(newVal) => setNoOfQbits(newVal)}
+                    ></NumberInput>
                 </label>
+            </div>
+            <div className="flex flex-row">
+                <Checkbox
+                    defaultChecked={isEveAllowed}
+                    onChange={() => {
+                        setIsEveAllowed(!isEveAllowed);
+                    }}
+                >
+                    Is Eve role allowed?
+                </Checkbox>
             </div>
             <div className="flex flex-row">
                 <Button type="submit">Save</Button>

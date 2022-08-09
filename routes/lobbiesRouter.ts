@@ -29,6 +29,7 @@ router.post('/', async function (req, res) {
         name: req.body.name,
         owner: req.body.owner,
         noOfQbits: req.body.noOfQbits,
+        isEveAllowed: req.body.isEveAllowed,
     };
     const lobbyModel = Lobby.fromJson(lobbyJson);
     const savedLobby = await lobbyDb.create(lobbyModel);

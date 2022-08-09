@@ -12,9 +12,11 @@ router.get('/:id', async function (req, res) {
     if (game && game.id) {
         const aliceId = game.alicePlayer.controller.userId;
         const bobId = game.bobPlayer.controller.userId;
+        const eveId = game.evePlayer?.controller.userId;
         if (
             (aliceId && req.user?.id === aliceId) ||
-            (bobId && req.user?.id === bobId)
+            (bobId && req.user?.id === bobId) ||
+            (eveId && req.user?.id === eveId)
         ) {
             res.send(game.toJson());
         } else {

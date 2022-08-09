@@ -54,44 +54,6 @@ function GameAlice() {
         setMessages((prevMessages) => [...prevMessages, message]);
     }
 
-    function handlePolarizedPhotonTransported(qbit: Qbit) {
-        if (gameId) {
-            socket?.emit('sendQbit', gameId, qbit.toJson());
-        }
-    }
-
-    // TODO set correct qbit numbers!
-    function handleHorizontalVerticalBasisButtonClicked() {
-        if (gameId) {
-            const basisComparison = {
-                qbitNo: 1,
-                basis: BASIS.horizontalVertical,
-            };
-            socket?.emit(
-                'publishBasis',
-                gameId,
-                basisComparison,
-                appendBasisComparisonMessage
-            );
-        }
-    }
-
-    // TODO set correct qbit numbers!
-    function handleDiagonalBasisButtonClicked() {
-        if (gameId) {
-            const basisComparison = {
-                qbitNo: 1,
-                basis: BASIS.diagonal,
-            };
-            socket?.emit(
-                'publishBasis',
-                gameId,
-                basisComparison,
-                appendBasisComparisonMessage
-            );
-        }
-    }
-
     function appendBasisComparisonMessage(
         basisComparison: IBasisComparisonData
     ) {
@@ -111,9 +73,55 @@ function GameAlice() {
 
     function appendQbitDiscardMessage(qbitDiscard: IQbitDiscardData) {
         if (qbitDiscard.isDiscarded) {
-            appendMessage(`Bob: Discard qubit no. ${qbitDiscard.qbitNo}.`);
+            appendMessage(
+                `Bob: I used a different basis than you for qubit no. ${qbitDiscard.qbitNo} - discard it.`
+            );
         } else {
-            appendMessage(`Bob: Keep qubit no. ${qbitDiscard.qbitNo}.`);
+            appendMessage(
+                `Bob: I used the same basis than you for qubit no. ${qbitDiscard.qbitNo} - keep it.`
+            );
+        }
+
+        // TODO add this to bob.
+        if (game?.noOfQbits && qbitDiscard.qbitNo >= game.noOfQbits) {
+            // TODO start code comparison.
+            console.log('game is done');
+        }
+    }
+
+    function handlePolarizedPhotonTransported(qbit: Qbit) {
+        if (gameId) {
+            socket?.emit('sendQbit', gameId, qbit.toJson());
+        }
+    }
+
+    function handleHorizontalVerticalBasisButtonClicked(curQbitNo: number) {
+        if (gameId) {
+            const basisComparison = {
+                qbitNo: curQbitNo,
+                basis: BASIS.horizontalVertical,
+            };
+            socket?.emit(
+                'publishBasis',
+                gameId,
+                basisComparison,
+                appendBasisComparisonMessage
+            );
+        }
+    }
+
+    function handleDiagonalBasisButtonClicked(curQbitNo: number) {
+        if (gameId) {
+            const basisComparison = {
+                qbitNo: curQbitNo,
+                basis: BASIS.diagonal,
+            };
+            socket?.emit(
+                'publishBasis',
+                gameId,
+                basisComparison,
+                appendBasisComparisonMessage
+            );
         }
     }
 
@@ -145,11 +153,11 @@ function GameAlice() {
                             </div>
                         </div>
                         <div className="flex mt-10">
-                            <div className="flex-none mr-6 w-44">
+                            <div className="flex-1 mr-6">
                                 <div className="p-2 shadow-inner border-2">
                                     <DecisionCommunicator
                                         text={
-                                            'Which basis was used for qubit no i?'
+                                            'Which basis was used for qubit no. ...?'
                                         }
                                         onButtonOneClicked={
                                             handleHorizontalVerticalBasisButtonClicked
@@ -171,10 +179,14 @@ function GameAlice() {
                                                 <FaArrowsAlt />
                                             </div>
                                         }
+                                        noOfQbits={
+                                            game?.noOfQbits ? game.noOfQbits : 1
+                                        }
                                     ></DecisionCommunicator>
+                                    {/* TODO place compare code button here which opens popup. Should activat once last qbit discard message arrived */}
                                 </div>
                             </div>
-                            <div className="flex-1">
+                            <div className="flex-initial w-full">
                                 <MessageLog messages={messages}></MessageLog>
                             </div>
                         </div>

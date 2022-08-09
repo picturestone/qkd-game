@@ -276,7 +276,7 @@ function NoteTable(props: IProps) {
     }
 
     return (
-        <div className={props.className ? 'flex ' + props.className : 'flex'}>
+        <div className={`flex ${props.className ? props.className : ''}`}>
             <div className="flex flex-col">
                 <div className={headerColClasses}>Qubit No.</div>
                 <div className={headerColClasses}>Basis</div>

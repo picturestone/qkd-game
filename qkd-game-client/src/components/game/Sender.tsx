@@ -12,14 +12,15 @@ interface IProps {
     onPolarizedPhotonTransported: (qbit: Qbit) => void;
 }
 
-// TODO fix very fast clicking on emitter
 function Sender(props: IProps) {
     const [emittedPhoton, setEmittedPhoton] = useState<React.ReactNode>(null);
     const [passingPhoton, setPassingPhoton] = useState<React.ReactNode>(null);
     const [polarizedPhoton, setPolarizedPhoton] =
         useState<React.ReactNode>(null);
+    const [isSendingDisabled, setIsSendingDisabled] = useState(false);
 
     function handlePhotonEmission(photon: React.ReactNode) {
+        setIsSendingDisabled(true);
         setEmittedPhoton(photon);
     }
 
@@ -42,6 +43,7 @@ function Sender(props: IProps) {
         setPolarizedPhoton(null);
         const photonProps = (photon as any).props as IPhotonProps;
         props.onPolarizedPhotonTransported(photonProps.qbit);
+        setIsSendingDisabled(false);
     }
 
     return (
@@ -91,7 +93,10 @@ function Sender(props: IProps) {
                 ></OpticalFiber>
             </div>
             <div className={styles.senderPhotonSourceWrapper}>
-                <PhotonSource onPhotonEmission={handlePhotonEmission} />
+                <PhotonSource
+                    disabled={isSendingDisabled}
+                    onPhotonEmission={handlePhotonEmission}
+                />
             </div>
         </div>
     );
