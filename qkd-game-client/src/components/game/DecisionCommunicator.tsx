@@ -16,9 +16,10 @@ function BasisCommunicator(props: IProps) {
     const [curQbitNo, setCurQbitNo] = useState(1);
 
     return (
-        <div className="flex flex-col">
-            <div className="text-base">{props.text}</div>
+        <div className="flex flex-wrap">
+            <div className="text-base flex-auto w-full">{props.text}</div>
             <NumberInput
+                className="flex-none w-full"
                 min={1}
                 max={props.noOfQbits}
                 value={curQbitNo}
@@ -26,11 +27,14 @@ function BasisCommunicator(props: IProps) {
                     setCurQbitNo(newVal);
                 }}
             ></NumberInput>
-            <div className="flex justify-between mt-4 flex-nowrap">
+            <div className="flex justify-between mt-4 flex-nowrap w-full flex-none">
                 <Button
                     className="h-8"
                     onClick={() => {
                         props.onButtonOneClicked(curQbitNo);
+                        if (curQbitNo < props.noOfQbits) {
+                            setCurQbitNo(curQbitNo + 1);
+                        }
                     }}
                 >
                     {props.buttonOneContent}
@@ -39,6 +43,9 @@ function BasisCommunicator(props: IProps) {
                     className="h-8"
                     onClick={() => {
                         props.onButtonTwoClicked(curQbitNo);
+                        if (curQbitNo < props.noOfQbits) {
+                            setCurQbitNo(curQbitNo + 1);
+                        }
                     }}
                 >
                     {props.buttonTwoContent}

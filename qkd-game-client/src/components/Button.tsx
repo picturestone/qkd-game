@@ -9,7 +9,7 @@ function Button(props: React.PropsWithChildren<IProps>) {
     return (
         <button
             type={props.type}
-            className={`border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-0 rounded-md px-5 py-1.5 disabled:bg-gray-50 disabled:text-gray-500 ${props.className}`}
+            className={`flex items-center border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-0 rounded-md px-5 py-1.5 disabled:bg-gray-50 disabled:text-gray-500 ${props.className}`}
             disabled={props.disabled}
             onClick={() => {
                 if (props.onClick) {

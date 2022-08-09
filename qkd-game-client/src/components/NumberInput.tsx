@@ -58,7 +58,7 @@ function NumberInput(props: IProps) {
                         props.onChange(newVal);
                     }
                 }}
-                className={`border-0 border-b-2 border-gray-700 focus:ring-0 focus:border-gray-700 disabled:border-gray-400 disabled:text-gray-500`}
+                className={`flex-initial text-center border-0 border-b-2 border-gray-700 focus:ring-0 focus:border-gray-700 disabled:border-gray-400 disabled:text-gray-500 remove-spinner`}
             ></input>
             <Button
                 className="h-8"

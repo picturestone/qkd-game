@@ -91,9 +91,13 @@ function GameBob() {
 
     function appendQbitDiscardMessage(qbitDiscard: IQbitDiscardData) {
         if (qbitDiscard.isDiscarded) {
-            appendMessage(`You: Discard qubit no. ${qbitDiscard.qbitNo}.`);
+            appendMessage(
+                `You: I used a different basis as Alice for qubit no. ${qbitDiscard.qbitNo} - discard it.`
+            );
         } else {
-            appendMessage(`You: Keep qubit no. ${qbitDiscard.qbitNo}.`);
+            appendMessage(
+                `You: I used the same basis as Alice for qubit no. ${qbitDiscard.qbitNo} - keep it.`
+            );
         }
 
         if (game?.noOfQbits && qbitDiscard.qbitNo >= game.noOfQbits) {
@@ -193,11 +197,11 @@ function GameBob() {
                             </div>
                         </div>
                         <div className="flex mt-10">
-                            <div className="flex-none mr-6 w-56">
+                            <div className="flex-1 mr-6">
                                 <div className="p-2 shadow-inner border-2">
                                     <DecisionCommunicator
                                         text={
-                                            'Did you use the same basis for qubit no i? If yes: keep; If no: discard;'
+                                            'Did you use the same basis as Alice for qubit no. ...?'
                                         }
                                         onButtonOneClicked={
                                             handleKeepButtonClicked
@@ -205,15 +209,15 @@ function GameBob() {
                                         onButtonTwoClicked={
                                             handleDiscardButtonClicked
                                         }
-                                        buttonOneContent={<div>Keep</div>}
-                                        buttonTwoContent={<div>Discard</div>}
+                                        buttonOneContent={<div>Same</div>}
+                                        buttonTwoContent={<div>Different</div>}
                                         noOfQbits={
                                             game?.noOfQbits ? game.noOfQbits : 1
                                         }
                                     ></DecisionCommunicator>
                                 </div>
                             </div>
-                            <div className="flex-1">
+                            <div className="flex-initial w-full">
                                 <MessageLog messages={messages}></MessageLog>
                             </div>
                         </div>

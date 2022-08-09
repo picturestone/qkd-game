@@ -73,9 +73,13 @@ function GameAlice() {
 
     function appendQbitDiscardMessage(qbitDiscard: IQbitDiscardData) {
         if (qbitDiscard.isDiscarded) {
-            appendMessage(`Bob: Discard qubit no. ${qbitDiscard.qbitNo}.`);
+            appendMessage(
+                `Bob: I used a different basis as you for qubit no. ${qbitDiscard.qbitNo} - discard it.`
+            );
         } else {
-            appendMessage(`Bob: Keep qubit no. ${qbitDiscard.qbitNo}.`);
+            appendMessage(
+                `Bob: I used the same basis as you for qubit no. ${qbitDiscard.qbitNo} - keep it.`
+            );
         }
 
         // TODO add this to bob.
@@ -149,11 +153,11 @@ function GameAlice() {
                             </div>
                         </div>
                         <div className="flex mt-10">
-                            <div className="flex-none mr-6 w-44">
+                            <div className="flex-1 mr-6">
                                 <div className="p-2 shadow-inner border-2">
                                     <DecisionCommunicator
                                         text={
-                                            'Which basis was used for qubit no i?'
+                                            'Which basis was used for qubit no. ...?'
                                         }
                                         onButtonOneClicked={
                                             handleHorizontalVerticalBasisButtonClicked
@@ -181,7 +185,7 @@ function GameAlice() {
                                     ></DecisionCommunicator>
                                 </div>
                             </div>
-                            <div className="flex-1">
+                            <div className="flex-initial w-full">
                                 <MessageLog messages={messages}></MessageLog>
                             </div>
                         </div>
