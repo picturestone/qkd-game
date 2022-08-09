@@ -6,6 +6,7 @@ import LobbyService from '../services/LobbyService';
 import Button from './Button';
 import Checkbox from './Checkbox';
 import Input from './Input';
+import NumberInput from './NumberInput';
 
 interface IProps {
     lobby?: Lobby;
@@ -28,6 +29,7 @@ function LobbyForm(props: IProps) {
     const navigate = useNavigate();
 
     function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+        console.log('sumbitting');
         event.preventDefault();
         if (loggedInUser) {
             // TODO handle validation in a seperate function.
@@ -69,13 +71,10 @@ function LobbyForm(props: IProps) {
             <div className="flex flex-row">
                 <label className="flex items-center">
                     <span>No. of qbits</span>
-                    <Input
-                        value={noOfQbits.toString()}
-                        onChange={(event) =>
-                            setNoOfQbits(parseInt(event.target.value))
-                        }
-                        type="number"
-                    ></Input>
+                    <NumberInput
+                        value={noOfQbits}
+                        onChange={(newVal) => setNoOfQbits(newVal)}
+                    ></NumberInput>
                 </label>
             </div>
             <div className="flex flex-row">

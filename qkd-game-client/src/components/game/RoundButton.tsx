@@ -1,8 +1,10 @@
 import React, { MouseEventHandler, useState } from 'react';
 import { animated, useSpring, config } from '@react-spring/web';
 import styles from './RoundButton.module.scss';
+import { isDisabled } from '@testing-library/user-event/dist/types/utils';
 
 interface IProps {
+    disabled?: boolean;
     onClick: MouseEventHandler;
 }
 
@@ -28,8 +30,10 @@ function RoundButton(props: IProps) {
     return (
         <animated.div
             onClick={(event: React.MouseEvent) => {
-                setIsAnimating(true);
-                props.onClick(event);
+                if (props.disabled !== true) {
+                    setIsAnimating(true);
+                    props.onClick(event);
+                }
             }}
             className={styles.roundButton}
             style={

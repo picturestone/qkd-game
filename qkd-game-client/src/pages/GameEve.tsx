@@ -16,7 +16,7 @@ import IQbitDiscardData from '../models/api/IQbitDiscardedData';
 import GameService from '../services/GameServices';
 import Game from '../models/Game';
 
-function GameAlice() {
+function GameEve() {
     const params = useParams();
     const socket = useSocket();
     const gameService = new GameService();
@@ -192,4 +192,4 @@ function GameAlice() {
     );
 }
 
-export default GameAlice;
+export default GameEve;

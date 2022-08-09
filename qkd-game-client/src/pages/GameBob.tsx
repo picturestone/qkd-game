@@ -17,6 +17,7 @@ import Game from '../models/Game';
 import Qbit from '../models/quantum/Qbit';
 import GameService from '../services/GameServices';
 
+// TODO fix multiple photons receiving.
 function GameBob() {
     const params = useParams();
     const socket = useSocket();
@@ -94,6 +95,11 @@ function GameBob() {
         } else {
             appendMessage(`You: Keep qubit no. ${qbitDiscard.qbitNo}.`);
         }
+
+        if (game?.noOfQbits && qbitDiscard.qbitNo >= game.noOfQbits) {
+            // TODO start code comparison.
+            console.log('game is done');
+        }
     }
 
     function qbitEnqueuedHandler() {
@@ -124,11 +130,10 @@ function GameBob() {
         setIsMeasuredPhotonTransported(true);
     }
 
-    // TODO set qbit no correctly.
-    function handleKeepButtonClicked() {
+    function handleKeepButtonClicked(curQbitNo: number) {
         if (gameId) {
             const qbitDiscard = {
-                qbitNo: 1,
+                qbitNo: curQbitNo,
                 isDiscarded: false,
             };
             socket?.emit(
@@ -140,11 +145,10 @@ function GameBob() {
         }
     }
 
-    // TODO set qbit no correctly.
-    function handleDiscardButtonClicked() {
+    function handleDiscardButtonClicked(curQbitNo: number) {
         if (gameId) {
             const qbitDiscard = {
-                qbitNo: 1,
+                qbitNo: curQbitNo,
                 isDiscarded: true,
             };
             socket?.emit(
@@ -203,6 +207,9 @@ function GameBob() {
                                         }
                                         buttonOneContent={<div>Keep</div>}
                                         buttonTwoContent={<div>Discard</div>}
+                                        noOfQbits={
+                                            game?.noOfQbits ? game.noOfQbits : 1
+                                        }
                                     ></DecisionCommunicator>
                                 </div>
                             </div>

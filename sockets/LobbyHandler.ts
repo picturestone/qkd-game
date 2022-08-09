@@ -123,6 +123,7 @@ function startAliceBobEveGame(
     }
 }
 
+// TODO close lobby when leaving.
 export default function registerSocketIOEvents(
     server: Server<
         IClientToServerEvents,

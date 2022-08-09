@@ -7,6 +7,7 @@ import styles from './PhotonSource.module.scss';
 import RoundButton from './RoundButton';
 
 interface IProps {
+    disabled?: boolean;
     onPhotonEmission: (photon: React.ReactNode) => void;
 }
 
@@ -17,6 +18,7 @@ function PhotonSource(props: IProps) {
             <div className={styles.frontPlate}>
                 <p>Send QBit</p>
                 <RoundButton
+                    disabled={props.disabled}
                     onClick={() => {
                         props.onPhotonEmission(
                             <Photon

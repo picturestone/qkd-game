@@ -47,6 +47,8 @@ function isUserAlice(
     return controller;
 }
 
+// TODO add redirecting on missing auth.
+// TODO quit game when leaving.
 function isUserBob(
     inGame: Game,
     userId: string | undefined

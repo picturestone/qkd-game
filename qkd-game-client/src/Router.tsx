@@ -3,6 +3,7 @@ import { PLAYERROLE } from './models/api/PlayerRole';
 import App from './pages/App';
 import GameAlice from './pages/GameAlice';
 import GameBob from './pages/GameBob';
+import GameEve from './pages/GameEve';
 import Lobbies from './pages/Lobbies';
 import LobbyDetail from './pages/LobbyDetail';
 import LobbyNew from './pages/LobbyNew';
@@ -23,6 +24,10 @@ function Router() {
             <Route
                 path={`/games/:gameId/${PLAYERROLE.bob}`}
                 element={<GameBob />}
+            ></Route>
+            <Route
+                path={`/games/:gameId/${PLAYERROLE.eve}`}
+                element={<GameEve />}
             ></Route>
         </Routes>
     );
