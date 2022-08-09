@@ -15,11 +15,23 @@ import IBasisComparisonData from '../models/api/IBasisComparisonData';
 import IQbitDiscardData from '../models/api/IQbitDiscardedData';
 import GameService from '../services/GameServices';
 import Game from '../models/Game';
+import POLARIZATION from '../models/api/Polarization';
+import Photon from '../components/game/Photon';
+import Randomizer from '../helper/Randomizer';
+import Receiver from '../components/game/Receiver';
 
 function GameEve() {
     const params = useParams();
     const socket = useSocket();
     const gameService = new GameService();
+    const [receivedPhoton, setReceivedPhoton] = useState<React.ReactNode>(null);
+    const [measuredPolarization, setMeasuredPolarization] =
+        useState<POLARIZATION | null>(null);
+    const [showPolarization, setShowPolarization] = useState<
+        POLARIZATION | undefined
+    >(undefined);
+    const [isMeasuredPhotonTransported, setIsMeasuredPhotonTransported] =
+        useState(false);
     const [messages, setMessages] = useState<string[]>([]);
     const gameId = params.gameId;
     const [game, setGame] = useState<Game>();
@@ -30,12 +42,28 @@ function GameEve() {
 
     useEffect(() => {
         if (socket) {
-            socket.on('discardPublished', appendQbitDiscardMessage);
+            socket.on('discardPublished', appendReceivedQbitDiscardMessage);
+            socket.on('qbitEnqueued', qbitEnqueuedHandler);
+            socket.on('basisPublished', appendReceivedBasisComparisonMessage);
             return () => {
-                socket.off('discardPublished', appendQbitDiscardMessage);
+                socket.off(
+                    'discardPublished',
+                    appendReceivedQbitDiscardMessage
+                );
+                socket.off('qbitEnqueued', qbitEnqueuedHandler);
+                socket.off(
+                    'basisPublished',
+                    appendReceivedBasisComparisonMessage
+                );
             };
         }
     }, [socket]);
+
+    useEffect(() => {
+        if (measuredPolarization !== null && isMeasuredPhotonTransported) {
+            setShowPolarization(measuredPolarization);
+        }
+    }, [measuredPolarization, isMeasuredPhotonTransported]);
 
     function loadGame() {
         if (gameId) {
@@ -54,11 +82,9 @@ function GameEve() {
         setMessages((prevMessages) => [...prevMessages, message]);
     }
 
-    function appendBasisComparisonMessage(
-        basisComparison: IBasisComparisonData
-    ) {
+    function getReadableBasis(basis: BASIS) {
         let readableBasis = '';
-        switch (basisComparison.basis) {
+        switch (basis) {
             case BASIS.diagonal:
                 readableBasis = 'diagonal';
                 break;
@@ -66,16 +92,48 @@ function GameEve() {
                 readableBasis = 'horizontal-vertical';
                 break;
         }
+        return readableBasis;
+    }
+
+    function appendReceivedBasisComparisonMessage(
+        basisComparison: IBasisComparisonData
+    ) {
+        const readableBasis = getReadableBasis(basisComparison.basis);
         appendMessage(
-            `You: Qubit no. ${basisComparison.qbitNo} was sent with ${readableBasis} basis.`
+            `Alice to you: Qubit no. ${basisComparison.qbitNo} was sent with ${readableBasis} basis.`
         );
     }
 
-    function appendQbitDiscardMessage(qbitDiscard: IQbitDiscardData) {
+    function appendSentBasisComparisonMessage(
+        basisComparison: IBasisComparisonData
+    ) {
+        const readableBasis = getReadableBasis(basisComparison.basis);
+        appendMessage(
+            `You to Bob: Qubit no. ${basisComparison.qbitNo} was sent with ${readableBasis} basis.`
+        );
+    }
+
+    function appendReceivedQbitDiscardMessage(qbitDiscard: IQbitDiscardData) {
         if (qbitDiscard.isDiscarded) {
-            appendMessage(`Bob: Discard qubit no. ${qbitDiscard.qbitNo}.`);
+            appendMessage(
+                `Bob to you: I used a different basis than you for qubit no. ${qbitDiscard.qbitNo} - discard it.`
+            );
         } else {
-            appendMessage(`Bob: Keep qubit no. ${qbitDiscard.qbitNo}.`);
+            appendMessage(
+                `Bob to you: I used the same basis than you for qubit no. ${qbitDiscard.qbitNo} - keep it.`
+            );
+        }
+    }
+
+    function appendSentQbitDiscardMessage(qbitDiscard: IQbitDiscardData) {
+        if (qbitDiscard.isDiscarded) {
+            appendMessage(
+                `You to Alice: I used a different basis than you for qubit no. ${qbitDiscard.qbitNo} - discard it.`
+            );
+        } else {
+            appendMessage(
+                `You to Alice: I used the same basis than you for qubit no. ${qbitDiscard.qbitNo} - keep it.`
+            );
         }
 
         // TODO add this to bob.
@@ -91,6 +149,34 @@ function GameEve() {
         }
     }
 
+    function qbitEnqueuedHandler() {
+        setReceivedPhoton(
+            <Photon qbit={new Qbit(Randomizer.getRandomEnum(POLARIZATION))} />
+        );
+        setMeasuredPolarization(null);
+        setShowPolarization(undefined);
+        setIsMeasuredPhotonTransported(false);
+    }
+
+    function handlePhotonPassing(basis: BASIS) {
+        if (gameId) {
+            socket?.emit(
+                'measureEnqueuedQbit',
+                gameId,
+                basis,
+                (polarization) => {
+                    if (polarization !== undefined) {
+                        setMeasuredPolarization(polarization);
+                    }
+                }
+            );
+        }
+    }
+
+    function handleMeasuredPhotonTransported() {
+        setIsMeasuredPhotonTransported(true);
+    }
+
     function handleHorizontalVerticalBasisButtonClicked(curQbitNo: number) {
         if (gameId) {
             const basisComparison = {
@@ -101,7 +187,7 @@ function GameEve() {
                 'publishBasis',
                 gameId,
                 basisComparison,
-                appendBasisComparisonMessage
+                appendSentBasisComparisonMessage
             );
         }
     }
@@ -116,7 +202,37 @@ function GameEve() {
                 'publishBasis',
                 gameId,
                 basisComparison,
-                appendBasisComparisonMessage
+                appendSentBasisComparisonMessage
+            );
+        }
+    }
+
+    function handleKeepButtonClicked(curQbitNo: number) {
+        if (gameId) {
+            const qbitDiscard = {
+                qbitNo: curQbitNo,
+                isDiscarded: false,
+            };
+            socket?.emit(
+                'publishDiscard',
+                gameId,
+                qbitDiscard,
+                appendSentQbitDiscardMessage
+            );
+        }
+    }
+
+    function handleDiscardButtonClicked(curQbitNo: number) {
+        if (gameId) {
+            const qbitDiscard = {
+                qbitNo: curQbitNo,
+                isDiscarded: true,
+            };
+            socket?.emit(
+                'publishDiscard',
+                gameId,
+                qbitDiscard,
+                appendSentQbitDiscardMessage
             );
         }
     }
@@ -126,6 +242,19 @@ function GameEve() {
             <Nav></Nav>
             <WidthLimiter>
                 <div className="flex justify-between">
+                    <div className="flex-none">
+                        <Receiver
+                            receivedPhoton={receivedPhoton}
+                            showPolarization={showPolarization}
+                            onReceivedPhotonTransported={function (): void {
+                                setReceivedPhoton(null);
+                            }}
+                            onPhotonPassing={handlePhotonPassing}
+                            onMeasuredPhotonTransported={
+                                handleMeasuredPhotonTransported
+                            }
+                        ></Receiver>
+                    </div>
                     <div className="flex-none">
                         <Sender
                             onPolarizedPhotonTransported={
@@ -149,11 +278,11 @@ function GameEve() {
                             </div>
                         </div>
                         <div className="flex mt-10">
-                            <div className="flex-none mr-6 w-44">
-                                <div className="p-2 shadow-inner border-2">
+                            <div className="flex flex-col items-stretch flex-1 mr-6">
+                                <div className="p-2 shadow-inner border-2 mb-5">
                                     <DecisionCommunicator
                                         text={
-                                            'Which basis was used for qubit no i?'
+                                            'Which basis was used for qubit no. ...?'
                                         }
                                         onButtonOneClicked={
                                             handleHorizontalVerticalBasisButtonClicked
@@ -180,9 +309,31 @@ function GameEve() {
                                         }
                                     ></DecisionCommunicator>
                                 </div>
+                                <div className="p-2 shadow-inner border-2">
+                                    <DecisionCommunicator
+                                        text={
+                                            'Did you use the same basis as Alice for qubit no. ...?'
+                                        }
+                                        onButtonOneClicked={
+                                            handleKeepButtonClicked
+                                        }
+                                        onButtonTwoClicked={
+                                            handleDiscardButtonClicked
+                                        }
+                                        buttonOneContent={<div>Same</div>}
+                                        buttonTwoContent={<div>Different</div>}
+                                        noOfQbits={
+                                            game?.noOfQbits ? game.noOfQbits : 1
+                                        }
+                                    ></DecisionCommunicator>
+                                </div>
+                                {/* TODO place compare code button here which opens popup. Should activat once last qbit discard message arrived */}
                             </div>
-                            <div className="flex-1">
-                                <MessageLog messages={messages}></MessageLog>
+                            <div className="flex-initial w-full">
+                                <MessageLog
+                                    messages={messages}
+                                    className="h-full"
+                                ></MessageLog>
                             </div>
                         </div>
                     </div>

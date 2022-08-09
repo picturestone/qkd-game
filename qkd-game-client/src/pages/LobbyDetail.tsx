@@ -125,20 +125,6 @@ function LobbyDetail() {
                                     : ''}
                                 Alice
                             </Button>
-                            <Button
-                                className="mb-1"
-                                onClick={() => {
-                                    selectLobbyRole(PLAYERROLE.bob);
-                                }}
-                                disabled={lobby?.reservedBob ? true : false}
-                            >
-                                {lobby?.reservedBob
-                                    ? lobby.selectedRole === PLAYERROLE.bob
-                                        ? `You play as `
-                                        : `${lobby.reservedBob.name} plays as `
-                                    : ''}
-                                Bob
-                            </Button>
                             {lobby?.isEveAllowed ? (
                                 <Button
                                     className="mb-1"
@@ -157,6 +143,20 @@ function LobbyDetail() {
                             ) : (
                                 ''
                             )}
+                            <Button
+                                className="mb-1"
+                                onClick={() => {
+                                    selectLobbyRole(PLAYERROLE.bob);
+                                }}
+                                disabled={lobby?.reservedBob ? true : false}
+                            >
+                                {lobby?.reservedBob
+                                    ? lobby.selectedRole === PLAYERROLE.bob
+                                        ? `You play as `
+                                        : `${lobby.reservedBob.name} plays as `
+                                    : ''}
+                                Bob
+                            </Button>
                             <Button
                                 onClick={() => {
                                     selectLobbyRole(undefined);

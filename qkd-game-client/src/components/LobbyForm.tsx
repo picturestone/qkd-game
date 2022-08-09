@@ -29,7 +29,6 @@ function LobbyForm(props: IProps) {
     const navigate = useNavigate();
 
     function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
-        console.log('sumbitting');
         event.preventDefault();
         if (loggedInUser) {
             // TODO handle validation in a seperate function.

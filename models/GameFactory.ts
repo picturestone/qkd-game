@@ -36,8 +36,8 @@ export default class GameFactory {
             eveBobQuantumConnection,
             aliceEveBasisComparisonConnection,
             eveBobBasisComparisonConnection,
-            aliceEveQbitDiscardConnection,
-            eveBobQbitDiscardConnection
+            eveBobQbitDiscardConnection,
+            aliceEveQbitDiscardConnection
         );
         const bobPlayer = new BobPlayer(
             bobController,

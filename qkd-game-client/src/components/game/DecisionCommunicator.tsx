@@ -40,7 +40,7 @@ function BasisCommunicator(props: IProps) {
                     {props.buttonOneContent}
                 </Button>
                 <Button
-                    className="h-8"
+                    className="h-8 ml-2"
                     onClick={() => {
                         props.onButtonTwoClicked(curQbitNo);
                         if (curQbitNo < props.noOfQbits) {

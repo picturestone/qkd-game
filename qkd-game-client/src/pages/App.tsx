@@ -25,6 +25,7 @@ function App() {
         delay: 50,
     };
 
+    // TODO deactivate confirm name button if input is 0 long.
     function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
         event.preventDefault();
         // TODO handle validation in a seperate function.

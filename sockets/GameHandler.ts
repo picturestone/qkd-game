@@ -3,6 +3,7 @@ import GameDb from '../database/GameDb';
 import Game from '../models/Game';
 import AliceController from '../models/player/AliceController';
 import BobController from '../models/player/BobController';
+import EveController from '../models/player/EveController';
 import PlayerController from '../models/player/PlayerController';
 import Qbit from '../models/quantum/Qbit';
 import IClientToServerEvents from '../qkd-game-client/src/models/api/IClientToServerEvents';
@@ -47,8 +48,6 @@ function isUserAlice(
     return controller;
 }
 
-// TODO add redirecting on missing auth.
-// TODO quit game when leaving.
 function isUserBob(
     inGame: Game,
     userId: string | undefined
@@ -63,6 +62,22 @@ function isUserBob(
     return controller;
 }
 
+function isUserEve(
+    inGame: Game,
+    userId: string | undefined
+): EveController | undefined {
+    let controller: EveController | undefined = undefined;
+    if (userId) {
+        const eveController = inGame.evePlayer?.controller;
+        if (eveController && userId === eveController.userId) {
+            controller = eveController;
+        }
+    }
+    return controller;
+}
+
+// TODO add redirecting on missing auth.
+// TODO quit game when leaving.
 export default function registerSocketIOEvents(
     server: Server<
         IClientToServerEvents,
@@ -76,9 +91,12 @@ export default function registerSocketIOEvents(
             isGameExisting(gameId).then((game) => {
                 const userId = getUserId(socket);
                 const aliceController = isUserAlice(game, userId);
+                const eveController = isUserEve(game, userId);
+                const sentQbit = Qbit.fromJson(qbitJson);
                 if (aliceController) {
-                    const sentQbit = Qbit.fromJson(qbitJson);
                     aliceController.sendQbit(sentQbit);
+                } else if (eveController) {
+                    eveController.sendQbit(sentQbit);
                 }
             });
         });
@@ -86,9 +104,14 @@ export default function registerSocketIOEvents(
             isGameExisting(gameId).then((game) => {
                 const userId = getUserId(socket);
                 const bobController = isUserBob(game, userId);
+                const eveController = isUserEve(game, userId);
                 if (bobController) {
                     const measuredPolarization =
                         bobController.measureEnqueuedQbit(basis);
+                    cb(measuredPolarization);
+                } else if (eveController) {
+                    const measuredPolarization =
+                        eveController.measureEnqueuedQbit(basis);
                     cb(measuredPolarization);
                 }
             });
@@ -97,8 +120,14 @@ export default function registerSocketIOEvents(
             isGameExisting(gameId).then((game) => {
                 const userId = getUserId(socket);
                 const aliceController = isUserAlice(game, userId);
+                const eveController = isUserEve(game, userId);
                 if (aliceController) {
                     aliceController.controlledPlayer.sendBasisComparison(
+                        basisComparisonData
+                    );
+                    cb(basisComparisonData);
+                } else if (eveController) {
+                    eveController.controlledPlayer.sendBasisComparison(
                         basisComparisonData
                     );
                     cb(basisComparisonData);
@@ -109,8 +138,14 @@ export default function registerSocketIOEvents(
             isGameExisting(gameId).then((game) => {
                 const userId = getUserId(socket);
                 const bobController = isUserBob(game, userId);
+                const eveController = isUserEve(game, userId);
                 if (bobController) {
                     bobController.controlledPlayer.sendQbitDiscard(
+                        qbitDiscardedData
+                    );
+                    cb(qbitDiscardedData);
+                } else if (eveController) {
+                    eveController.controlledPlayer.sendQbitDiscard(
                         qbitDiscardedData
                     );
                     cb(qbitDiscardedData);

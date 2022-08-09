@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 
 interface IProps {
     messages: string[];
+    className?: string;
 }
 
 function MessageLog(props: IProps) {
@@ -45,7 +46,9 @@ function MessageLog(props: IProps) {
     return (
         <div
             ref={messageLogRef}
-            className="flex flex-col border-2 overflow-y-scroll w-full h-72 px-1"
+            className={`flex flex-col border-2 overflow-y-scroll w-full h-72 px-1 ${
+                props.className ? props.className : ''
+            }`}
         >
             {getMessages()}
         </div>

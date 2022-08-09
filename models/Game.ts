@@ -35,6 +35,7 @@ export default class Game {
         if (!this.isStartet) {
             this._alicePlayer.controller.startGame(this);
             this._bobPlayer.controller.startGame(this);
+            this._evePlayer?.controller.startGame(this);
             this.isStartet = true;
         }
     }

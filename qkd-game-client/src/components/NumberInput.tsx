@@ -32,7 +32,11 @@ function NumberInput(props: IProps) {
     }
 
     return (
-        <div className={`flex items-end ${props.className}`}>
+        <div
+            className={`flex items-end ${
+                props.className ? props.className : ''
+            }`}
+        >
             <Button
                 className="h-8"
                 type="button"
@@ -58,7 +62,7 @@ function NumberInput(props: IProps) {
                         props.onChange(newVal);
                     }
                 }}
-                className={`flex-initial text-center border-0 border-b-2 border-gray-700 focus:ring-0 focus:border-gray-700 disabled:border-gray-400 disabled:text-gray-500 remove-spinner`}
+                className={`flex-auto text-center border-0 border-b-2 border-gray-700 focus:ring-0 focus:border-gray-700 disabled:border-gray-400 disabled:text-gray-500 remove-spinner`}
             ></input>
             <Button
                 className="h-8"

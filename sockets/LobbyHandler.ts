@@ -189,6 +189,14 @@ export default function registerSocketIOEvents(
                                     lobby.reservedBob = socket.request.user;
                                 }
                                 break;
+                            case PLAYERROLE.eve:
+                                if (!lobby.reservedEve) {
+                                    removeFromOtherRoles(
+                                        socket.request.user,
+                                        lobby
+                                    );
+                                    lobby.reservedEve = socket.request.user;
+                                }
                         }
                         lobbyDb.put(lobby).then((updatedLobby) => {
                             if (updatedLobby && updatedLobby.id) {

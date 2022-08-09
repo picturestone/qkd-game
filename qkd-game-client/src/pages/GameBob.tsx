@@ -92,11 +92,11 @@ function GameBob() {
     function appendQbitDiscardMessage(qbitDiscard: IQbitDiscardData) {
         if (qbitDiscard.isDiscarded) {
             appendMessage(
-                `You: I used a different basis as Alice for qubit no. ${qbitDiscard.qbitNo} - discard it.`
+                `You: I used a different basis than Alice for qubit no. ${qbitDiscard.qbitNo} - discard it.`
             );
         } else {
             appendMessage(
-                `You: I used the same basis as Alice for qubit no. ${qbitDiscard.qbitNo} - keep it.`
+                `You: I used the same basis than Alice for qubit no. ${qbitDiscard.qbitNo} - keep it.`
             );
         }
 
@@ -216,6 +216,7 @@ function GameBob() {
                                         }
                                     ></DecisionCommunicator>
                                 </div>
+                                {/* TODO place compare code button here which opens popup. Should activat once last qbit discard message arrived */}
                             </div>
                             <div className="flex-initial w-full">
                                 <MessageLog messages={messages}></MessageLog>
