@@ -5,4 +5,5 @@ var PLAYERROLE;
 (function (PLAYERROLE) {
     PLAYERROLE["alice"] = "alice";
     PLAYERROLE["bob"] = "bob";
+    PLAYERROLE["eve"] = "eve";
 })(PLAYERROLE = exports.PLAYERROLE || (exports.PLAYERROLE = {}));

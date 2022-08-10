@@ -8,6 +8,6 @@ const path_1 = __importDefault(require("path"));
 const router = express_1.default.Router();
 /* GET home page. */
 router.get('/', function (req, res, next) {
-    res.sendFile(path_1.default.join(__dirname, '../qkd-game-client/build/index.html'));
+    res.sendFile(path_1.default.join(__dirname, '..', '..', 'qkd-game-client', 'build', 'index.html'));
 });
 exports.default = router;

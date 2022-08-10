@@ -7,6 +7,7 @@ const passport_1 = __importDefault(require("passport"));
 const socket_io_1 = require("socket.io");
 const jwt_1 = require("../auth/jwt");
 const LobbyHandler_1 = __importDefault(require("./LobbyHandler"));
+const GameHandler_1 = __importDefault(require("./GameHandler"));
 const wrap = (middleware) => (socket, next) => middleware(socket.request, {}, next);
 class IO {
     constructor() { }
@@ -34,6 +35,7 @@ class IO {
             }
         });
         (0, LobbyHandler_1.default)(this._server);
+        (0, GameHandler_1.default)(this._server);
     }
     get server() {
         if (this._server) {

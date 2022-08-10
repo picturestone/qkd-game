@@ -7,19 +7,19 @@ const Channel_1 = __importDefault(require("./Channel"));
 class QuantumChannel extends Channel_1.default {
     constructor() {
         super();
-        this._qbitQueue = [];
+        this._queue = [];
         this._observers = [];
     }
     dequeue() {
-        return this._qbitQueue.shift();
+        return this._queue.shift();
     }
     enqueue(value) {
-        this._qbitQueue.push(value);
+        this._queue.push(value);
         this.notifyObservers();
     }
     notifyObservers() {
         this._observers.forEach((observer) => {
-            observer.onQbitEnqueue();
+            observer.onBasisComparisonEnqueue();
         });
     }
     addObserver(observer) {

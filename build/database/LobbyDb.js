@@ -32,6 +32,17 @@ class LobbyDb {
             res(LobbyDb._lobbies);
         });
     }
+    delete(id) {
+        return new Promise((res) => {
+            const index = LobbyDb._lobbies.findIndex((lobby) => lobby.id === id);
+            const removedLobbies = LobbyDb._lobbies.splice(index, 1);
+            let retVal = undefined;
+            if (removedLobbies.length > 0) {
+                retVal = removedLobbies[0];
+            }
+            res(retVal);
+        });
+    }
 }
 exports.default = LobbyDb;
 // TODO use database instead of in-memory

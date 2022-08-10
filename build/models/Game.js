@@ -1,23 +1,20 @@
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
-const QuantumChannel_1 = __importDefault(require("./channel/QuantumChannel"));
-const AlicePlayer_1 = __importDefault(require("./player/AlicePlayer"));
-const BobPlayer_1 = __importDefault(require("./player/BobPlayer"));
 class Game {
-    constructor(aliceController, bobController, id) {
+    constructor(noOfQbits, alicePlayer, bobPlayer, evePlayer, id) {
         this.isStartet = false;
         this._id = id;
-        const aliceBobQuantumConnection = new QuantumChannel_1.default();
-        this._alicePlayer = new AlicePlayer_1.default(aliceController, aliceBobQuantumConnection);
-        this._bobPlayer = new BobPlayer_1.default(bobController, aliceBobQuantumConnection);
+        this._noOfQbits = noOfQbits;
+        this._alicePlayer = alicePlayer;
+        this._bobPlayer = bobPlayer;
+        this._evePlayer = evePlayer;
     }
     startGame() {
+        var _a;
         if (!this.isStartet) {
-            this._alicePlayer.controller.startGame();
-            this._bobPlayer.controller.startGame();
+            this._alicePlayer.controller.startGame(this);
+            this._bobPlayer.controller.startGame(this);
+            (_a = this._evePlayer) === null || _a === void 0 ? void 0 : _a.controller.startGame(this);
             this.isStartet = true;
         }
     }
@@ -26,6 +23,21 @@ class Game {
     }
     get id() {
         return this._id;
+    }
+    get alicePlayer() {
+        return this._alicePlayer;
+    }
+    get bobPlayer() {
+        return this._bobPlayer;
+    }
+    get evePlayer() {
+        return this._evePlayer;
+    }
+    toJson() {
+        return {
+            id: this._id,
+            noOfQbits: this._noOfQbits,
+        };
     }
 }
 exports.default = Game;

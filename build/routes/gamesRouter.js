@@ -13,42 +13,30 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
-const LobbyDb_1 = __importDefault(require("../database/LobbyDb"));
-const Lobby_1 = __importDefault(require("../models/Lobby"));
+const GameDb_1 = __importDefault(require("../database/GameDb"));
 const router = express_1.default.Router();
-const lobbyDb = new LobbyDb_1.default();
-router.get('/', function (req, res) {
-    return __awaiter(this, void 0, void 0, function* () {
-        const lobbyJson = new Array();
-        const lobbies = yield lobbyDb.findAll();
-        lobbies.map((lobbyModel) => {
-            lobbyJson.push(lobbyModel.toJson());
-        });
-        res.send(lobbyJson);
-    });
-});
+const gameDb = new GameDb_1.default();
+// TODO extend with eve
 router.get('/:id', function (req, res) {
+    var _a, _b, _c, _d;
     return __awaiter(this, void 0, void 0, function* () {
-        const lobby = yield lobbyDb.findById(req.params.id);
-        if (lobby) {
-            res.send(lobby.toJson());
+        const game = yield gameDb.findById(req.params.id);
+        if (game && game.id) {
+            const aliceId = game.alicePlayer.controller.userId;
+            const bobId = game.bobPlayer.controller.userId;
+            const eveId = (_a = game.evePlayer) === null || _a === void 0 ? void 0 : _a.controller.userId;
+            if ((aliceId && ((_b = req.user) === null || _b === void 0 ? void 0 : _b.id) === aliceId) ||
+                (bobId && ((_c = req.user) === null || _c === void 0 ? void 0 : _c.id) === bobId) ||
+                (eveId && ((_d = req.user) === null || _d === void 0 ? void 0 : _d.id) === eveId)) {
+                res.send(game.toJson());
+            }
+            else {
+                res.status(401).send();
+            }
         }
         else {
             res.status(404).send();
         }
-    });
-});
-router.post('/', function (req, res) {
-    return __awaiter(this, void 0, void 0, function* () {
-        const lobbyJson = {
-            name: req.body.name,
-            owner: req.body.owner,
-            noOfQbits: req.body.noOfQbits,
-            isEveAllowed: req.body.isEveAllowed,
-        };
-        const lobbyModel = Lobby_1.default.fromJson(lobbyJson);
-        const savedLobby = yield lobbyDb.create(lobbyModel);
-        res.status(201).send(savedLobby.toJson());
     });
 });
 exports.default = router;

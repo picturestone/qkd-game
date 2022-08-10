@@ -12,5 +12,8 @@ class PlayerController {
             throw new Error('ControlledPlayer must be set');
         }
     }
+    get userId() {
+        return undefined;
+    }
 }
 exports.default = PlayerController;
