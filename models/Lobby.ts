@@ -1,25 +1,26 @@
 import ILobbyJson from '../qkd-game-client/src/models/api/ILobbyJson';
 import User from './User';
+import IUser = Express.User;
 
 export default class Lobby {
     private _id?: string;
     private _name: string;
-    private _owner: User;
+    private _owner: IUser;
     private _isEveAllowed: boolean;
-    private _reservedAlice?: User;
-    private _reservedBob?: User;
-    private _reservedEve?: User;
+    private _reservedAlice?: IUser;
+    private _reservedBob?: IUser;
+    private _reservedEve?: IUser;
     private _noOfQbits: number;
 
     constructor(
         name: string,
-        owner: User,
+        owner: IUser,
         noOfQbits: number,
         isEveAllowed: boolean,
         id?: string,
-        reservedAlice?: User,
-        reservedBob?: User,
-        reservedEve?: User
+        reservedAlice?: IUser,
+        reservedBob?: IUser,
+        reservedEve?: IUser
     ) {
         this._name = name;
         this._owner = owner;
@@ -47,7 +48,7 @@ export default class Lobby {
         return this._name;
     }
 
-    public set owner(owner: User) {
+    public set owner(owner: IUser) {
         this._owner = owner;
     }
 
@@ -59,7 +60,7 @@ export default class Lobby {
         return this._reservedEve;
     }
 
-    public set reservedEve(value: User | undefined) {
+    public set reservedEve(value: IUser | undefined) {
         this._reservedEve = value;
     }
 
@@ -67,7 +68,7 @@ export default class Lobby {
         return this._reservedAlice;
     }
 
-    public set reservedAlice(value: User | undefined) {
+    public set reservedAlice(value: IUser | undefined) {
         this._reservedAlice = value;
     }
 
@@ -75,7 +76,7 @@ export default class Lobby {
         return this._reservedBob;
     }
 
-    public set reservedBob(value: User | undefined) {
+    public set reservedBob(value: IUser | undefined) {
         this._reservedBob = value;
     }
 

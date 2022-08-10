@@ -1,11 +1,28 @@
-import { Socket } from 'socket.io';
-import IClientToServerEvents from '../qkd-game-client/src/models/api/IClientToServerEvents';
-import IInterServerEvents from '../qkd-game-client/src/models/api/IInterServerEvents';
-import IServerToClientEvents from '../qkd-game-client/src/models/api/IServerToClientEvents';
-import ISocketData from '../qkd-game-client/src/models/api/ISocketData';
 import IUserJson from '../qkd-game-client/src/models/api/IUserJson';
 
-export default class User {
+// Passport uses the Express.User interface to extend the Express.Request
+// with a 'user' property.
+// We also extend the http.IncomingMessage with the user to have access to
+// the user in socket.io requests via the 'user' property. This user property
+// is also set by the Passport JS middleware. The 'http.IncomingMessage' and
+// 'Express.Request' must both have the same type for 'user' since otherwise
+// declaration merging would not work. Since we are bound to the Express.User
+// interface by Passport JS, we extend this interface with all the properties
+// and methods our User implementation needs. This way we can still work with
+// our own User, but it is encapsulated in an interface providing the very
+// same properties and methods.
+declare global {
+    namespace Express {
+        export interface User {
+            name: string;
+            id?: string;
+            socketId?: string;
+            toJson(): IUserJson;
+        }
+    }
+}
+
+export default class User implements Express.User {
     private _name: string;
     private _id?: string;
     private _socketId?: string;

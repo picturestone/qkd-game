@@ -8,7 +8,7 @@ import 'dotenv/config';
 import indexRouter from './routes/indexRouter';
 import usersRouter from './routes/usersRouter';
 import lobbiesRouter from './routes/lobbiesRouter';
-import { SERVER_PORT } from './helper/Config';
+import { PORT } from './helper/Config';
 import { JWT_AUTH_MIDDLEWARE } from './auth/jwt';
 import { createServer } from 'http';
 import IO from './sockets/IO';
@@ -23,16 +23,18 @@ app.use(cookieParser());
 app.use(passport.initialize());
 app.use(express.static(path.join(__dirname, '../qkd-game-client/build')));
 
-app.use('/', indexRouter);
+// Specific API routes
 app.use('/api/users', usersRouter);
 // TODO find better way to make nested route for all that are under /api.
 // TODO maybe add authenticate middleware for jwt
 app.use('/api/lobbies', JWT_AUTH_MIDDLEWARE, lobbiesRouter);
 app.use('/api/games', JWT_AUTH_MIDDLEWARE, gamesRouter);
+// Everything else is given to index route, which returns the react app.
+app.use('*', indexRouter);
 
 const httpServer = createServer(app);
 IO.getInstance().configurate(httpServer);
 
-httpServer.listen(SERVER_PORT, () => {
-    console.log(`Server is running at http://localhost:${SERVER_PORT}`);
+httpServer.listen(PORT, () => {
+    console.log(`Server is running at http://localhost:${PORT}`);
 });
