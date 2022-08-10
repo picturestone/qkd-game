@@ -21,7 +21,8 @@
         "dev": "concurrently \"npm run devserver\" \"npm run devclient\"",
         "buildserver": "tsc --project ./",
         "buildclient": "npm run build --prefix qkd-game-client",
-        "build": "concurrently \"npm run buildserver\" \"npm run buildclient\""
+        "build": "concurrently \"npm run buildserver\" \"npm run buildclient\"",
+        "install": "concurrently \"npm install\" \"cd qkd-game-client && npm install\""
     },
     "dependencies": {
         "cookie-parser": "~1.4.4",
