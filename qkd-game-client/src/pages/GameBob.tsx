@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
+import CodeComparator from '../components/game/CodeComparator';
 import DecisionCommunicator from '../components/game/DecisionCommunicator';
 import NoteTable from '../components/game/NoteTable';
 import Photon from '../components/game/Photon';
@@ -17,7 +18,6 @@ import Game from '../models/Game';
 import Qbit from '../models/quantum/Qbit';
 import GameService from '../services/GameServices';
 
-// TODO fix multiple photons receiving.
 function GameBob() {
     const params = useParams();
     const socket = useSocket();
@@ -33,6 +33,8 @@ function GameBob() {
     const gameId = params.gameId;
     const [messages, setMessages] = useState<string[]>([]);
     const [game, setGame] = useState<Game>();
+    const [code, setCode] = useState<string>('');
+    const [codeComperatorDisabled, setCodeComperatorDisabled] = useState(true);
 
     useEffect(() => {
         loadGame();
@@ -101,8 +103,7 @@ function GameBob() {
         }
 
         if (game?.noOfQbits && qbitDiscard.qbitNo >= game.noOfQbits) {
-            // TODO start code comparison.
-            console.log('game is done');
+            setCodeComperatorDisabled(false);
         }
     }
 
@@ -164,8 +165,15 @@ function GameBob() {
         }
     }
 
+    function handleCodeComperatorSubmit(
+        event: React.FormEvent<HTMLFormElement>
+    ) {
+        // TODO redirect to comparison page and present the entered code.
+    }
+
     return (
-        <React.Fragment>
+        // TODO is this a good idea? its needed because the pulsing animation on codeComperator overflows the screen on small screens
+        <div className="overflow-x-hidden w-screen h-screen">
             <Nav></Nav>
             <WidthLimiter>
                 <div className="flex justify-between">
@@ -196,6 +204,14 @@ function GameBob() {
                                 </div>
                             </div>
                         </div>
+                        <div className="flex mt-6">
+                            <CodeComparator
+                                disabled={codeComperatorDisabled}
+                                value={code}
+                                onChange={setCode}
+                                handleSubmit={handleCodeComperatorSubmit}
+                            ></CodeComparator>
+                        </div>
                         <div className="flex mt-10">
                             <div className="flex-1 mr-6">
                                 <div className="p-2 shadow-inner border-2">
@@ -225,7 +241,7 @@ function GameBob() {
                     </div>
                 </div>
             </WidthLimiter>
-        </React.Fragment>
+        </div>
     );
 }
 

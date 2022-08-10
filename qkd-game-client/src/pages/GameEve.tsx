@@ -40,16 +40,24 @@ function GameEve() {
         loadGame();
     }, []);
 
+    // game state is used in handler, which makes it a dependency.
     useEffect(() => {
-        if (socket) {
+        if (socket && game) {
             socket.on('discardPublished', appendReceivedQbitDiscardMessage);
-            socket.on('qbitEnqueued', qbitEnqueuedHandler);
-            socket.on('basisPublished', appendReceivedBasisComparisonMessage);
             return () => {
                 socket.off(
                     'discardPublished',
                     appendReceivedQbitDiscardMessage
                 );
+            };
+        }
+    }, [socket, game]);
+
+    useEffect(() => {
+        if (socket) {
+            socket.on('qbitEnqueued', qbitEnqueuedHandler);
+            socket.on('basisPublished', appendReceivedBasisComparisonMessage);
+            return () => {
                 socket.off('qbitEnqueued', qbitEnqueuedHandler);
                 socket.off(
                     'basisPublished',
@@ -238,7 +246,7 @@ function GameEve() {
     }
 
     return (
-        <React.Fragment>
+        <div className="overflow-x-hidden w-screen h-screen">
             <Nav></Nav>
             <WidthLimiter>
                 <div className="flex justify-between">
@@ -339,7 +347,7 @@ function GameEve() {
                     </div>
                 </div>
             </WidthLimiter>
-        </React.Fragment>
+        </div>
     );
 }
 
