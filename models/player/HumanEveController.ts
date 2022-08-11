@@ -3,17 +3,17 @@ import POLARIZATION from '../../qkd-game-client/src/models/api/Polarization';
 import IO from '../../sockets/IO';
 import Game from '../Game';
 import Qbit from '../quantum/Qbit';
-import User from '../User';
 import EveController from './EveController';
 import IHumanPlayer from './IHumanPlayer';
+import IUser = Express.User;
 
 export default class HumanEveController
     extends EveController
     implements IHumanPlayer
 {
-    private _user: User;
+    private _user: IUser;
 
-    constructor(user: User) {
+    constructor(user: IUser) {
         super();
         this._user = user;
     }

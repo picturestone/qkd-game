@@ -1,7 +1,6 @@
 import { Server } from 'socket.io';
 import GameDb from '../database/GameDb';
 import LobbyDb from '../database/LobbyDb';
-import Game from '../models/Game';
 import GameFactory from '../models/GameFactory';
 import Lobby from '../models/Lobby';
 import HumanAliceController from '../models/player/HumanAliceController';
@@ -14,8 +13,9 @@ import IServerToClientEvents from '../qkd-game-client/src/models/api/IServerToCl
 import ISocketData from '../qkd-game-client/src/models/api/ISocketData';
 import { PLAYERROLE } from '../qkd-game-client/src/models/api/PlayerRole';
 import IO from './IO';
+import IUser = Express.User;
 
-function removeFromOtherRoles(user: User | undefined, lobby: Lobby) {
+function removeFromOtherRoles(user: IUser | undefined, lobby: Lobby) {
     if (user) {
         const userId = user.id;
         if (lobby.reservedAlice?.id === userId) {

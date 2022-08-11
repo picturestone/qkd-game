@@ -1,18 +1,18 @@
 import IO from '../../sockets/IO';
 import Game from '../Game';
 import Basis from '../../qkd-game-client/src/models/api/Basis';
-import User from '../User';
 import BobController from './BobController';
 import IHumanPlayer from './IHumanPlayer';
 import POLARIZATION from '../../qkd-game-client/src/models/api/Polarization';
+import IUser = Express.User;
 
 export default class HumanBobController
     extends BobController
     implements IHumanPlayer
 {
-    private _user: User;
+    private _user: IUser;
 
-    constructor(user: User) {
+    constructor(user: IUser) {
         super();
         this._user = user;
     }

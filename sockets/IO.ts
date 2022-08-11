@@ -6,9 +6,9 @@ import IServerToClientEvents from '../qkd-game-client/src/models/api/IServerToCl
 import IInterServerEvents from '../qkd-game-client/src/models/api/IInterServerEvents';
 import ISocketData from '../qkd-game-client/src/models/api/ISocketData';
 import { Server as HttpServer } from 'http';
-import User from '../models/User';
 import { default as registerLobbySocketIOEvents } from './LobbyHandler';
 import { default as registerGameSocketIOEvents } from './GameHandler';
+import IUser = Express.User;
 
 const wrap = (middleware: any) => (socket: Socket, next: any) =>
     middleware(socket.request, {}, next);
@@ -16,7 +16,7 @@ const wrap = (middleware: any) => (socket: Socket, next: any) =>
 // Custom extension of IncomingMessage class to accomodate socket.request.user that is added by auth middleware.
 declare module 'http' {
     interface IncomingMessage {
-        user?: User;
+        user?: IUser;
     }
 }
 
