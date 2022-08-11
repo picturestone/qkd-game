@@ -8,7 +8,9 @@ function getSocket() {
     // TODO maybe we need to wait for the socket open event. Dependency in useEffect on socket is probably not enough, since the socket does not change and use effect wont fire again.
     // TODO maybe add a connected listener to socket? what if this is fired before the socket is connected?
     const socket: Socket<IServerToClientEvents, IClientToServerEvents> = io(
-        process.env.SOCKETIO_CONNECTION_STRING || 'ws://localhost:3001',
+        process.env.PORT
+            ? `ws://localhost:${process.env.PORT}`
+            : 'ws://localhost:3001',
         {
             extraHeaders: {
                 authorization: new AuthStorage().getToken() || '',
