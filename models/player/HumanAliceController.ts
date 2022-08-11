@@ -4,14 +4,15 @@ import Qbit from '../quantum/Qbit';
 import User from '../User';
 import AliceController from './AliceController';
 import IHumanPlayer from './IHumanPlayer';
+import IUser = Express.User;
 
 export default class HumanAliceController
     extends AliceController
     implements IHumanPlayer
 {
-    private _user: User;
+    private _user: IUser;
 
-    constructor(user: User) {
+    constructor(user: IUser) {
         super();
         this._user = user;
     }

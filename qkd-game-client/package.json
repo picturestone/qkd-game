@@ -6,6 +6,7 @@
     "dependencies": {
         "@loadable/component": "^5.15.2",
         "@react-spring/web": "^9.5.2",
+        "@tailwindcss/forms": "^0.5.2",
         "@testing-library/jest-dom": "^5.16.4",
         "@testing-library/react": "^13.3.0",
         "@testing-library/user-event": "^14.3.0",
@@ -30,7 +31,8 @@
         "socket.io-client": "^4.5.1",
         "typescript": "^4.7.4",
         "typewriter-effect": "^2.19.0",
-        "web-vitals": "^2.1.4"
+        "web-vitals": "^2.1.4",
+        "react-scripts": "5.0.1"
     },
     "scripts": {
         "start": "react-scripts start",
@@ -57,10 +59,8 @@
         ]
     },
     "devDependencies": {
-        "@tailwindcss/forms": "^0.5.2",
         "autoprefixer": "^10.4.8",
         "postcss": "^8.4.14",
-        "react-scripts": "5.0.1",
         "tailwindcss": "^3.1.6"
     }
 }
