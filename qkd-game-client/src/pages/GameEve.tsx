@@ -145,8 +145,7 @@ function GameEve() {
         }
 
         if (game?.noOfQbits && qbitDiscard.qbitNo >= game.noOfQbits) {
-            // TODO start code comparison.
-            console.log('game is done');
+            // TODO send code, set result accordingly, transfer to results page. await results there.
         }
     }
 
