@@ -1,13 +1,17 @@
-import PlayerController from './PlayerController';
+import Game from '../Game';
+import HumanPlayer from './HumanPlayer';
 
 export default abstract class Player {
     private _publishedCode?: string;
     private _isDoneWithGame: boolean;
 
-    constructor(controller: PlayerController<Player>) {
-        controller.controlledPlayer = this;
+    constructor() {
         this._isDoneWithGame = false;
     }
+
+    abstract get humanPlayer(): HumanPlayer | undefined;
+
+    abstract startGame(game: Game): void;
 
     get publishedCode() {
         return this._publishedCode;

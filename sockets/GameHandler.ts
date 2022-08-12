@@ -1,9 +1,9 @@
 import { Server, Socket } from 'socket.io';
 import GameDb from '../database/GameDb';
 import Game from '../models/Game';
-import AliceController from '../models/player/AliceController';
-import BobController from '../models/player/BobController';
-import EveController from '../models/player/EveController';
+import HumanAlicePlayer from '../models/player/HumanAlicePlayer';
+import HumanBobPlayer from '../models/player/HumanBobPlayer';
+import HumanEvePlayer from '../models/player/HumanEvePlayer';
 import Qbit from '../models/quantum/Qbit';
 import IClientToServerEvents from '../qkd-game-client/src/models/api/IClientToServerEvents';
 import IInterServerEvents from '../qkd-game-client/src/models/api/IInterServerEvents';
@@ -36,51 +36,51 @@ function getUserId(
 function isUserAlice(
     inGame: Game,
     userId: string | undefined
-): AliceController | undefined {
-    let controller: AliceController | undefined = undefined;
+): HumanAlicePlayer | undefined {
+    let player: HumanAlicePlayer | undefined = undefined;
     if (userId) {
-        const aliceController = inGame.alicePlayer.controller;
-        if (userId === aliceController.userId) {
-            controller = aliceController;
+        const aliceUserId = inGame.alicePlayer.humanPlayer?.userId;
+        if (userId === aliceUserId) {
+            player = inGame.alicePlayer as HumanAlicePlayer;
         }
     }
-    return controller;
+    return player;
 }
 
 function isUserBob(
     inGame: Game,
     userId: string | undefined
-): BobController | undefined {
-    let controller: BobController | undefined = undefined;
+): HumanBobPlayer | undefined {
+    let player: HumanBobPlayer | undefined = undefined;
     if (userId) {
-        const bobController = inGame.bobPlayer.controller;
-        if (userId === bobController.userId) {
-            controller = bobController;
+        const bobUserId = inGame.bobPlayer.humanPlayer?.userId;
+        if (userId === bobUserId) {
+            player = inGame.bobPlayer as HumanBobPlayer;
         }
     }
-    return controller;
+    return player;
 }
 
 function isUserEve(
     inGame: Game,
     userId: string | undefined
-): EveController | undefined {
-    let controller: EveController | undefined = undefined;
+): HumanEvePlayer | undefined {
+    let player: HumanEvePlayer | undefined = undefined;
     if (userId) {
-        const eveController = inGame.evePlayer?.controller;
-        if (eveController && userId === eveController.userId) {
-            controller = eveController;
+        const eveUserId = inGame.evePlayer?.humanPlayer?.userId;
+        if (userId === eveUserId) {
+            player = inGame.evePlayer as HumanEvePlayer;
         }
     }
-    return controller;
+    return player;
 }
 
 function handlePublishedCodeSending(game: Game) {
     const aliceCode = game.alicePlayer.publishedCode;
     const bobCode = game.bobPlayer.publishedCode;
     if (aliceCode !== undefined && bobCode !== undefined) {
-        game.alicePlayer.controller.onCodesPublished(aliceCode, bobCode);
-        game.bobPlayer.controller.onCodesPublished(aliceCode, bobCode);
+        game.alicePlayer.onCodesPublished(aliceCode, bobCode);
+        game.bobPlayer.onCodesPublished(aliceCode, bobCode);
     }
 }
 
@@ -98,28 +98,28 @@ export default function registerSocketIOEvents(
         socket.on('sendQbit', (gameId, qbitJson) => {
             isGameExisting(gameId).then((game) => {
                 const userId = getUserId(socket);
-                const aliceController = isUserAlice(game, userId);
-                const eveController = isUserEve(game, userId);
+                const alicePlayer = isUserAlice(game, userId);
+                const evePlayer = isUserEve(game, userId);
                 const sentQbit = Qbit.fromJson(qbitJson);
-                if (aliceController) {
-                    aliceController.sendQbit(sentQbit);
-                } else if (eveController) {
-                    eveController.sendQbit(sentQbit);
+                if (alicePlayer) {
+                    alicePlayer.sendQbit(sentQbit);
+                } else if (evePlayer) {
+                    evePlayer.sendQbit(sentQbit);
                 }
             });
         });
         socket.on('measureEnqueuedQbit', (gameId, basis, cb) => {
             isGameExisting(gameId).then((game) => {
                 const userId = getUserId(socket);
-                const bobController = isUserBob(game, userId);
-                const eveController = isUserEve(game, userId);
-                if (bobController) {
+                const bobPlayer = isUserBob(game, userId);
+                const evePlayer = isUserEve(game, userId);
+                if (bobPlayer) {
                     const measuredPolarization =
-                        bobController.measureEnqueuedQbit(basis);
+                        bobPlayer.measureEnqueuedQbit(basis);
                     cb(measuredPolarization);
-                } else if (eveController) {
+                } else if (evePlayer) {
                     const measuredPolarization =
-                        eveController.measureEnqueuedQbit(basis);
+                        evePlayer.measureEnqueuedQbit(basis);
                     cb(measuredPolarization);
                 }
             });
@@ -127,17 +127,13 @@ export default function registerSocketIOEvents(
         socket.on('publishBasis', (gameId, basisComparisonData, cb) => {
             isGameExisting(gameId).then((game) => {
                 const userId = getUserId(socket);
-                const aliceController = isUserAlice(game, userId);
-                const eveController = isUserEve(game, userId);
-                if (aliceController) {
-                    aliceController.controlledPlayer.sendBasisComparison(
-                        basisComparisonData
-                    );
+                const alicePlayer = isUserAlice(game, userId);
+                const evePlayer = isUserEve(game, userId);
+                if (alicePlayer) {
+                    alicePlayer.sendBasisComparison(basisComparisonData);
                     cb(basisComparisonData);
-                } else if (eveController) {
-                    eveController.controlledPlayer.sendBasisComparison(
-                        basisComparisonData
-                    );
+                } else if (evePlayer) {
+                    evePlayer.sendBasisComparison(basisComparisonData);
                     cb(basisComparisonData);
                 }
             });
@@ -145,17 +141,13 @@ export default function registerSocketIOEvents(
         socket.on('publishDiscard', (gameId, qbitDiscardedData, cb) => {
             isGameExisting(gameId).then((game) => {
                 const userId = getUserId(socket);
-                const bobController = isUserBob(game, userId);
-                const eveController = isUserEve(game, userId);
-                if (bobController) {
-                    bobController.controlledPlayer.sendQbitDiscard(
-                        qbitDiscardedData
-                    );
+                const bobPlayer = isUserBob(game, userId);
+                const evePlayer = isUserEve(game, userId);
+                if (bobPlayer) {
+                    bobPlayer.sendQbitDiscard(qbitDiscardedData);
                     cb(qbitDiscardedData);
-                } else if (eveController) {
-                    eveController.controlledPlayer.sendQbitDiscard(
-                        qbitDiscardedData
-                    );
+                } else if (evePlayer) {
+                    evePlayer.sendQbitDiscard(qbitDiscardedData);
                     cb(qbitDiscardedData);
                 }
             });
@@ -163,31 +155,22 @@ export default function registerSocketIOEvents(
         socket.on('publishCode', (gameId, code, cb) => {
             isGameExisting(gameId).then((game) => {
                 const userId = getUserId(socket);
-                const aliceController = isUserAlice(game, userId);
-                const bobController = isUserBob(game, userId);
-                const eveController = isUserEve(game, userId);
-                if (
-                    aliceController &&
-                    aliceController.controlledPlayer.publishedCode === undefined
-                ) {
-                    aliceController.controlledPlayer.publishedCode = code;
+                const alicePlayer = isUserAlice(game, userId);
+                const bobPlayer = isUserBob(game, userId);
+                const evePlayer = isUserEve(game, userId);
+                if (alicePlayer && alicePlayer.publishedCode === undefined) {
+                    alicePlayer.publishedCode = code;
                     // TODO This should not be called here but by the player to the controller instead
                     // So it would work with a computer player.
                     handlePublishedCodeSending(game);
                     cb();
-                } else if (
-                    bobController &&
-                    bobController.controlledPlayer.publishedCode === undefined
-                ) {
-                    bobController.controlledPlayer.publishedCode = code;
+                } else if (bobPlayer && bobPlayer.publishedCode === undefined) {
+                    bobPlayer.publishedCode = code;
                     handlePublishedCodeSending(game);
                     cb();
-                } else if (
-                    eveController &&
-                    eveController.controlledPlayer.publishedCode === undefined
-                ) {
-                    eveController.controlledPlayer.publishedCode = code;
-                    eveController.controlledPlayer.isDoneWithGame = true;
+                } else if (evePlayer && evePlayer.publishedCode === undefined) {
+                    evePlayer.publishedCode = code;
+                    evePlayer.isDoneWithGame = true;
                     cb();
                 }
             });
@@ -195,9 +178,9 @@ export default function registerSocketIOEvents(
         socket.on('getPublishedCodes', (gameId, cb) => {
             isGameExisting(gameId).then((game) => {
                 const userId = getUserId(socket);
-                const aliceController = isUserAlice(game, userId);
-                const bobController = isUserBob(game, userId);
-                if (aliceController || bobController) {
+                const alicePlayer = isUserAlice(game, userId);
+                const bobPlayer = isUserBob(game, userId);
+                if (alicePlayer || bobPlayer) {
                     const aliceCode = game.alicePlayer.publishedCode;
                     const bobCode = game.bobPlayer.publishedCode;
                     cb({
@@ -212,24 +195,20 @@ export default function registerSocketIOEvents(
             (gameId, isEveListening, cb) => {
                 isGameExisting(gameId).then((game) => {
                     const userId = getUserId(socket);
-                    const aliceController = isUserAlice(game, userId);
-                    const bobController = isUserBob(game, userId);
+                    const alicePlayer = isUserAlice(game, userId);
+                    const bobPlayer = isUserBob(game, userId);
                     // TODO handle messaging the controller afterwars/sending the event.
                     if (
-                        aliceController &&
-                        aliceController.controlledPlayer
-                            .isEveListeningInGuess === undefined
+                        alicePlayer &&
+                        alicePlayer.isEveListeningInGuess === undefined
                     ) {
-                        aliceController.controlledPlayer.isEveListeningInGuess =
-                            isEveListening;
+                        alicePlayer.isEveListeningInGuess = isEveListening;
                         cb();
                     } else if (
-                        bobController &&
-                        bobController.controlledPlayer.isEveListeningInGuess ===
-                            undefined
+                        bobPlayer &&
+                        bobPlayer.isEveListeningInGuess === undefined
                     ) {
-                        bobController.controlledPlayer.isEveListeningInGuess =
-                            isEveListening;
+                        bobPlayer.isEveListeningInGuess = isEveListening;
                         cb();
                     }
                 });

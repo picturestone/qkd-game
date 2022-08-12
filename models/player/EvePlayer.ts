@@ -1,5 +1,7 @@
+import BASIS from '../../qkd-game-client/src/models/api/Basis';
 import IBasisComparisonData from '../../qkd-game-client/src/models/api/IBasisComparisonData';
 import IQbitDiscardData from '../../qkd-game-client/src/models/api/IQbitDiscardedData';
+import POLARIZATION from '../../qkd-game-client/src/models/api/Polarization';
 import BasisComparisonChannel from '../channel/BasisComparisonChannel';
 import IBasisComparisonChannelObserver from '../channel/IBasisComparisonChannelObserver';
 import IQbitDiscardChannelObserver from '../channel/IQbitDiscardChannelObserver';
@@ -8,17 +10,15 @@ import ISink from '../channel/ISink';
 import QbitDiscardChannel from '../channel/QbitDiscardChannel';
 import QuantumChannel from '../channel/QuantumChannel';
 import Qbit from '../quantum/Qbit';
-import EveController from './EveController';
 import Player from './Player';
 
-export default class EvePlayer
+export default abstract class EvePlayer
     extends Player
     implements
         IQuantumChannelObserver,
         IBasisComparisonChannelObserver,
         IQbitDiscardChannelObserver
 {
-    private _controller: EveController;
     private _sourceQuantumChannel: QuantumChannel;
     private _sinkQuantumChannel: ISink<Qbit>;
     private _sourceBasisComparisonChannel: BasisComparisonChannel;
@@ -27,7 +27,6 @@ export default class EvePlayer
     private _sourceQbitDiscardChannel: QbitDiscardChannel;
 
     constructor(
-        controller: EveController,
         sourceQuantumChannel: QuantumChannel,
         sinkQuantumChannel: ISink<Qbit>,
         sourceBasisComparisonChannel: BasisComparisonChannel,
@@ -35,8 +34,7 @@ export default class EvePlayer
         sourceQbitDiscardChannel: QbitDiscardChannel,
         sinkQbitDiscardChannel: ISink<IQbitDiscardData>
     ) {
-        super(controller);
-        this._controller = controller;
+        super();
         this._sourceQuantumChannel = sourceQuantumChannel;
         this._sourceQuantumChannel.addObserver(this);
         this._sinkQuantumChannel = sinkQuantumChannel;
@@ -48,13 +46,10 @@ export default class EvePlayer
         this._sinkQbitDiscardChannel = sinkQbitDiscardChannel;
     }
 
-    get controller(): EveController {
-        return this._controller;
-    }
-
-    public onQbitDiscardEnqueue(): void {
-        this._controller.onQbitDiscardEnqueue();
-    }
+    abstract onQbitDiscardEnqueue(): void;
+    abstract onQbitEnqueue(): void;
+    abstract onBasisComparisonEnqueue(): void;
+    abstract measureEnqueuedQbit(basis: BASIS): POLARIZATION | undefined;
 
     public sendQbit(qbit: Qbit) {
         this._sinkQuantumChannel.enqueue(qbit);
@@ -66,14 +61,6 @@ export default class EvePlayer
 
     public dequeueQbitDiscard() {
         return this._sourceQbitDiscardChannel.dequeue();
-    }
-
-    public onBasisComparisonEnqueue(): void {
-        this._controller.onBasisComparisonEnqueue();
-    }
-
-    public onQbitEnqueue(): void {
-        this._controller.onQbitEnqueue();
     }
 
     public dequeueQbit() {

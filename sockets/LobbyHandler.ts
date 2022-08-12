@@ -1,12 +1,8 @@
 import { Server } from 'socket.io';
 import GameDb from '../database/GameDb';
 import LobbyDb from '../database/LobbyDb';
-import GameFactory from '../models/GameFactory';
+import GameBuilder from '../models/GameBuilder';
 import Lobby from '../models/Lobby';
-import HumanAliceController from '../models/player/HumanAliceController';
-import HumanBobController from '../models/player/HumanBobController';
-import HumanEveController from '../models/player/HumanEveController';
-import User from '../models/User';
 import IClientToServerEvents from '../qkd-game-client/src/models/api/IClientToServerEvents';
 import IInterServerEvents from '../qkd-game-client/src/models/api/IInterServerEvents';
 import IServerToClientEvents from '../qkd-game-client/src/models/api/IServerToClientEvents';
@@ -47,12 +43,10 @@ function startAliceBobGame(
         const ioServer = IO.getInstance().server;
         ioServer.in(lobby.id).socketsLeave(lobby.id);
         // Create game.
-        const aliceController = new HumanAliceController(lobby.reservedAlice);
-        const bobController = new HumanBobController(lobby.reservedBob);
-        const game = GameFactory.createAliceBobGame(
+        const game = GameBuilder.createAliceBobGame(
             lobby.noOfQbits,
-            aliceController,
-            bobController
+            lobby.reservedAlice,
+            lobby.reservedBob
         );
         new GameDb().create(game).then((savedGame) => {
             if (lobby && lobby.id) {
@@ -94,14 +88,11 @@ function startAliceBobEveGame(
         // Make all sockets in the lobby room leave.
         const ioServer = IO.getInstance().server;
         ioServer.in(lobby.id).socketsLeave(lobby.id);
-        const aliceController = new HumanAliceController(lobby.reservedAlice);
-        const bobController = new HumanBobController(lobby.reservedBob);
-        const eveController = new HumanEveController(lobby.reservedEve);
-        const game = GameFactory.createAliceBobEveGame(
+        const game = GameBuilder.createAliceBobEveGame(
             lobby.noOfQbits,
-            aliceController,
-            bobController,
-            eveController
+            lobby.reservedAlice,
+            lobby.reservedBob,
+            lobby.reservedEve
         );
         new GameDb().create(game).then((savedGame) => {
             if (lobby && lobby.id) {
