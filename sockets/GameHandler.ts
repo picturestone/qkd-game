@@ -4,7 +4,6 @@ import Game from '../models/Game';
 import AliceController from '../models/player/AliceController';
 import BobController from '../models/player/BobController';
 import EveController from '../models/player/EveController';
-import PlayerController from '../models/player/PlayerController';
 import Qbit from '../models/quantum/Qbit';
 import IClientToServerEvents from '../qkd-game-client/src/models/api/IClientToServerEvents';
 import IInterServerEvents from '../qkd-game-client/src/models/api/IInterServerEvents';
@@ -172,6 +171,8 @@ export default function registerSocketIOEvents(
                     aliceController.controlledPlayer.publishedCode === undefined
                 ) {
                     aliceController.controlledPlayer.publishedCode = code;
+                    // TODO This should not be called here but by the player to the controller instead
+                    // So it would work with a computer player.
                     handlePublishedCodeSending(game);
                     cb();
                 } else if (
@@ -186,9 +187,7 @@ export default function registerSocketIOEvents(
                     eveController.controlledPlayer.publishedCode === undefined
                 ) {
                     eveController.controlledPlayer.publishedCode = code;
-                    // TODO separate event where eve marks game as done.
-                    // TODO add event to mark game as finished by each player.
-                    // If all are finished then show a summary of the game.
+                    eveController.controlledPlayer.isDoneWithGame = true;
                     cb();
                 }
             });
@@ -208,5 +207,33 @@ export default function registerSocketIOEvents(
                 }
             });
         });
+        socket.on(
+            'publishIsEveListeningGuess',
+            (gameId, isEveListening, cb) => {
+                isGameExisting(gameId).then((game) => {
+                    const userId = getUserId(socket);
+                    const aliceController = isUserAlice(game, userId);
+                    const bobController = isUserBob(game, userId);
+                    // TODO handle messaging the controller afterwars/sending the event.
+                    if (
+                        aliceController &&
+                        aliceController.controlledPlayer
+                            .isEveListeningInGuess === undefined
+                    ) {
+                        aliceController.controlledPlayer.isEveListeningInGuess =
+                            isEveListening;
+                        cb();
+                    } else if (
+                        bobController &&
+                        bobController.controlledPlayer.isEveListeningInGuess ===
+                            undefined
+                    ) {
+                        bobController.controlledPlayer.isEveListeningInGuess =
+                            isEveListening;
+                        cb();
+                    }
+                });
+            }
+        );
     });
 }

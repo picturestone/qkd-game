@@ -1,5 +1,6 @@
 import BASIS from './Basis';
 import IBasisComparisonData from './IBasisComparisonData';
+import IGameResultsData from './IGameResultsData';
 import IPublishedCodesData from './IPublishedCodesData';
 import IQbitDiscardData from './IQbitDiscardedData';
 import IQbitJson from './IQbitJson';
@@ -34,5 +35,14 @@ export default interface IClientToServerEvents {
     getPublishedCodes: (
         gameId: string,
         cb: (publishedCodesData: IPublishedCodesData) => void
+    ) => void;
+    publishIsEveListeningGuess: (
+        gameId: string,
+        isEveListening: boolean,
+        cb: () => void
+    ) => void;
+    getPublishedResults: (
+        gameId: string,
+        cb: (publishedResultsData: IGameResultsData) => void
     ) => void;
 }

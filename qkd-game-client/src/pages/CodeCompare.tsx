@@ -3,14 +3,9 @@ import { useParams } from 'react-router-dom';
 import Nav from '../components/Nav';
 import WidthLimiter from '../components/WidthLimiter';
 import { useSocket } from '../helper/IO';
-import GameService from '../services/GameServices';
-import Game from '../models/Game';
 import IPublishedCodesData from '../models/api/IPublishedCodesData';
 import Button from '../components/Button';
 
-// TODO Ask questions: Did you end up with the same code?
-// If no --> Do you think eve was listening in?
-// If no someone must have made a mistake
 function CodeCompare() {
     const params = useParams();
     const socket = useSocket();

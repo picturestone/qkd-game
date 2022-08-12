@@ -15,6 +15,7 @@ export default class AlicePlayer
     private _basisComparisonChannel: ISink<IBasisComparisonData>;
     private _qbitDiscardChannel: QbitDiscardChannel;
     private _controller: AliceController;
+    private _isEveIsListeningInGuess?: boolean;
 
     constructor(
         controller: AliceController,
@@ -32,6 +33,14 @@ export default class AlicePlayer
 
     get controller(): AliceController {
         return this._controller;
+    }
+
+    get isEveListeningInGuess() {
+        return this._isEveIsListeningInGuess;
+    }
+
+    set isEveListeningInGuess(value: boolean | undefined) {
+        this._isEveIsListeningInGuess = value;
     }
 
     public onQbitDiscardEnqueue(): void {

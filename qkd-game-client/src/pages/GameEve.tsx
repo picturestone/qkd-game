@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { FaArrowsAlt } from 'react-icons/fa';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import DecisionCommunicator from '../components/game/DecisionCommunicator';
 import NoteTable from '../components/game/NoteTable';
 import PolarizationTable from '../components/game/PolarizationTable';
@@ -35,6 +35,7 @@ function GameEve() {
     const [messages, setMessages] = useState<string[]>([]);
     const gameId = params.gameId;
     const [game, setGame] = useState<Game>();
+    const navigate = useNavigate();
 
     useEffect(() => {
         loadGame();
@@ -145,7 +146,7 @@ function GameEve() {
         }
 
         if (game?.noOfQbits && qbitDiscard.qbitNo >= game.noOfQbits) {
-            // TODO send code, set result accordingly, transfer to results page. await results there.
+            // TODO unlock comperator, send code, transfer to results page. await results there.
         }
     }
 

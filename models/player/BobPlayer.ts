@@ -18,6 +18,7 @@ export default class BobPlayer
     private _basisComparisonChannel: BasisComparisonChannel;
     private _qbitDiscardChannel: ISink<IQbitDiscardData>;
     private _controller: BobController;
+    private _isEveIsListeningInGuess?: boolean;
 
     constructor(
         controller: BobController,
@@ -36,6 +37,14 @@ export default class BobPlayer
 
     get controller(): BobController {
         return this._controller;
+    }
+
+    get isEveListeningInGuess() {
+        return this._isEveIsListeningInGuess;
+    }
+
+    set isEveListeningInGuess(value: boolean | undefined) {
+        this._isEveIsListeningInGuess = value;
     }
 
     public onBasisComparisonEnqueue(): void {
