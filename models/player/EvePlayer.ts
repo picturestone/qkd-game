@@ -51,6 +51,10 @@ export default abstract class EvePlayer
     abstract onBasisComparisonEnqueue(): void;
     abstract measureEnqueuedQbit(basis: BASIS): POLARIZATION | undefined;
 
+    public onCodePublished(): void {
+        this.isDoneWithGame = true;
+    }
+
     public sendQbit(qbit: Qbit) {
         this._sinkQuantumChannel.enqueue(qbit);
     }

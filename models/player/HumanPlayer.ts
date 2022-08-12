@@ -1,11 +1,34 @@
 import IUser = Express.User;
 import IO from '../../sockets/IO';
+import Game from '../Game';
 
 export default class HumanPlayer {
     private _user: IUser;
 
     constructor(user: IUser) {
         this._user = user;
+    }
+
+    public startGame(game: Game | undefined) {
+        if (game) {
+            this.socket.emit('startedGame', game.toJson());
+        }
+    }
+
+    public allPlayersDoneWithGame(
+        aliceCode: string,
+        bobCode: string,
+        isAliceThinkingEveListenedIn: boolean,
+        isBobThinkingEveListenedIn: boolean,
+        eveCode?: string
+    ): void {
+        this.socket.emit('allPlayersDoneWithGame', {
+            aliceCode: aliceCode,
+            bobCode: bobCode,
+            eveCode: eveCode,
+            isAliceThinkingEveListenedIn: isAliceThinkingEveListenedIn,
+            isBobThinkingEveListenedIn: isBobThinkingEveListenedIn,
+        });
     }
 
     get userId() {

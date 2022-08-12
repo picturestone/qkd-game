@@ -75,15 +75,6 @@ function isUserEve(
     return player;
 }
 
-function handlePublishedCodeSending(game: Game) {
-    const aliceCode = game.alicePlayer.publishedCode;
-    const bobCode = game.bobPlayer.publishedCode;
-    if (aliceCode !== undefined && bobCode !== undefined) {
-        game.alicePlayer.onCodesPublished(aliceCode, bobCode);
-        game.bobPlayer.onCodesPublished(aliceCode, bobCode);
-    }
-}
-
 // TODO add redirecting on missing auth.
 // TODO quit game when leaving.
 export default function registerSocketIOEvents(
@@ -160,17 +151,12 @@ export default function registerSocketIOEvents(
                 const evePlayer = isUserEve(game, userId);
                 if (alicePlayer && alicePlayer.publishedCode === undefined) {
                     alicePlayer.publishedCode = code;
-                    // TODO This should not be called here but by the player to the controller instead
-                    // So it would work with a computer player.
-                    handlePublishedCodeSending(game);
                     cb();
                 } else if (bobPlayer && bobPlayer.publishedCode === undefined) {
                     bobPlayer.publishedCode = code;
-                    handlePublishedCodeSending(game);
                     cb();
                 } else if (evePlayer && evePlayer.publishedCode === undefined) {
                     evePlayer.publishedCode = code;
-                    evePlayer.isDoneWithGame = true;
                     cb();
                 }
             });
@@ -191,28 +177,53 @@ export default function registerSocketIOEvents(
             });
         });
         socket.on(
-            'publishIsEveListeningGuess',
-            (gameId, isEveListening, cb) => {
+            'publishIsThinkingEveListenedIn',
+            (gameId, isThinkingEveListenedIn, cb) => {
                 isGameExisting(gameId).then((game) => {
                     const userId = getUserId(socket);
                     const alicePlayer = isUserAlice(game, userId);
                     const bobPlayer = isUserBob(game, userId);
-                    // TODO handle messaging the controller afterwars/sending the event.
                     if (
                         alicePlayer &&
-                        alicePlayer.isEveListeningInGuess === undefined
+                        alicePlayer.isThinkingEveListenedIn === undefined
                     ) {
-                        alicePlayer.isEveListeningInGuess = isEveListening;
+                        alicePlayer.isThinkingEveListenedIn =
+                            isThinkingEveListenedIn;
                         cb();
                     } else if (
                         bobPlayer &&
-                        bobPlayer.isEveListeningInGuess === undefined
+                        bobPlayer.isThinkingEveListenedIn === undefined
                     ) {
-                        bobPlayer.isEveListeningInGuess = isEveListening;
+                        bobPlayer.isThinkingEveListenedIn =
+                            isThinkingEveListenedIn;
                         cb();
                     }
                 });
             }
         );
+        socket.on('getGameResults', (gameId, cb) => {
+            isGameExisting(gameId).then((game) => {
+                const userId = getUserId(socket);
+                const alicePlayer = isUserAlice(game, userId);
+                const bobPlayer = isUserBob(game, userId);
+                const evePlayer = isUserEve(game, userId);
+                if (alicePlayer || bobPlayer || evePlayer) {
+                    const results = game.getGameResults();
+                    if (results) {
+                        cb({
+                            aliceCode: results.aliceCode,
+                            bobCode: results.bobCode,
+                            isAliceThinkingEveListenedIn:
+                                results.isAliceThinkingEveListenedIn,
+                            isBobThinkingEveListenedIn:
+                                results.isBobThinkingEveListenedIn,
+                            eveCode: results.eveCode,
+                        });
+                    } else {
+                        cb(undefined);
+                    }
+                }
+            });
+        });
     });
 }

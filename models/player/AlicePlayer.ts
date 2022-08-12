@@ -13,7 +13,7 @@ export default abstract class AlicePlayer
     private _quantumChannel: ISink<Qbit>;
     private _basisComparisonChannel: ISink<IBasisComparisonData>;
     private _qbitDiscardChannel: QbitDiscardChannel;
-    private _isEveIsListeningInGuess?: boolean;
+    private _isThinkingEveListenedIn?: boolean;
 
     constructor(
         quantumChannel: ISink<Qbit>,
@@ -28,14 +28,21 @@ export default abstract class AlicePlayer
     }
 
     abstract onQbitDiscardEnqueue(): void;
-    abstract onCodesPublished(aliceCode: string, bobCode: string): void;
+    abstract onAllCodesPublished(aliceCode: string, bobCode: string): void;
 
-    get isEveListeningInGuess() {
-        return this._isEveIsListeningInGuess;
+    public onCodePublished(): void {
+        this.game?.onCodePublished();
     }
 
-    set isEveListeningInGuess(value: boolean | undefined) {
-        this._isEveIsListeningInGuess = value;
+    get isThinkingEveListenedIn() {
+        return this._isThinkingEveListenedIn;
+    }
+
+    set isThinkingEveListenedIn(value: boolean | undefined) {
+        this._isThinkingEveListenedIn = value;
+        if (value !== undefined) {
+            this.isDoneWithGame = true;
+        }
     }
 
     public sendQbit(qbit: Qbit) {

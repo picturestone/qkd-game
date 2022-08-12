@@ -22,7 +22,16 @@ export default class ComputerEvePlayer extends EvePlayer {
     measureEnqueuedQbit(basis: BASIS): POLARIZATION | undefined {
         throw new Error('Method not implemented.');
     }
-    startGame(game: Game): void {
+    startGame(): void {
+        throw new Error('Method not implemented.');
+    }
+    onAllPlayersDoneWithGame(
+        aliceCode: string,
+        bobCode: string,
+        isAliceThinkingEveListenedIn: boolean,
+        isBobThinkingEveListenedIn: boolean,
+        eveCode?: string
+    ): void {
         throw new Error('Method not implemented.');
     }
 }

@@ -24,8 +24,24 @@ export default class HumanAlicePlayer extends AlicePlayer {
         return this._humanPlayer;
     }
 
-    startGame(game: Game): void {
-        this._humanPlayer.socket.emit('startedGame', game.toJson());
+    startGame(): void {
+        this._humanPlayer.startGame(this.game);
+    }
+
+    onAllPlayersDoneWithGame(
+        aliceCode: string,
+        bobCode: string,
+        isAliceThinkingEveListenedIn: boolean,
+        isBobThinkingEveListenedIn: boolean,
+        eveCode?: string
+    ): void {
+        this._humanPlayer.allPlayersDoneWithGame(
+            aliceCode,
+            bobCode,
+            isAliceThinkingEveListenedIn,
+            isBobThinkingEveListenedIn,
+            eveCode
+        );
     }
 
     onQbitDiscardEnqueue(): void {
@@ -35,7 +51,7 @@ export default class HumanAlicePlayer extends AlicePlayer {
         }
     }
 
-    onCodesPublished(aliceCode: string, bobCode: string): void {
+    onAllCodesPublished(aliceCode: string, bobCode: string): void {
         this._humanPlayer.socket.emit('allCodesPublished', {
             aliceCode: aliceCode,
             bobCode: bobCode,

@@ -85,7 +85,8 @@ export default class GameBuilder {
             );
         }
 
-        return new Game(noOfQbits, alicePlayer, bobPlayer, evePlayer, id);
+        const game = new Game(noOfQbits, alicePlayer, bobPlayer, evePlayer, id);
+        return game;
     }
 
     public static createAliceBobGame(
@@ -130,6 +131,7 @@ export default class GameBuilder {
             );
         }
 
-        return new Game(noOfQbits, alicePlayer, bobPlayer, undefined, id);
+        const game = new Game(noOfQbits, alicePlayer, bobPlayer, undefined, id);
+        return game;
     }
 }

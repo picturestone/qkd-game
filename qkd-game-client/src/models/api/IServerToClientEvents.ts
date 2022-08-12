@@ -13,5 +13,5 @@ export default interface IServerToClientEvents {
     basisPublished: (basisComparisonData: IBasisComparisonData) => void;
     discardPublished: (qbitDiscardedData: IQbitDiscardData) => void;
     allCodesPublished: (codes: IPublishedCodesData) => void;
-    resultsPublished: (publishedResultsData: IGameResultsData) => void;
+    allPlayersDoneWithGame: (gameResultsData: IGameResultsData) => void;
 }

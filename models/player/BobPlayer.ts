@@ -16,7 +16,7 @@ export default abstract class BobPlayer
     private _quantumChannel: QuantumChannel;
     private _basisComparisonChannel: BasisComparisonChannel;
     private _qbitDiscardChannel: ISink<IQbitDiscardData>;
-    private _isEveIsListeningInGuess?: boolean;
+    private _isThinkingEveListenedIn?: boolean;
 
     constructor(
         quantumChannel: QuantumChannel,
@@ -34,14 +34,21 @@ export default abstract class BobPlayer
     abstract onQbitEnqueue(): void;
     abstract onBasisComparisonEnqueue(): void;
     abstract measureEnqueuedQbit(basis: BASIS): POLARIZATION | undefined;
-    abstract onCodesPublished(aliceCode: string, bobCode: string): void;
+    abstract onAllCodesPublished(aliceCode: string, bobCode: string): void;
 
-    get isEveListeningInGuess() {
-        return this._isEveIsListeningInGuess;
+    public onCodePublished(): void {
+        this.game?.onCodePublished();
     }
 
-    set isEveListeningInGuess(value: boolean | undefined) {
-        this._isEveIsListeningInGuess = value;
+    get isThinkingEveListenedIn() {
+        return this._isThinkingEveListenedIn;
+    }
+
+    set isThinkingEveListenedIn(value: boolean | undefined) {
+        this._isThinkingEveListenedIn = value;
+        if (value !== undefined) {
+            this.isDoneWithGame = true;
+        }
     }
 
     public dequeueQbit() {

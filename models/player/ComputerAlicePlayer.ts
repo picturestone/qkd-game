@@ -11,10 +11,19 @@ export default class ComputerAlicePlayer extends AlicePlayer {
     onQbitDiscardEnqueue(): void {
         throw new Error('Method not implemented.');
     }
-    onCodesPublished(aliceCode: string, bobCode: string): void {
+    onAllCodesPublished(aliceCode: string, bobCode: string): void {
         throw new Error('Method not implemented.');
     }
-    startGame(game: Game): void {
+    startGame(): void {
+        throw new Error('Method not implemented.');
+    }
+    onAllPlayersDoneWithGame(
+        aliceCode: string,
+        bobCode: string,
+        isAliceThinkingEveListenedIn: boolean,
+        isBobThinkingEveListenedIn: boolean,
+        eveCode?: string
+    ): void {
         throw new Error('Method not implemented.');
     }
 }

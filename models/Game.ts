@@ -23,13 +23,19 @@ export default class Game {
         this._alicePlayer = alicePlayer;
         this._bobPlayer = bobPlayer;
         this._evePlayer = evePlayer;
+        this._alicePlayer.game = this;
+        this._bobPlayer.game = this;
+
+        if (this._evePlayer) {
+            this._evePlayer.game = this;
+        }
     }
 
     public startGame() {
         if (!this.isStartet) {
-            this._alicePlayer.startGame(this);
-            this._bobPlayer.startGame(this);
-            this._evePlayer?.startGame(this);
+            this._alicePlayer.startGame();
+            this._bobPlayer.startGame();
+            this._evePlayer?.startGame();
             this.isStartet = true;
         }
     }
@@ -52,6 +58,64 @@ export default class Game {
 
     public get evePlayer() {
         return this._evePlayer;
+    }
+
+    public onCodePublished() {
+        const aliceCode = this._alicePlayer.publishedCode;
+        const bobCode = this._bobPlayer.publishedCode;
+        if (aliceCode !== undefined && bobCode !== undefined) {
+            [this._alicePlayer, this._bobPlayer].forEach((player) => {
+                player.onAllCodesPublished(aliceCode, bobCode);
+            });
+        }
+    }
+
+    public getGameResults() {
+        const aliceCode = this._alicePlayer.publishedCode;
+        const bobCode = this._bobPlayer.publishedCode;
+        const eveCode = this._evePlayer?.publishedCode;
+        const isAliceThinkingEveListenedIn =
+            this._alicePlayer.isThinkingEveListenedIn;
+        const isBobThinkingEveListenedIn =
+            this._bobPlayer.isThinkingEveListenedIn;
+        if (
+            this.alicePlayer.isDoneWithGame &&
+            this.bobPlayer.isDoneWithGame &&
+            (this.evePlayer === undefined || this.evePlayer.isDoneWithGame) &&
+            aliceCode &&
+            bobCode &&
+            isAliceThinkingEveListenedIn !== undefined &&
+            isBobThinkingEveListenedIn !== undefined
+        ) {
+            return {
+                aliceCode,
+                bobCode,
+                isAliceThinkingEveListenedIn,
+                isBobThinkingEveListenedIn,
+                eveCode,
+            };
+        } else {
+            return undefined;
+        }
+    }
+
+    public onPlayerDoneWithGame() {
+        const results = this.getGameResults();
+        if (results) {
+            [this.alicePlayer, this.bobPlayer, this.evePlayer].forEach(
+                (player) => {
+                    if (player) {
+                        player.onAllPlayersDoneWithGame(
+                            results.aliceCode,
+                            results.bobCode,
+                            results.isAliceThinkingEveListenedIn,
+                            results.isBobThinkingEveListenedIn,
+                            results.eveCode
+                        );
+                    }
+                }
+            );
+        }
     }
 
     toJson(): IGameJson {

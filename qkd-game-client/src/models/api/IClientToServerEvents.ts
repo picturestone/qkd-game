@@ -36,13 +36,13 @@ export default interface IClientToServerEvents {
         gameId: string,
         cb: (publishedCodesData: IPublishedCodesData) => void
     ) => void;
-    publishIsEveListeningGuess: (
+    publishIsThinkingEveListenedIn: (
         gameId: string,
-        isEveListening: boolean,
+        isThinkingEveListenedIn: boolean,
         cb: () => void
     ) => void;
-    getPublishedResults: (
+    getGameResults: (
         gameId: string,
-        cb: (publishedResultsData: IGameResultsData) => void
+        cb: (gameResultsData: IGameResultsData | undefined) => void
     ) => void;
 }
