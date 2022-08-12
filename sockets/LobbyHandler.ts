@@ -94,7 +94,6 @@ function startAliceBobEveGame(
         // Make all sockets in the lobby room leave.
         const ioServer = IO.getInstance().server;
         ioServer.in(lobby.id).socketsLeave(lobby.id);
-        // Create game. TODO create game with eve
         const aliceController = new HumanAliceController(lobby.reservedAlice);
         const bobController = new HumanBobController(lobby.reservedBob);
         const eveController = new HumanEveController(lobby.reservedEve);
@@ -218,7 +217,6 @@ export default function registerSocketIOEvents(
                 }
             });
         });
-        // TODO start game with eve.
         socket.on('startGame', (lobbyId) => {
             new LobbyDb().findById(lobbyId).then((lobby) => {
                 if (lobby && lobby.id) {

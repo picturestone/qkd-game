@@ -1,6 +1,7 @@
 import { Routes, Route } from 'react-router-dom';
 import { PLAYERROLE } from './models/api/PlayerRole';
 import App from './pages/App';
+import CodeCompare from './pages/CodeCompare';
 import GameAlice from './pages/GameAlice';
 import GameBob from './pages/GameBob';
 import GameEve from './pages/GameEve';
@@ -28,6 +29,10 @@ function Router() {
             <Route
                 path={`/games/:gameId/${PLAYERROLE.eve}`}
                 element={<GameEve />}
+            ></Route>
+            <Route
+                path={`/games/:gameId/compare`}
+                element={<CodeCompare />}
             ></Route>
         </Routes>
     );

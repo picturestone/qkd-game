@@ -1,5 +1,6 @@
 import BASIS from './Basis';
 import IBasisComparisonData from './IBasisComparisonData';
+import IPublishedCodesData from './IPublishedCodesData';
 import IQbitDiscardData from './IQbitDiscardedData';
 import IQbitJson from './IQbitJson';
 import { PLAYERROLE } from './PlayerRole';
@@ -28,5 +29,10 @@ export default interface IClientToServerEvents {
         gameId: string,
         qbitDiscardedData: IQbitDiscardData,
         cb: (qbitDiscardedData: IQbitDiscardData) => void
+    ) => void;
+    publishCode: (gameId: string, code: string, cb: () => void) => void;
+    getPublishedCodes: (
+        gameId: string,
+        cb: (publishedCodesData: IPublishedCodesData) => void
     ) => void;
 }

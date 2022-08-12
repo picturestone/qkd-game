@@ -144,7 +144,6 @@ function GameEve() {
             );
         }
 
-        // TODO add this to bob.
         if (game?.noOfQbits && qbitDiscard.qbitNo >= game.noOfQbits) {
             // TODO start code comparison.
             console.log('game is done');
@@ -246,7 +245,7 @@ function GameEve() {
     }
 
     return (
-        <div className="overflow-x-hidden w-screen h-screen">
+        <React.Fragment>
             <Nav></Nav>
             <WidthLimiter>
                 <div className="flex justify-between">
@@ -347,7 +346,7 @@ function GameEve() {
                     </div>
                 </div>
             </WidthLimiter>
-        </div>
+        </React.Fragment>
     );
 }
 

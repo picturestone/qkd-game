@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import CodeComparator from '../components/game/CodeComparator';
 import DecisionCommunicator from '../components/game/DecisionCommunicator';
 import NoteTable from '../components/game/NoteTable';
@@ -35,6 +35,7 @@ function GameBob() {
     const [game, setGame] = useState<Game>();
     const [code, setCode] = useState<string>('');
     const [codeComperatorDisabled, setCodeComperatorDisabled] = useState(true);
+    const navigate = useNavigate();
 
     useEffect(() => {
         loadGame();
@@ -168,12 +169,18 @@ function GameBob() {
     function handleCodeComperatorSubmit(
         event: React.FormEvent<HTMLFormElement>
     ) {
-        // TODO redirect to comparison page and present the entered code.
+        event.preventDefault();
+        if (gameId) {
+            socket?.emit('publishCode', gameId, code, () => {
+                if (gameId) {
+                    navigate(`/games/${gameId}/compare`);
+                }
+            });
+        }
     }
 
     return (
-        // TODO is this a good idea? its needed because the pulsing animation on codeComperator overflows the screen on small screens
-        <div className="overflow-x-hidden w-screen h-screen">
+        <React.Fragment>
             <Nav></Nav>
             <WidthLimiter>
                 <div className="flex justify-between">
@@ -232,7 +239,6 @@ function GameBob() {
                                         }
                                     ></DecisionCommunicator>
                                 </div>
-                                {/* TODO place compare code button here which opens popup. Should activat once last qbit discard message arrived */}
                             </div>
                             <div className="flex-initial w-full">
                                 <MessageLog messages={messages}></MessageLog>
@@ -241,7 +247,7 @@ function GameBob() {
                     </div>
                 </div>
             </WidthLimiter>
-        </div>
+        </React.Fragment>
     );
 }
 

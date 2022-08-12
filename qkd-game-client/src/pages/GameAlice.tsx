@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { FaArrowsAlt } from 'react-icons/fa';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import DecisionCommunicator from '../components/game/DecisionCommunicator';
 import NoteTable from '../components/game/NoteTable';
 import PolarizationTable from '../components/game/PolarizationTable';
@@ -26,6 +26,7 @@ function GameAlice() {
     const [game, setGame] = useState<Game>();
     const [code, setCode] = useState<string>('');
     const [codeComperatorDisabled, setCodeComperatorDisabled] = useState(true);
+    const navigate = useNavigate();
 
     useEffect(() => {
         loadGame();
@@ -130,12 +131,18 @@ function GameAlice() {
     function handleCodeComperatorSubmit(
         event: React.FormEvent<HTMLFormElement>
     ) {
-        // TODO redirect to comparison page and present the entered code.
+        event.preventDefault();
+        if (gameId) {
+            socket?.emit('publishCode', gameId, code, () => {
+                if (gameId) {
+                    navigate(`/games/${gameId}/compare`);
+                }
+            });
+        }
     }
 
     return (
-        // TODO is this a good idea? its needed because the pulsing animation on codeComperator overflows the screen on small screens
-        <div className="overflow-x-hidden w-screen h-screen">
+        <React.Fragment>
             <Nav></Nav>
             <WidthLimiter>
                 <div className="flex justify-between">
@@ -209,7 +216,7 @@ function GameAlice() {
                     </div>
                 </div>
             </WidthLimiter>
-        </div>
+        </React.Fragment>
     );
 }
 

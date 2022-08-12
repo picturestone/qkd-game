@@ -1,7 +1,7 @@
-import BASIS from './Basis';
 import IBasisComparisonData from './IBasisComparisonData';
 import IGameJson from './IGameJson';
 import ILobbyJson from './ILobbyJson';
+import IPublishedCodesData from './IPublishedCodesData';
 import IQbitDiscardData from './IQbitDiscardedData';
 
 export default interface IServerToClientEvents {
@@ -11,4 +11,5 @@ export default interface IServerToClientEvents {
     qbitEnqueued: () => void;
     basisPublished: (basisComparisonData: IBasisComparisonData) => void;
     discardPublished: (qbitDiscardedData: IQbitDiscardData) => void;
+    allCodesPublished: (codes: IPublishedCodesData) => void;
 }

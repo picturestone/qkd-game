@@ -17,6 +17,7 @@ function Nav() {
             <WidthLimiter>
                 <nav className="w-full">
                     <div className="container flex flex-wrap justify-between items-center mx-auto">
+                        {/* TODO change link to go to lobbies-screen instead of login. */}
                         <a href="/" className="flex items-center">
                             {/* <img
                                 src="/docs/images/logo.svg"
@@ -60,6 +61,7 @@ function Nav() {
                                 ></path>
                             </svg>
                         </button>
+                        {/* TODO remove Home, add loggout button which invalidates user. */}
                         <div
                             className="hidden w-full md:block md:w-auto"
                             id="mobile-menu"

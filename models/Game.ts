@@ -1,12 +1,6 @@
-import QuantumChannel from './channel/QuantumChannel';
-import AliceController from './player/AliceController';
 import AlicePlayer from './player/AlicePlayer';
-import BobController from './player/BobController';
 import BobPlayer from './player/BobPlayer';
 import IGameJson from '../qkd-game-client/src/models/api/IGameJson';
-import BasisComparisonChannel from './channel/BasisComparisonChannel';
-import qbitDiscardChannel from './channel/QbitDiscardChannel';
-import EveController from './player/EveController';
 import EvePlayer from './player/EvePlayer';
 
 export default class Game {
