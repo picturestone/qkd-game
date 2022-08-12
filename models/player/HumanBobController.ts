@@ -52,4 +52,11 @@ export default class HumanBobController
             this.socket.emit('basisPublished', basisComparison);
         }
     }
+
+    onCodesPublished(aliceCode: string, bobCode: string): void {
+        this.socket.emit('allCodesPublished', {
+            aliceCode: aliceCode,
+            bobCode: bobCode,
+        });
+    }
 }

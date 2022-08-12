@@ -97,7 +97,9 @@ function App() {
                             <Button
                                 type="button"
                                 className="my-2"
-                                disabled={isCodenameConfirmed}
+                                disabled={
+                                    isCodenameConfirmed || codename.length === 0
+                                }
                                 onClick={() => {
                                     setIsCodenameConfirmed(true);
                                 }}

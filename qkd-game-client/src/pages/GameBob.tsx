@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
+import CodeComparator from '../components/game/CodeComparator';
 import DecisionCommunicator from '../components/game/DecisionCommunicator';
 import NoteTable from '../components/game/NoteTable';
 import Photon from '../components/game/Photon';
@@ -17,7 +18,6 @@ import Game from '../models/Game';
 import Qbit from '../models/quantum/Qbit';
 import GameService from '../services/GameServices';
 
-// TODO fix multiple photons receiving.
 function GameBob() {
     const params = useParams();
     const socket = useSocket();
@@ -33,6 +33,9 @@ function GameBob() {
     const gameId = params.gameId;
     const [messages, setMessages] = useState<string[]>([]);
     const [game, setGame] = useState<Game>();
+    const [code, setCode] = useState<string>('');
+    const [codeComperatorDisabled, setCodeComperatorDisabled] = useState(true);
+    const navigate = useNavigate();
 
     useEffect(() => {
         loadGame();
@@ -101,8 +104,7 @@ function GameBob() {
         }
 
         if (game?.noOfQbits && qbitDiscard.qbitNo >= game.noOfQbits) {
-            // TODO start code comparison.
-            console.log('game is done');
+            setCodeComperatorDisabled(false);
         }
     }
 
@@ -164,6 +166,19 @@ function GameBob() {
         }
     }
 
+    function handleCodeComperatorSubmit(
+        event: React.FormEvent<HTMLFormElement>
+    ) {
+        event.preventDefault();
+        if (gameId) {
+            socket?.emit('publishCode', gameId, code, () => {
+                if (gameId) {
+                    navigate(`/games/${gameId}/compare`);
+                }
+            });
+        }
+    }
+
     return (
         <React.Fragment>
             <Nav></Nav>
@@ -196,6 +211,14 @@ function GameBob() {
                                 </div>
                             </div>
                         </div>
+                        <div className="flex mt-6">
+                            <CodeComparator
+                                disabled={codeComperatorDisabled}
+                                value={code}
+                                onChange={setCode}
+                                handleSubmit={handleCodeComperatorSubmit}
+                            ></CodeComparator>
+                        </div>
                         <div className="flex mt-10">
                             <div className="flex-1 mr-6">
                                 <div className="p-2 shadow-inner border-2">
@@ -216,7 +239,6 @@ function GameBob() {
                                         }
                                     ></DecisionCommunicator>
                                 </div>
-                                {/* TODO place compare code button here which opens popup. Should activat once last qbit discard message arrived */}
                             </div>
                             <div className="flex-initial w-full">
                                 <MessageLog messages={messages}></MessageLog>

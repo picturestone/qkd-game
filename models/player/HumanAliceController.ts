@@ -43,4 +43,11 @@ export default class HumanAliceController
             this.socket.emit('discardPublished', qbitDiscard);
         }
     }
+
+    onCodesPublished(aliceCode: string, bobCode: string): void {
+        this.socket.emit('allCodesPublished', {
+            aliceCode: aliceCode,
+            bobCode: bobCode,
+        });
+    }
 }

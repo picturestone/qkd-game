@@ -40,16 +40,24 @@ function GameEve() {
         loadGame();
     }, []);
 
+    // game state is used in handler, which makes it a dependency.
     useEffect(() => {
-        if (socket) {
+        if (socket && game) {
             socket.on('discardPublished', appendReceivedQbitDiscardMessage);
-            socket.on('qbitEnqueued', qbitEnqueuedHandler);
-            socket.on('basisPublished', appendReceivedBasisComparisonMessage);
             return () => {
                 socket.off(
                     'discardPublished',
                     appendReceivedQbitDiscardMessage
                 );
+            };
+        }
+    }, [socket, game]);
+
+    useEffect(() => {
+        if (socket) {
+            socket.on('qbitEnqueued', qbitEnqueuedHandler);
+            socket.on('basisPublished', appendReceivedBasisComparisonMessage);
+            return () => {
                 socket.off('qbitEnqueued', qbitEnqueuedHandler);
                 socket.off(
                     'basisPublished',
@@ -136,10 +144,8 @@ function GameEve() {
             );
         }
 
-        // TODO add this to bob.
         if (game?.noOfQbits && qbitDiscard.qbitNo >= game.noOfQbits) {
-            // TODO start code comparison.
-            console.log('game is done');
+            // TODO send code, set result accordingly, transfer to results page. await results there.
         }
     }
 

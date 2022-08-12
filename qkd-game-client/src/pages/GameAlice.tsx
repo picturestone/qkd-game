@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { FaArrowsAlt } from 'react-icons/fa';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import DecisionCommunicator from '../components/game/DecisionCommunicator';
 import NoteTable from '../components/game/NoteTable';
 import PolarizationTable from '../components/game/PolarizationTable';
@@ -15,6 +15,7 @@ import IBasisComparisonData from '../models/api/IBasisComparisonData';
 import IQbitDiscardData from '../models/api/IQbitDiscardedData';
 import GameService from '../services/GameServices';
 import Game from '../models/Game';
+import CodeComparator from '../components/game/CodeComparator';
 
 function GameAlice() {
     const params = useParams();
@@ -23,19 +24,23 @@ function GameAlice() {
     const [messages, setMessages] = useState<string[]>([]);
     const gameId = params.gameId;
     const [game, setGame] = useState<Game>();
+    const [code, setCode] = useState<string>('');
+    const [codeComperatorDisabled, setCodeComperatorDisabled] = useState(true);
+    const navigate = useNavigate();
 
     useEffect(() => {
         loadGame();
     }, []);
 
+    // game state is used in handler, which makes it a dependency.
     useEffect(() => {
-        if (socket) {
+        if (socket && game) {
             socket.on('discardPublished', appendQbitDiscardMessage);
             return () => {
                 socket.off('discardPublished', appendQbitDiscardMessage);
             };
         }
-    }, [socket]);
+    }, [socket, game]);
 
     function loadGame() {
         if (gameId) {
@@ -82,10 +87,8 @@ function GameAlice() {
             );
         }
 
-        // TODO add this to bob.
         if (game?.noOfQbits && qbitDiscard.qbitNo >= game.noOfQbits) {
-            // TODO start code comparison.
-            console.log('game is done');
+            setCodeComperatorDisabled(false);
         }
     }
 
@@ -125,6 +128,19 @@ function GameAlice() {
         }
     }
 
+    function handleCodeComperatorSubmit(
+        event: React.FormEvent<HTMLFormElement>
+    ) {
+        event.preventDefault();
+        if (gameId) {
+            socket?.emit('publishCode', gameId, code, () => {
+                if (gameId) {
+                    navigate(`/games/${gameId}/compare`);
+                }
+            });
+        }
+    }
+
     return (
         <React.Fragment>
             <Nav></Nav>
@@ -151,6 +167,14 @@ function GameAlice() {
                             <div className="flex-none py-10">
                                 <PolarizationTable></PolarizationTable>
                             </div>
+                        </div>
+                        <div className="flex mt-6">
+                            <CodeComparator
+                                disabled={codeComperatorDisabled}
+                                value={code}
+                                onChange={setCode}
+                                handleSubmit={handleCodeComperatorSubmit}
+                            ></CodeComparator>
                         </div>
                         <div className="flex mt-10">
                             <div className="flex-1 mr-6">
@@ -183,7 +207,6 @@ function GameAlice() {
                                             game?.noOfQbits ? game.noOfQbits : 1
                                         }
                                     ></DecisionCommunicator>
-                                    {/* TODO place compare code button here which opens popup. Should activat once last qbit discard message arrived */}
                                 </div>
                             </div>
                             <div className="flex-initial w-full">

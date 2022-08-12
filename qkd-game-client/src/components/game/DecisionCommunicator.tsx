@@ -11,7 +11,6 @@ interface IProps {
     onButtonTwoClicked: (curQbitNo: number) => void;
 }
 
-// TODO extend with setting for `i`, a number field which raises with button click per default, and it can be set manually as well.
 function BasisCommunicator(props: IProps) {
     const [curQbitNo, setCurQbitNo] = useState(1);
 

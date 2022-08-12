@@ -76,6 +76,15 @@ function isUserEve(
     return controller;
 }
 
+function handlePublishedCodeSending(game: Game) {
+    const aliceCode = game.alicePlayer.publishedCode;
+    const bobCode = game.bobPlayer.publishedCode;
+    if (aliceCode !== undefined && bobCode !== undefined) {
+        game.alicePlayer.controller.onCodesPublished(aliceCode, bobCode);
+        game.bobPlayer.controller.onCodesPublished(aliceCode, bobCode);
+    }
+}
+
 // TODO add redirecting on missing auth.
 // TODO quit game when leaving.
 export default function registerSocketIOEvents(
@@ -149,6 +158,53 @@ export default function registerSocketIOEvents(
                         qbitDiscardedData
                     );
                     cb(qbitDiscardedData);
+                }
+            });
+        });
+        socket.on('publishCode', (gameId, code, cb) => {
+            isGameExisting(gameId).then((game) => {
+                const userId = getUserId(socket);
+                const aliceController = isUserAlice(game, userId);
+                const bobController = isUserBob(game, userId);
+                const eveController = isUserEve(game, userId);
+                if (
+                    aliceController &&
+                    aliceController.controlledPlayer.publishedCode === undefined
+                ) {
+                    aliceController.controlledPlayer.publishedCode = code;
+                    handlePublishedCodeSending(game);
+                    cb();
+                } else if (
+                    bobController &&
+                    bobController.controlledPlayer.publishedCode === undefined
+                ) {
+                    bobController.controlledPlayer.publishedCode = code;
+                    handlePublishedCodeSending(game);
+                    cb();
+                } else if (
+                    eveController &&
+                    eveController.controlledPlayer.publishedCode === undefined
+                ) {
+                    eveController.controlledPlayer.publishedCode = code;
+                    // TODO separate event where eve marks game as done.
+                    // TODO add event to mark game as finished by each player.
+                    // If all are finished then show a summary of the game.
+                    cb();
+                }
+            });
+        });
+        socket.on('getPublishedCodes', (gameId, cb) => {
+            isGameExisting(gameId).then((game) => {
+                const userId = getUserId(socket);
+                const aliceController = isUserAlice(game, userId);
+                const bobController = isUserBob(game, userId);
+                if (aliceController || bobController) {
+                    const aliceCode = game.alicePlayer.publishedCode;
+                    const bobCode = game.bobPlayer.publishedCode;
+                    cb({
+                        aliceCode: aliceCode,
+                        bobCode: bobCode,
+                    });
                 }
             });
         });
