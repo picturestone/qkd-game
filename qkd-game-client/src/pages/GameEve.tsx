@@ -19,6 +19,7 @@ import POLARIZATION from '../models/api/Polarization';
 import Photon from '../components/game/Photon';
 import Randomizer from '../helper/Randomizer';
 import Receiver from '../components/game/Receiver';
+import CodeComparator from '../components/game/CodeComparator';
 
 function GameEve() {
     const params = useParams();
@@ -35,6 +36,8 @@ function GameEve() {
     const [messages, setMessages] = useState<string[]>([]);
     const gameId = params.gameId;
     const [game, setGame] = useState<Game>();
+    const [code, setCode] = useState<string>('');
+    const [codeComperatorDisabled, setCodeComperatorDisabled] = useState(true);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -146,7 +149,7 @@ function GameEve() {
         }
 
         if (game?.noOfQbits && qbitDiscard.qbitNo >= game.noOfQbits) {
-            // TODO unlock comperator, send code, transfer to results page. await results there.
+            setCodeComperatorDisabled(false);
         }
     }
 
@@ -244,6 +247,19 @@ function GameEve() {
         }
     }
 
+    function handleCodeComperatorSubmit(
+        event: React.FormEvent<HTMLFormElement>
+    ) {
+        event.preventDefault();
+        if (gameId) {
+            socket?.emit('publishCode', gameId, code, () => {
+                if (gameId) {
+                    navigate(`/games/${gameId}/result`);
+                }
+            });
+        }
+    }
+
     return (
         <React.Fragment>
             <Nav></Nav>
@@ -283,6 +299,14 @@ function GameEve() {
                             <div className="flex-none py-10">
                                 <PolarizationTable></PolarizationTable>
                             </div>
+                        </div>
+                        <div className="flex mt-6">
+                            <CodeComparator
+                                disabled={codeComperatorDisabled}
+                                value={code}
+                                onChange={setCode}
+                                handleSubmit={handleCodeComperatorSubmit}
+                            ></CodeComparator>
                         </div>
                         <div className="flex mt-10">
                             <div className="flex flex-col items-stretch flex-1 mr-6">
