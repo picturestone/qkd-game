@@ -104,6 +104,7 @@ function startAliceBobEveGame(
     }
 }
 
+// TODO move more responsibilities to the lobby.
 export default function registerSocketIOEvents(
     server: Server<
         IClientToServerEvents,
@@ -119,7 +120,6 @@ export default function registerSocketIOEvents(
             });
         });
         socket.on('leaveLobby', (lobbyId) => {
-            console.log('leaving');
             getLobby(lobbyId)
                 .then((lobby) => {
                     lobby?.leave(socket);

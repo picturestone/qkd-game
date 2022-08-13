@@ -150,7 +150,7 @@ export default class Lobby {
         >
     ) {
         const userId = socket.request.user?.id;
-        if (this.id && socket.rooms.has(this.id) && userId) {
+        if (this.id && userId) {
             if (userId === this.owner.id) {
                 if (this.id) {
                     new LobbyDb()
