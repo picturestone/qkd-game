@@ -1,5 +1,6 @@
 import { NavLink } from 'react-router-dom';
 import WidthLimiter from './WidthLimiter';
+import logo from '../logo.gif';
 
 function Nav() {
     const inactiveClasses =
@@ -17,13 +18,12 @@ function Nav() {
             <WidthLimiter>
                 <nav className="w-full">
                     <div className="container flex flex-wrap justify-between items-center mx-auto">
-                        {/* TODO change link to go to lobbies-screen instead of login. */}
-                        <a href="/" className="flex items-center">
-                            {/* <img
-                                src="/docs/images/logo.svg"
-                                className="mr-3 h-6 sm:h-9"
-                                alt="Flowbite Logo"
-                            /> */}
+                        <a href="/lobbies" className="flex items-center">
+                            <img
+                                src={logo}
+                                className="mr-3 h-5"
+                                alt="QKD-Game Logo"
+                            />
                             <span className="self-center text-xl font-semibold whitespace-nowrap dark:text-white">
                                 QKD-Game
                             </span>
@@ -61,7 +61,7 @@ function Nav() {
                                 ></path>
                             </svg>
                         </button>
-                        {/* TODO remove Home, add loggout button which invalidates user. */}
+                        {/* TODO Add loggout button which invalidates user. */}
                         <div
                             className="hidden w-full md:block md:w-auto"
                             id="mobile-menu"
@@ -69,17 +69,9 @@ function Nav() {
                             <ul className="flex flex-col mt-4 md:flex-row md:space-x-8 md:mt-0 md:text-sm md:font-medium">
                                 <li>
                                     <NavLink
-                                        to="/"
-                                        className={setNavLinkClasses}
-                                        aria-current="page"
-                                    >
-                                        Home
-                                    </NavLink>
-                                </li>
-                                <li>
-                                    <NavLink
                                         to="/lobbies"
                                         className={setNavLinkClasses}
+                                        end
                                     >
                                         Lobbies
                                     </NavLink>
