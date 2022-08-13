@@ -20,10 +20,19 @@ function App() {
     const [isP3Printed, setIsP3Printed] = useState(false);
     const [isCookiesConfirmed, setIsCookiesConfirmed] = useState(false);
     const navigate = useNavigate();
+    // TODO revert to original values
+    const smallPause = 0;
+    const mediumPause = 0;
 
     const typewriterOptions = {
-        delay: 50,
+        delay: 0,
     };
+    // const smallPause = 1000;
+    // const mediumPause = 1500;
+
+    // const typewriterOptions = {
+    //     delay: 50,
+    // };
 
     // TODO deactivate confirm name button if input is 0 long.
     function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
@@ -49,7 +58,7 @@ function App() {
                                 options={typewriterOptions}
                                 onInit={(typewriter) => {
                                     typewriter
-                                        .pauseFor(1000)
+                                        .pauseFor(smallPause)
                                         .typeString(headlineText)
                                         .callFunction(() =>
                                             setIsHeadlinePrinted(true)
@@ -71,7 +80,7 @@ function App() {
                                     onInit={(typewriter) => {
                                         typewriter
                                             .typeString(p1)
-                                            .pauseFor(1000)
+                                            .pauseFor(smallPause)
                                             .callFunction(() =>
                                                 setIsP1Printed(true)
                                             )
@@ -123,11 +132,11 @@ function App() {
                                     options={typewriterOptions}
                                     onInit={(typewriter) => {
                                         typewriter
-                                            .pauseFor(1000)
+                                            .pauseFor(smallPause)
                                             .typeString(p2)
-                                            .pauseFor(1500)
+                                            .pauseFor(mediumPause)
                                             .typeString(p3)
-                                            .pauseFor(1000)
+                                            .pauseFor(smallPause)
                                             .callFunction(() =>
                                                 setIsP3Printed(true)
                                             )

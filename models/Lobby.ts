@@ -1,4 +1,11 @@
+import { Socket } from 'socket.io';
+import LobbyDb from '../database/LobbyDb';
+import IClientToServerEvents from '../qkd-game-client/src/models/api/IClientToServerEvents';
+import IInterServerEvents from '../qkd-game-client/src/models/api/IInterServerEvents';
 import ILobbyJson from '../qkd-game-client/src/models/api/ILobbyJson';
+import IServerToClientEvents from '../qkd-game-client/src/models/api/IServerToClientEvents';
+import ISocketData from '../qkd-game-client/src/models/api/ISocketData';
+import IO from '../sockets/IO';
 import User from './User';
 import IUser = Express.User;
 
@@ -94,6 +101,89 @@ export default class Lobby {
 
     public set isEveAllowed(value: boolean) {
         this._isEveAllowed = value;
+    }
+
+    private get server() {
+        return IO.getInstance().server;
+    }
+
+    public removeUserFromAllRoles(user: IUser | undefined) {
+        if (user) {
+            const userId = user.id;
+            if (this.reservedAlice?.id === userId) {
+                this.reservedAlice = undefined;
+            }
+            if (this.reservedBob?.id === userId) {
+                this.reservedBob = undefined;
+            }
+            if (this.reservedEve?.id === userId) {
+                this.reservedEve = undefined;
+            }
+        }
+    }
+
+    public join(
+        socket: Socket<
+            IClientToServerEvents,
+            IServerToClientEvents,
+            IInterServerEvents,
+            ISocketData
+        >
+    ) {
+        if (this.id && !socket.rooms.has(this.id)) {
+            socket.join(this.id);
+            this.server
+                .to(this.id)
+                .emit(
+                    'chatMessage',
+                    `${socket.request.user?.name} joined the lobby.`
+                );
+        }
+    }
+
+    public leave(
+        socket: Socket<
+            IClientToServerEvents,
+            IServerToClientEvents,
+            IInterServerEvents,
+            ISocketData
+        >
+    ) {
+        const userId = socket.request.user?.id;
+        if (this.id && socket.rooms.has(this.id) && userId) {
+            if (userId === this.owner.id) {
+                if (this.id) {
+                    new LobbyDb()
+                        .delete(this.id)
+                        .then((deletedLobby) => {
+                            if (deletedLobby && deletedLobby.id) {
+                                this.server
+                                    .to(deletedLobby.id)
+                                    .emit('ownerLeftLobby', deletedLobby);
+                            }
+                        })
+                        .catch((err) => {
+                            console.log(err);
+                        });
+                }
+            } else {
+                socket.leave(this.id);
+                this.removeUserFromAllRoles(socket.request.user);
+                new LobbyDb().put(this).then((updatedLobby) => {
+                    if (updatedLobby && updatedLobby.id) {
+                        this.server
+                            .to(updatedLobby.id)
+                            .emit('updatedLobby', updatedLobby.toJson());
+                        this.server
+                            .to(updatedLobby.id)
+                            .emit(
+                                'chatMessage',
+                                `${socket.request.user?.name} left the lobby.`
+                            );
+                    }
+                });
+            }
+        }
     }
 
     static fromJson(json: ILobbyJson) {

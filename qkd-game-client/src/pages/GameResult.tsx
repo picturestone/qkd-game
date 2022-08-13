@@ -25,19 +25,25 @@ function GameResult() {
 
     useEffect(() => {
         if (socket) {
-            socket.on('allPlayersDoneWithGame', setDataFromResults);
+            socket.then((s) => {
+                s.on('allPlayersDoneWithGame', setDataFromResults);
+            });
             return () => {
-                socket.off('allPlayersDoneWithGame', setDataFromResults);
+                socket.then((s) => {
+                    s.off('allPlayersDoneWithGame', setDataFromResults);
+                });
             };
         }
     }, [socket]);
 
     useEffect(() => {
         if (socket && gameId && result === undefined) {
-            socket.emit('getGameResults', gameId, (gameResultData) => {
-                if (gameResultData) {
-                    setDataFromResults(gameResultData);
-                }
+            socket.then((s) => {
+                s.emit('getGameResults', gameId, (gameResultData) => {
+                    if (gameResultData) {
+                        setDataFromResults(gameResultData);
+                    }
+                });
             });
         }
     }, [socket, gameId, result]);

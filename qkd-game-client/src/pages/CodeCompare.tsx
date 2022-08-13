@@ -16,20 +16,26 @@ function CodeCompare() {
 
     useEffect(() => {
         if (socket) {
-            socket.on('allCodesPublished', setCodesFromPublishedCodesData);
+            socket.then((s) => {
+                s.on('allCodesPublished', setCodesFromPublishedCodesData);
+            });
             return () => {
-                socket.off('allCodesPublished', setCodesFromPublishedCodesData);
+                socket.then((s) => {
+                    s.off('allCodesPublished', setCodesFromPublishedCodesData);
+                });
             };
         }
     }, [socket]);
 
     useEffect(() => {
         if (socket && gameId) {
-            socket.emit(
-                'getPublishedCodes',
-                gameId,
-                setCodesFromPublishedCodesData
-            );
+            socket.then((s) => {
+                s.emit(
+                    'getPublishedCodes',
+                    gameId,
+                    setCodesFromPublishedCodesData
+                );
+            });
         }
     }, [socket, gameId]);
 
@@ -44,16 +50,18 @@ function CodeCompare() {
 
     function publishIsThinkingEveListenedIn(isThinkingEveListenedIn: boolean) {
         if (socket && gameId) {
-            socket.emit(
-                'publishIsThinkingEveListenedIn',
-                gameId,
-                isThinkingEveListenedIn,
-                () => {
-                    if (gameId) {
-                        navigate(`/games/${gameId}/result`);
+            socket.then((s) => {
+                s.emit(
+                    'publishIsThinkingEveListenedIn',
+                    gameId,
+                    isThinkingEveListenedIn,
+                    () => {
+                        if (gameId) {
+                            navigate(`/games/${gameId}/result`);
+                        }
                     }
-                }
-            );
+                );
+            });
         }
     }
 

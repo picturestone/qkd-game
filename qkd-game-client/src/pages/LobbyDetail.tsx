@@ -30,18 +30,28 @@ function LobbyDetail() {
     }, []);
 
     useEffect(() => {
-        if (socket && lobby?.id) {
-            socket.on('updatedLobby', updatedLobbyHandler);
-            socket.on('chatMessage', appendMessage);
-            socket.on('startedGame', startedGameHandler);
-            socket.emit('joinLobby', lobby.id);
+        if (socket && lobbyId) {
+            socket.then((s) => {
+                s.on('updatedLobby', updatedLobbyHandler);
+                s.on('chatMessage', appendMessage);
+                s.on('startedGame', startedGameHandler);
+                s.on('ownerLeftLobby', leaveLobby);
+                s.emit('joinLobby', lobbyId);
+            });
+
             return () => {
-                socket.off('updatedLobby', updatedLobbyHandler);
-                socket.off('chatMessage', appendMessage);
-                socket.off('startedGame', startedGameHandler);
+                socket.then((s) => {
+                    s.off('updatedLobby', updatedLobbyHandler);
+                    s.off('chatMessage', appendMessage);
+                    s.off('startedGame', startedGameHandler);
+                    s.off('ownerLeftLobby', leaveLobby);
+                    if (lobbyId) {
+                        s.emit('leaveLobby', lobbyId);
+                    }
+                });
             };
         }
-    }, [socket, lobby]);
+    }, [socket, lobbyId]);
 
     function appendMessage(message: string) {
         setMessages((prevMessages) => [...prevMessages, message]);
@@ -57,9 +67,16 @@ function LobbyDetail() {
     }
 
     function selectLobbyRole(lobbyRole: PLAYERROLE | undefined) {
-        if (lobby && lobby.id) {
-            socket?.emit('selectLobbyRole', lobby.id, lobbyRole);
-        }
+        socket?.then((s) => {
+            if (lobby && lobby.id) {
+                s.emit('selectLobbyRole', lobby.id, lobbyRole);
+            }
+        });
+    }
+
+    function leaveLobby() {
+        // TODO show popup that the lobby does not exist anymore after redirecting to the lobby browser.
+        navigate(`/lobbies`);
     }
 
     function loadLobby() {
@@ -69,9 +86,8 @@ function LobbyDetail() {
                     setLobby(res);
                 },
                 (err: AxiosError) => {
-                    // TODO show popup that the lobby does not exist anymore after redirecting to the lobby browser.
                     if (err.response?.status === 404) {
-                        navigate(`/lobbies`);
+                        leaveLobby();
                     } else {
                         console.log(err);
                     }
@@ -87,9 +103,11 @@ function LobbyDetail() {
             button = (
                 <Button
                     onClick={() => {
-                        if (lobby && lobby.id) {
-                            socket?.emit('startGame', lobby.id);
-                        }
+                        socket?.then((s) => {
+                            if (lobby && lobby.id) {
+                                s.emit('startGame', lobby.id);
+                            }
+                        });
                     }}
                 >
                     Start Game

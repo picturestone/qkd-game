@@ -7,6 +7,7 @@ import IQbitDiscardData from './IQbitDiscardedData';
 
 export default interface IServerToClientEvents {
     chatMessage: (message: string) => void;
+    ownerLeftLobby: (lobby: ILobbyJson) => void;
     updatedLobby: (lobby: ILobbyJson) => void;
     startedGame: (game: IGameJson) => void;
     qbitEnqueued: () => void;

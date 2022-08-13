@@ -35,9 +35,13 @@ function GameAlice() {
     // game state is used in handler, which makes it a dependency.
     useEffect(() => {
         if (socket && game) {
-            socket.on('discardPublished', appendQbitDiscardMessage);
+            socket.then((s) => {
+                s.on('discardPublished', appendQbitDiscardMessage);
+            });
             return () => {
-                socket.off('discardPublished', appendQbitDiscardMessage);
+                socket.then((s) => {
+                    s.off('discardPublished', appendQbitDiscardMessage);
+                });
             };
         }
     }, [socket, game]);
@@ -94,7 +98,9 @@ function GameAlice() {
 
     function handlePolarizedPhotonTransported(qbit: Qbit) {
         if (gameId) {
-            socket?.emit('sendQbit', gameId, qbit.toJson());
+            socket?.then((s) => {
+                s.emit('sendQbit', gameId, qbit.toJson());
+            });
         }
     }
 
@@ -104,12 +110,14 @@ function GameAlice() {
                 qbitNo: curQbitNo,
                 basis: BASIS.horizontalVertical,
             };
-            socket?.emit(
-                'publishBasis',
-                gameId,
-                basisComparison,
-                appendBasisComparisonMessage
-            );
+            socket?.then((s) => {
+                s.emit(
+                    'publishBasis',
+                    gameId,
+                    basisComparison,
+                    appendBasisComparisonMessage
+                );
+            });
         }
     }
 
@@ -119,12 +127,14 @@ function GameAlice() {
                 qbitNo: curQbitNo,
                 basis: BASIS.diagonal,
             };
-            socket?.emit(
-                'publishBasis',
-                gameId,
-                basisComparison,
-                appendBasisComparisonMessage
-            );
+            socket?.then((s) => {
+                s.emit(
+                    'publishBasis',
+                    gameId,
+                    basisComparison,
+                    appendBasisComparisonMessage
+                );
+            });
         }
     }
 
@@ -133,10 +143,12 @@ function GameAlice() {
     ) {
         event.preventDefault();
         if (gameId) {
-            socket?.emit('publishCode', gameId, code, () => {
-                if (gameId) {
-                    navigate(`/games/${gameId}/compare`);
-                }
+            socket?.then((s) => {
+                s.emit('publishCode', gameId, code, () => {
+                    if (gameId) {
+                        navigate(`/games/${gameId}/compare`);
+                    }
+                });
             });
         }
     }
