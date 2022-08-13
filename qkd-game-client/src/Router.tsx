@@ -5,6 +5,7 @@ import CodeCompare from './pages/CodeCompare';
 import GameAlice from './pages/GameAlice';
 import GameBob from './pages/GameBob';
 import GameEve from './pages/GameEve';
+import GameResult from './pages/GameResult';
 import Lobbies from './pages/Lobbies';
 import LobbyDetail from './pages/LobbyDetail';
 import LobbyNew from './pages/LobbyNew';
@@ -33,6 +34,10 @@ function Router() {
             <Route
                 path={`/games/:gameId/compare`}
                 element={<CodeCompare />}
+            ></Route>
+            <Route
+                path={`/games/:gameId/result`}
+                element={<GameResult />}
             ></Route>
         </Routes>
     );

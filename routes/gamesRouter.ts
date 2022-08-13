@@ -4,14 +4,13 @@ import GameDb from '../database/GameDb';
 const router = express.Router();
 const gameDb = new GameDb();
 
-// TODO extend with eve
 router.get('/:id', async function (req, res) {
     const game = await gameDb.findById(req.params.id);
 
     if (game && game.id) {
-        const aliceId = game.alicePlayer.controller.userId;
-        const bobId = game.bobPlayer.controller.userId;
-        const eveId = game.evePlayer?.controller.userId;
+        const aliceId = game.alicePlayer.humanPlayer?.userId;
+        const bobId = game.bobPlayer.humanPlayer?.userId;
+        const eveId = game.evePlayer?.humanPlayer?.userId;
         if (
             (aliceId && req.user?.id === aliceId) ||
             (bobId && req.user?.id === bobId) ||

@@ -3,10 +3,9 @@ import ISink from '../channel/ISink';
 import QbitDiscardChannel from '../channel/QbitDiscardChannel';
 import IQbitDiscardChannelObserver from '../channel/IQbitDiscardChannelObserver';
 import Qbit from '../quantum/Qbit';
-import AliceController from './AliceController';
 import Player from './Player';
 
-export default class AlicePlayer
+export default abstract class AlicePlayer
     extends Player
     implements IQbitDiscardChannelObserver
 {
@@ -14,28 +13,36 @@ export default class AlicePlayer
     private _quantumChannel: ISink<Qbit>;
     private _basisComparisonChannel: ISink<IBasisComparisonData>;
     private _qbitDiscardChannel: QbitDiscardChannel;
-    private _controller: AliceController;
+    private _isThinkingEveListenedIn?: boolean;
 
     constructor(
-        controller: AliceController,
         quantumChannel: ISink<Qbit>,
         basisComparisonChannel: ISink<IBasisComparisonData>,
         qbitDiscardChannel: QbitDiscardChannel
     ) {
-        super(controller);
-        this._controller = controller;
+        super();
         this._quantumChannel = quantumChannel;
         this._basisComparisonChannel = basisComparisonChannel;
         this._qbitDiscardChannel = qbitDiscardChannel;
         this._qbitDiscardChannel.addObserver(this);
     }
 
-    get controller(): AliceController {
-        return this._controller;
+    abstract onQbitDiscardEnqueue(): void;
+    abstract onAllCodesPublished(aliceCode: string, bobCode: string): void;
+
+    public onCodePublished(): void {
+        this.game?.onCodePublished();
     }
 
-    public onQbitDiscardEnqueue(): void {
-        this._controller.onQbitDiscardEnqueue();
+    get isThinkingEveListenedIn() {
+        return this._isThinkingEveListenedIn;
+    }
+
+    set isThinkingEveListenedIn(value: boolean | undefined) {
+        this._isThinkingEveListenedIn = value;
+        if (value !== undefined) {
+            this.isDoneWithGame = true;
+        }
     }
 
     public sendQbit(qbit: Qbit) {

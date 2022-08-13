@@ -1,6 +1,3 @@
-import ISource from '../channel/ISource';
-import Qbit from '../quantum/Qbit';
-import BobController from './BobController';
 import Player from './Player';
 import ISink from '../channel/ISink';
 import IQbitDiscardData from '../../qkd-game-client/src/models/api/IQbitDiscardedData';
@@ -8,8 +5,10 @@ import IQuantumChannelObserver from '../channel/IQuantumChannelObserver';
 import QuantumChannel from '../channel/QuantumChannel';
 import IBasisComparisonChannelObserver from '../channel/IBasisComparisonChannelObserver';
 import BasisComparisonChannel from '../channel/BasisComparisonChannel';
+import BASIS from '../../qkd-game-client/src/models/api/Basis';
+import POLARIZATION from '../../qkd-game-client/src/models/api/Polarization';
 
-export default class BobPlayer
+export default abstract class BobPlayer
     extends Player
     implements IQuantumChannelObserver, IBasisComparisonChannelObserver
 {
@@ -17,16 +16,14 @@ export default class BobPlayer
     private _quantumChannel: QuantumChannel;
     private _basisComparisonChannel: BasisComparisonChannel;
     private _qbitDiscardChannel: ISink<IQbitDiscardData>;
-    private _controller: BobController;
+    private _isThinkingEveListenedIn?: boolean;
 
     constructor(
-        controller: BobController,
         quantumChannel: QuantumChannel,
         basisComparisonChannel: BasisComparisonChannel,
         qbitDiscardChannel: ISink<IQbitDiscardData>
     ) {
-        super(controller);
-        this._controller = controller;
+        super();
         this._quantumChannel = quantumChannel;
         this._quantumChannel.addObserver(this);
         this._basisComparisonChannel = basisComparisonChannel;
@@ -34,16 +31,24 @@ export default class BobPlayer
         this._qbitDiscardChannel = qbitDiscardChannel;
     }
 
-    get controller(): BobController {
-        return this._controller;
+    abstract onQbitEnqueue(): void;
+    abstract onBasisComparisonEnqueue(): void;
+    abstract measureEnqueuedQbit(basis: BASIS): POLARIZATION | undefined;
+    abstract onAllCodesPublished(aliceCode: string, bobCode: string): void;
+
+    public onCodePublished(): void {
+        this.game?.onCodePublished();
     }
 
-    public onBasisComparisonEnqueue(): void {
-        this._controller.onBasisComparisonEnqueue();
+    get isThinkingEveListenedIn() {
+        return this._isThinkingEveListenedIn;
     }
 
-    public onQbitEnqueue(): void {
-        this._controller.onQbitEnqueue();
+    set isThinkingEveListenedIn(value: boolean | undefined) {
+        this._isThinkingEveListenedIn = value;
+        if (value !== undefined) {
+            this.isDoneWithGame = true;
+        }
     }
 
     public dequeueQbit() {

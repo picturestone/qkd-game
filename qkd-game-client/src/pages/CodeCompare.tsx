@@ -1,22 +1,18 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import Nav from '../components/Nav';
 import WidthLimiter from '../components/WidthLimiter';
 import { useSocket } from '../helper/IO';
-import GameService from '../services/GameServices';
-import Game from '../models/Game';
 import IPublishedCodesData from '../models/api/IPublishedCodesData';
 import Button from '../components/Button';
 
-// TODO Ask questions: Did you end up with the same code?
-// If no --> Do you think eve was listening in?
-// If no someone must have made a mistake
 function CodeCompare() {
     const params = useParams();
     const socket = useSocket();
     const gameId = params.gameId;
     const [aliceCode, setAliceCode] = useState<string | undefined>(undefined);
     const [bobCode, setBobCode] = useState<string | undefined>(undefined);
+    const navigate = useNavigate();
 
     useEffect(() => {
         if (socket) {
@@ -44,6 +40,21 @@ function CodeCompare() {
 
     function isAliceAndBobCodeSet() {
         return aliceCode !== undefined && bobCode !== undefined;
+    }
+
+    function publishIsThinkingEveListenedIn(isThinkingEveListenedIn: boolean) {
+        if (socket && gameId) {
+            socket.emit(
+                'publishIsThinkingEveListenedIn',
+                gameId,
+                isThinkingEveListenedIn,
+                () => {
+                    if (gameId) {
+                        navigate(`/games/${gameId}/result`);
+                    }
+                }
+            );
+        }
     }
 
     return (
@@ -83,7 +94,7 @@ function CodeCompare() {
                                 className="mr-4"
                                 disabled={!isAliceAndBobCodeSet()}
                                 onClick={() => {
-                                    // TODO set result accordingly, transfer to results page. await results there.
+                                    publishIsThinkingEveListenedIn(true);
                                 }}
                             >
                                 Yes
@@ -91,7 +102,7 @@ function CodeCompare() {
                             <Button
                                 disabled={!isAliceAndBobCodeSet()}
                                 onClick={() => {
-                                    // TODO set result accordingly, transfer to results page. await results there.
+                                    publishIsThinkingEveListenedIn(false);
                                 }}
                             >
                                 No
