@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { FaArrowsAlt } from 'react-icons/fa';
 import { useNavigate, useParams } from 'react-router-dom';
 import DecisionCommunicator from '../components/game/DecisionCommunicator';
@@ -38,41 +38,42 @@ function GameEve() {
     const [game, setGame] = useState<Game>();
     const [code, setCode] = useState<string>('');
     const [codeComperatorDisabled, setCodeComperatorDisabled] = useState(true);
+    const isLeavingGameOnCleanup = useRef(true);
     const navigate = useNavigate();
 
     useEffect(() => {
         loadGame();
     }, []);
 
-    // game state is used in handler, which makes it a dependency.
+    useEffect(() => {
+        if (socket && !socket.connected) {
+            socket?.connect();
+        }
+    }, [socket]);
+
     useEffect(() => {
         if (socket && game) {
-            socket.then((s) => {
-                s.on('discardPublished', appendReceivedQbitDiscardMessage);
-            });
+            socket.on('discardPublished', appendReceivedQbitDiscardMessage);
             return () => {
-                socket.then((s) => {
-                    s.off('discardPublished', appendReceivedQbitDiscardMessage);
-                });
+                socket.off(
+                    'discardPublished',
+                    appendReceivedQbitDiscardMessage
+                );
             };
         }
     }, [socket, game]);
 
     useEffect(() => {
         if (socket) {
-            socket.then((s) => {
-                s.on('qbitEnqueued', qbitEnqueuedHandler);
-                s.on('basisPublished', appendReceivedBasisComparisonMessage);
-            });
+            socket.on('qbitEnqueued', qbitEnqueuedHandler);
+            socket.on('basisPublished', appendReceivedBasisComparisonMessage);
 
             return () => {
-                socket.then((s) => {
-                    s.off('qbitEnqueued', qbitEnqueuedHandler);
-                    s.off(
-                        'basisPublished',
-                        appendReceivedBasisComparisonMessage
-                    );
-                });
+                socket.off('qbitEnqueued', qbitEnqueuedHandler);
+                socket.off(
+                    'basisPublished',
+                    appendReceivedBasisComparisonMessage
+                );
             };
         }
     }, [socket]);
@@ -84,18 +85,14 @@ function GameEve() {
     }, [measuredPolarization, isMeasuredPhotonTransported]);
 
     useEffect(() => {
-        if (socket) {
-            socket.then((s) => {
-                s.on('playerLeftGame', leaveGame);
-            });
+        if (socket && gameId) {
+            socket.on('playerLeftGame', leaveGame);
 
             return () => {
-                socket.then((s) => {
-                    s.off('playerLeftGame', leaveGame);
-                    if (gameId) {
-                        s.emit('leaveGame', gameId);
-                    }
-                });
+                socket.off('playerLeftGame', leaveGame);
+                if (gameId && isLeavingGameOnCleanup.current) {
+                    socket.emit('leaveGame', gameId);
+                }
             };
         }
     }, [socket, gameId]);
@@ -183,9 +180,7 @@ function GameEve() {
 
     function handlePolarizedPhotonTransported(qbit: Qbit) {
         if (gameId) {
-            socket?.then((s) => {
-                s.emit('sendQbit', gameId, qbit.toJson());
-            });
+            socket?.emit('sendQbit', gameId, qbit.toJson());
         }
     }
 
@@ -200,13 +195,16 @@ function GameEve() {
 
     function handlePhotonPassing(basis: BASIS) {
         if (gameId) {
-            socket?.then((s) => {
-                s.emit('measureEnqueuedQbit', gameId, basis, (polarization) => {
+            socket?.emit(
+                'measureEnqueuedQbit',
+                gameId,
+                basis,
+                (polarization) => {
                     if (polarization !== undefined) {
                         setMeasuredPolarization(polarization);
                     }
-                });
-            });
+                }
+            );
         }
     }
 
@@ -220,14 +218,12 @@ function GameEve() {
                 qbitNo: curQbitNo,
                 basis: BASIS.horizontalVertical,
             };
-            socket?.then((s) => {
-                s.emit(
-                    'publishBasis',
-                    gameId,
-                    basisComparison,
-                    appendSentBasisComparisonMessage
-                );
-            });
+            socket?.emit(
+                'publishBasis',
+                gameId,
+                basisComparison,
+                appendSentBasisComparisonMessage
+            );
         }
     }
 
@@ -237,14 +233,12 @@ function GameEve() {
                 qbitNo: curQbitNo,
                 basis: BASIS.diagonal,
             };
-            socket?.then((s) => {
-                s.emit(
-                    'publishBasis',
-                    gameId,
-                    basisComparison,
-                    appendSentBasisComparisonMessage
-                );
-            });
+            socket?.emit(
+                'publishBasis',
+                gameId,
+                basisComparison,
+                appendSentBasisComparisonMessage
+            );
         }
     }
 
@@ -254,14 +248,12 @@ function GameEve() {
                 qbitNo: curQbitNo,
                 isDiscarded: false,
             };
-            socket?.then((s) => {
-                s.emit(
-                    'publishDiscard',
-                    gameId,
-                    qbitDiscard,
-                    appendSentQbitDiscardMessage
-                );
-            });
+            socket?.emit(
+                'publishDiscard',
+                gameId,
+                qbitDiscard,
+                appendSentQbitDiscardMessage
+            );
         }
     }
 
@@ -271,14 +263,12 @@ function GameEve() {
                 qbitNo: curQbitNo,
                 isDiscarded: true,
             };
-            socket?.then((s) => {
-                s.emit(
-                    'publishDiscard',
-                    gameId,
-                    qbitDiscard,
-                    appendSentQbitDiscardMessage
-                );
-            });
+            socket?.emit(
+                'publishDiscard',
+                gameId,
+                qbitDiscard,
+                appendSentQbitDiscardMessage
+            );
         }
     }
 
@@ -287,12 +277,11 @@ function GameEve() {
     ) {
         event.preventDefault();
         if (gameId) {
-            socket?.then((s) => {
-                s.emit('publishCode', gameId, code, () => {
-                    if (gameId) {
-                        navigate(`/games/${gameId}/result`);
-                    }
-                });
+            socket?.emit('publishCode', gameId, code, () => {
+                if (gameId) {
+                    isLeavingGameOnCleanup.current = false;
+                    navigate(`/games/${gameId}/result`);
+                }
             });
         }
     }

@@ -6,6 +6,7 @@ import { useSocket } from '../helper/IO';
 import IGameResultsData from '../models/api/IGameResultsData';
 import Typewriter from 'typewriter-effect';
 import Button from '../components/Button';
+import PaperStack from '../components/PaperStack';
 
 interface IResult {
     aliceCode: string;
@@ -24,29 +25,45 @@ function GameResult() {
     const navigate = useNavigate();
 
     useEffect(() => {
+        if (socket && !socket.connected) {
+            socket?.connect();
+        }
+    }, [socket]);
+
+    useEffect(() => {
         if (socket) {
-            socket.then((s) => {
-                s.on('allPlayersDoneWithGame', setDataFromResults);
-            });
+            socket.on('allPlayersDoneWithGame', setDataFromResults);
             return () => {
-                socket.then((s) => {
-                    s.off('allPlayersDoneWithGame', setDataFromResults);
-                });
+                socket.off('allPlayersDoneWithGame', setDataFromResults);
             };
         }
     }, [socket]);
 
     useEffect(() => {
+        if (socket && gameId) {
+            socket.on('playerLeftGame', leaveGame);
+
+            return () => {
+                socket.off('playerLeftGame', leaveGame);
+                socket.emit('leaveGameResult', gameId);
+            };
+        }
+    }, [socket, gameId]);
+
+    useEffect(() => {
         if (socket && gameId && result === undefined) {
-            socket.then((s) => {
-                s.emit('getGameResults', gameId, (gameResultData) => {
-                    if (gameResultData) {
-                        setDataFromResults(gameResultData);
-                    }
-                });
+            socket.emit('getGameResults', gameId, (gameResultData) => {
+                if (gameResultData) {
+                    setDataFromResults(gameResultData);
+                }
             });
         }
     }, [socket, gameId, result]);
+
+    function leaveGame() {
+        // TODO show popup that a player left the game.
+        navigate(`/lobbies`);
+    }
 
     function setDataFromResults(results: IGameResultsData) {
         if (result === undefined) {
@@ -197,7 +214,7 @@ function GameResult() {
                 }}
                 onInit={(t) => {
                     let typewriter = t
-                        .typeString(`Alice's code is: `)
+                        .typeString(`Alice's code is:&nbsp;`)
                         .pauseFor(shortDelay)
                         .changeDelay(codeDelay)
                         .typeString(`${result?.aliceCode.split('').join(' ')}`)
@@ -262,28 +279,32 @@ function GameResult() {
     }
 
     return (
-        <React.Fragment>
-            <Nav></Nav>
-            <WidthLimiter>
-                <div className="flex flex-col mt-3 font-mono">
-                    <div className="text-3xl mb-4">Results</div>
-                    {getTypewriter()}
-                    {isResultShown ? (
-                        <div className="mt-12">
-                            <Button
-                                onClick={() => {
-                                    navigate('/lobbies');
-                                }}
-                            >
-                                Back to lobbies
-                            </Button>
-                        </div>
-                    ) : (
-                        ''
-                    )}
-                </div>
-            </WidthLimiter>
-        </React.Fragment>
+        <div className="w-full h-auto min-h-screen items-stretch flex flex-col">
+            <div className="flex-none">
+                <Nav></Nav>
+            </div>
+            <div className="flex-1 flex flex-col">
+                <WidthLimiter className="flex flex-1 flex-col p-8">
+                    <PaperStack className="flex-auto mx-auto p-6">
+                        <div className="text-3xl mb-4">Results</div>
+                        {getTypewriter()}
+                        {isResultShown ? (
+                            <div className="mt-12">
+                                <Button
+                                    onClick={() => {
+                                        navigate('/lobbies');
+                                    }}
+                                >
+                                    Back to lobbies
+                                </Button>
+                            </div>
+                        ) : (
+                            ''
+                        )}
+                    </PaperStack>
+                </WidthLimiter>
+            </div>
+        </div>
     );
 }
 

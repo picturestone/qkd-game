@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import Nav from '../components/Nav';
 import WidthLimiter from '../components/WidthLimiter';
@@ -12,32 +12,51 @@ function CodeCompare() {
     const gameId = params.gameId;
     const [aliceCode, setAliceCode] = useState<string | undefined>(undefined);
     const [bobCode, setBobCode] = useState<string | undefined>(undefined);
+    const isLeavingGameOnCleanup = useRef(true);
     const navigate = useNavigate();
 
     useEffect(() => {
+        if (socket && !socket.connected) {
+            socket?.connect();
+        }
+    }, [socket]);
+
+    useEffect(() => {
         if (socket) {
-            socket.then((s) => {
-                s.on('allCodesPublished', setCodesFromPublishedCodesData);
-            });
+            socket.on('allCodesPublished', setCodesFromPublishedCodesData);
             return () => {
-                socket.then((s) => {
-                    s.off('allCodesPublished', setCodesFromPublishedCodesData);
-                });
+                socket.off('allCodesPublished', setCodesFromPublishedCodesData);
             };
         }
     }, [socket]);
 
     useEffect(() => {
         if (socket && gameId) {
-            socket.then((s) => {
-                s.emit(
-                    'getPublishedCodes',
-                    gameId,
-                    setCodesFromPublishedCodesData
-                );
-            });
+            socket.emit(
+                'getPublishedCodes',
+                gameId,
+                setCodesFromPublishedCodesData
+            );
         }
     }, [socket, gameId]);
+
+    useEffect(() => {
+        if (socket && gameId) {
+            socket.on('playerLeftGame', leaveGame);
+
+            return () => {
+                socket.off('playerLeftGame', leaveGame);
+                if (gameId && isLeavingGameOnCleanup.current) {
+                    socket.emit('leaveGame', gameId);
+                }
+            };
+        }
+    }, [socket, gameId]);
+
+    function leaveGame() {
+        // TODO show popup that a player left the game.
+        navigate(`/lobbies`);
+    }
 
     function setCodesFromPublishedCodesData(codes: IPublishedCodesData) {
         setAliceCode(codes.aliceCode);
@@ -50,18 +69,17 @@ function CodeCompare() {
 
     function publishIsThinkingEveListenedIn(isThinkingEveListenedIn: boolean) {
         if (socket && gameId) {
-            socket.then((s) => {
-                s.emit(
-                    'publishIsThinkingEveListenedIn',
-                    gameId,
-                    isThinkingEveListenedIn,
-                    () => {
-                        if (gameId) {
-                            navigate(`/games/${gameId}/result`);
-                        }
+            socket.emit(
+                'publishIsThinkingEveListenedIn',
+                gameId,
+                isThinkingEveListenedIn,
+                () => {
+                    if (gameId) {
+                        isLeavingGameOnCleanup.current = false;
+                        navigate(`/games/${gameId}/result`);
                     }
-                );
-            });
+                }
+            );
         }
     }
 

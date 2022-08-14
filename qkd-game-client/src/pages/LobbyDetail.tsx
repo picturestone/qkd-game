@@ -31,48 +31,42 @@ function LobbyDetail() {
     }, []);
 
     useEffect(() => {
+        if (socket && !socket.connected) {
+            socket?.connect();
+        }
+    }, [socket]);
+
+    useEffect(() => {
         if (socket && lobbyId) {
-            socket.then((s) => {
-                s.on('updatedLobby', updatedLobbyHandler);
-                s.on('chatMessage', appendMessage);
-                s.on('ownerLeftLobby', leaveLobby);
-            });
+            socket.on('updatedLobby', updatedLobbyHandler);
+            socket.on('chatMessage', appendMessage);
+            socket.on('ownerLeftLobby', leaveLobby);
 
             return () => {
-                socket.then((s) => {
-                    s.off('updatedLobby', updatedLobbyHandler);
-                    s.off('chatMessage', appendMessage);
-                    s.off('ownerLeftLobby', leaveLobby);
-                });
+                socket.off('updatedLobby', updatedLobbyHandler);
+                socket.off('chatMessage', appendMessage);
+                socket.off('ownerLeftLobby', leaveLobby);
             };
         }
     }, [socket]);
 
     useEffect(() => {
         if (socket && lobbyId) {
-            socket.then((s) => {
-                s.emit('joinLobby', lobbyId);
-            });
+            socket.emit('joinLobby', lobbyId);
 
             return () => {
-                socket.then((s) => {
-                    if (lobbyId && isLeavingLobbyOnCleanup.current) {
-                        s.emit('leaveLobby', lobbyId);
-                    }
-                });
+                if (lobbyId && isLeavingLobbyOnCleanup.current) {
+                    socket.emit('leaveLobby', lobbyId);
+                }
             };
         }
     }, [socket, lobbyId]);
 
     useEffect(() => {
         if (socket && lobby) {
-            socket.then((s) => {
-                s.on('startedGame', startedGameHandler);
-            });
+            socket.on('startedGame', startedGameHandler);
             return () => {
-                socket.then((s) => {
-                    s.off('startedGame', startedGameHandler);
-                });
+                socket.off('startedGame', startedGameHandler);
             };
         }
     }, [socket, lobby]);
@@ -92,11 +86,9 @@ function LobbyDetail() {
     }
 
     function selectLobbyRole(lobbyRole: PLAYERROLE | undefined) {
-        socket?.then((s) => {
-            if (lobby && lobby.id) {
-                s.emit('selectLobbyRole', lobby.id, lobbyRole);
-            }
-        });
+        if (lobby && lobby.id) {
+            socket?.emit('selectLobbyRole', lobby.id, lobbyRole);
+        }
     }
 
     function leaveLobby() {
@@ -128,11 +120,9 @@ function LobbyDetail() {
             button = (
                 <Button
                     onClick={() => {
-                        socket?.then((s) => {
-                            if (lobby && lobby.id) {
-                                s.emit('startGame', lobby.id);
-                            }
-                        });
+                        if (lobby && lobby.id) {
+                            socket?.emit('startGame', lobby.id);
+                        }
                     }}
                 >
                     Start Game
