@@ -50,8 +50,9 @@ class IO {
             IInterServerEvents,
             ISocketData
         >(httpServer, {
-            cors: {
-                origin: '*',
+            allowRequest: (req, callback) => {
+                const noOriginHeader = req.headers.origin === undefined;
+                callback(null, noOriginHeader); // only allow requests without 'origin' header
             },
         });
 
@@ -59,7 +60,6 @@ class IO {
         this._server.use(wrap(passport.initialize()));
         this._server.use(wrap(JWT_AUTH_MIDDLEWARE));
 
-        // TODO remove socketId reference on disconnect.
         this._server.on('connect', (socket) => {
             const user = socket.request.user;
             if (user) {
