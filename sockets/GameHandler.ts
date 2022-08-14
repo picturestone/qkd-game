@@ -1,5 +1,6 @@
 import { Server, Socket } from 'socket.io';
 import GameDb from '../database/GameDb';
+import Validator from '../helper/Validator';
 import Game from '../models/Game';
 import HumanAlicePlayer from '../models/player/HumanAlicePlayer';
 import HumanBobPlayer from '../models/player/HumanBobPlayer';
@@ -9,6 +10,8 @@ import IClientToServerEvents from '../qkd-game-client/src/models/api/IClientToSe
 import IInterServerEvents from '../qkd-game-client/src/models/api/IInterServerEvents';
 import IServerToClientEvents from '../qkd-game-client/src/models/api/IServerToClientEvents';
 import ISocketData from '../qkd-game-client/src/models/api/ISocketData';
+
+const validator = new Validator();
 
 function getGame(gameId: string): Promise<Game | undefined> {
     return new GameDb().findById(gameId);
@@ -77,173 +80,203 @@ export default function registerSocketIOEvents(
 ) {
     server.on('connect', (socket) => {
         socket.on('leaveGame', (gameId) => {
-            getGame(gameId).then((game) => {
-                game?.leave(socket);
-            });
+            if (validator.isId(gameId)) {
+                getGame(gameId).then((game) => {
+                    game?.leave(socket);
+                });
+            }
         });
         socket.on('sendQbit', (gameId, qbitJson) => {
-            getGame(gameId).then((game) => {
-                if (game) {
-                    const userId = getUserId(socket);
-                    const alicePlayer = isUserAlice(game, userId);
-                    const evePlayer = isUserEve(game, userId);
-                    const sentQbit = Qbit.fromJson(qbitJson);
-                    if (alicePlayer) {
-                        alicePlayer.sendQbit(sentQbit);
-                    } else if (evePlayer) {
-                        evePlayer.sendQbit(sentQbit);
+            if (validator.isId(gameId) && validator.isIQbitJson(qbitJson)) {
+                getGame(gameId).then((game) => {
+                    if (game) {
+                        const userId = getUserId(socket);
+                        const alicePlayer = isUserAlice(game, userId);
+                        const evePlayer = isUserEve(game, userId);
+                        const sentQbit = Qbit.fromJson(qbitJson);
+                        if (alicePlayer) {
+                            alicePlayer.sendQbit(sentQbit);
+                        } else if (evePlayer) {
+                            evePlayer.sendQbit(sentQbit);
+                        }
                     }
-                }
-            });
+                });
+            }
         });
         socket.on('measureEnqueuedQbit', (gameId, basis, cb) => {
-            getGame(gameId).then((game) => {
-                if (game) {
-                    const userId = getUserId(socket);
-                    const bobPlayer = isUserBob(game, userId);
-                    const evePlayer = isUserEve(game, userId);
-                    if (bobPlayer) {
-                        const measuredPolarization =
-                            bobPlayer.measureEnqueuedQbit(basis);
-                        cb(measuredPolarization);
-                    } else if (evePlayer) {
-                        const measuredPolarization =
-                            evePlayer.measureEnqueuedQbit(basis);
-                        cb(measuredPolarization);
+            if (validator.isId(gameId) && validator.isBasis(basis)) {
+                getGame(gameId).then((game) => {
+                    if (game) {
+                        const userId = getUserId(socket);
+                        const bobPlayer = isUserBob(game, userId);
+                        const evePlayer = isUserEve(game, userId);
+                        if (bobPlayer) {
+                            const measuredPolarization =
+                                bobPlayer.measureEnqueuedQbit(basis);
+                            cb(measuredPolarization);
+                        } else if (evePlayer) {
+                            const measuredPolarization =
+                                evePlayer.measureEnqueuedQbit(basis);
+                            cb(measuredPolarization);
+                        }
                     }
-                }
-            });
+                });
+            }
         });
         socket.on('publishBasis', (gameId, basisComparisonData, cb) => {
-            getGame(gameId).then((game) => {
-                if (game) {
-                    const userId = getUserId(socket);
-                    const alicePlayer = isUserAlice(game, userId);
-                    const evePlayer = isUserEve(game, userId);
-                    if (alicePlayer) {
-                        alicePlayer.sendBasisComparison(basisComparisonData);
-                        cb(basisComparisonData);
-                    } else if (evePlayer) {
-                        evePlayer.sendBasisComparison(basisComparisonData);
-                        cb(basisComparisonData);
+            if (
+                validator.isId(gameId) &&
+                validator.isIBasisComparisonData(basisComparisonData)
+            ) {
+                getGame(gameId).then((game) => {
+                    if (game) {
+                        const userId = getUserId(socket);
+                        const alicePlayer = isUserAlice(game, userId);
+                        const evePlayer = isUserEve(game, userId);
+                        if (alicePlayer) {
+                            alicePlayer.sendBasisComparison(
+                                basisComparisonData
+                            );
+                            cb(basisComparisonData);
+                        } else if (evePlayer) {
+                            evePlayer.sendBasisComparison(basisComparisonData);
+                            cb(basisComparisonData);
+                        }
                     }
-                }
-            });
+                });
+            }
         });
         socket.on('publishDiscard', (gameId, qbitDiscardedData, cb) => {
-            getGame(gameId).then((game) => {
-                if (game) {
-                    const userId = getUserId(socket);
-                    const bobPlayer = isUserBob(game, userId);
-                    const evePlayer = isUserEve(game, userId);
-                    if (bobPlayer) {
-                        bobPlayer.sendQbitDiscard(qbitDiscardedData);
-                        cb(qbitDiscardedData);
-                    } else if (evePlayer) {
-                        evePlayer.sendQbitDiscard(qbitDiscardedData);
-                        cb(qbitDiscardedData);
+            if (
+                validator.isId(gameId) &&
+                validator.isIQbitDiscardData(qbitDiscardedData)
+            ) {
+                getGame(gameId).then((game) => {
+                    if (game) {
+                        const userId = getUserId(socket);
+                        const bobPlayer = isUserBob(game, userId);
+                        const evePlayer = isUserEve(game, userId);
+                        if (bobPlayer) {
+                            bobPlayer.sendQbitDiscard(qbitDiscardedData);
+                            cb(qbitDiscardedData);
+                        } else if (evePlayer) {
+                            evePlayer.sendQbitDiscard(qbitDiscardedData);
+                            cb(qbitDiscardedData);
+                        }
                     }
-                }
-            });
+                });
+            }
         });
         socket.on('publishCode', (gameId, code, cb) => {
-            getGame(gameId).then((game) => {
-                if (game) {
-                    const userId = getUserId(socket);
-                    const alicePlayer = isUserAlice(game, userId);
-                    const bobPlayer = isUserBob(game, userId);
-                    const evePlayer = isUserEve(game, userId);
-                    if (
-                        alicePlayer &&
-                        alicePlayer.publishedCode === undefined
-                    ) {
-                        alicePlayer.publishedCode = code;
-                        cb();
-                    } else if (
-                        bobPlayer &&
-                        bobPlayer.publishedCode === undefined
-                    ) {
-                        bobPlayer.publishedCode = code;
-                        cb();
-                    } else if (
-                        evePlayer &&
-                        evePlayer.publishedCode === undefined
-                    ) {
-                        evePlayer.publishedCode = code;
-                        cb();
-                    }
-                }
-            });
-        });
-        socket.on('getPublishedCodes', (gameId, cb) => {
-            getGame(gameId).then((game) => {
-                if (game) {
-                    const userId = getUserId(socket);
-                    const alicePlayer = isUserAlice(game, userId);
-                    const bobPlayer = isUserBob(game, userId);
-                    if (alicePlayer || bobPlayer) {
-                        const aliceCode = game.alicePlayer.publishedCode;
-                        const bobCode = game.bobPlayer.publishedCode;
-                        cb({
-                            aliceCode: aliceCode,
-                            bobCode: bobCode,
-                        });
-                    }
-                }
-            });
-        });
-        socket.on(
-            'publishIsThinkingEveListenedIn',
-            (gameId, isThinkingEveListenedIn, cb) => {
+            if (validator.isId(gameId) && validator.isCode(code)) {
                 getGame(gameId).then((game) => {
                     if (game) {
                         const userId = getUserId(socket);
                         const alicePlayer = isUserAlice(game, userId);
                         const bobPlayer = isUserBob(game, userId);
+                        const evePlayer = isUserEve(game, userId);
                         if (
                             alicePlayer &&
-                            alicePlayer.isThinkingEveListenedIn === undefined
+                            alicePlayer.publishedCode === undefined
                         ) {
-                            alicePlayer.isThinkingEveListenedIn =
-                                isThinkingEveListenedIn;
+                            alicePlayer.publishedCode = code;
                             cb();
                         } else if (
                             bobPlayer &&
-                            bobPlayer.isThinkingEveListenedIn === undefined
+                            bobPlayer.publishedCode === undefined
                         ) {
-                            bobPlayer.isThinkingEveListenedIn =
-                                isThinkingEveListenedIn;
+                            bobPlayer.publishedCode = code;
+                            cb();
+                        } else if (
+                            evePlayer &&
+                            evePlayer.publishedCode === undefined
+                        ) {
+                            evePlayer.publishedCode = code;
                             cb();
                         }
                     }
                 });
             }
-        );
-        socket.on('getGameResults', (gameId, cb) => {
-            getGame(gameId).then((game) => {
-                if (game) {
-                    const userId = getUserId(socket);
-                    const alicePlayer = isUserAlice(game, userId);
-                    const bobPlayer = isUserBob(game, userId);
-                    const evePlayer = isUserEve(game, userId);
-                    if (alicePlayer || bobPlayer || evePlayer) {
-                        const results = game.getGameResults();
-                        if (results) {
+        });
+        socket.on('getPublishedCodes', (gameId, cb) => {
+            if (validator.isId(gameId)) {
+                getGame(gameId).then((game) => {
+                    if (game) {
+                        const userId = getUserId(socket);
+                        const alicePlayer = isUserAlice(game, userId);
+                        const bobPlayer = isUserBob(game, userId);
+                        if (alicePlayer || bobPlayer) {
+                            const aliceCode = game.alicePlayer.publishedCode;
+                            const bobCode = game.bobPlayer.publishedCode;
                             cb({
-                                aliceCode: results.aliceCode,
-                                bobCode: results.bobCode,
-                                isAliceThinkingEveListenedIn:
-                                    results.isAliceThinkingEveListenedIn,
-                                isBobThinkingEveListenedIn:
-                                    results.isBobThinkingEveListenedIn,
-                                eveCode: results.eveCode,
+                                aliceCode: aliceCode,
+                                bobCode: bobCode,
                             });
-                        } else {
-                            cb(undefined);
                         }
                     }
+                });
+            }
+        });
+        socket.on(
+            'publishIsThinkingEveListenedIn',
+            (gameId, isThinkingEveListenedIn, cb) => {
+                if (
+                    validator.isId(gameId) &&
+                    validator.isBoolean(isThinkingEveListenedIn)
+                ) {
+                    getGame(gameId).then((game) => {
+                        if (game) {
+                            const userId = getUserId(socket);
+                            const alicePlayer = isUserAlice(game, userId);
+                            const bobPlayer = isUserBob(game, userId);
+                            if (
+                                alicePlayer &&
+                                alicePlayer.isThinkingEveListenedIn ===
+                                    undefined
+                            ) {
+                                alicePlayer.isThinkingEveListenedIn =
+                                    isThinkingEveListenedIn;
+                                cb();
+                            } else if (
+                                bobPlayer &&
+                                bobPlayer.isThinkingEveListenedIn === undefined
+                            ) {
+                                bobPlayer.isThinkingEveListenedIn =
+                                    isThinkingEveListenedIn;
+                                cb();
+                            }
+                        }
+                    });
                 }
-            });
+            }
+        );
+        socket.on('getGameResults', (gameId, cb) => {
+            if (validator.isId(gameId)) {
+                getGame(gameId).then((game) => {
+                    if (game) {
+                        const userId = getUserId(socket);
+                        const alicePlayer = isUserAlice(game, userId);
+                        const bobPlayer = isUserBob(game, userId);
+                        const evePlayer = isUserEve(game, userId);
+                        if (alicePlayer || bobPlayer || evePlayer) {
+                            const results = game.getGameResults();
+                            if (results) {
+                                cb({
+                                    aliceCode: results.aliceCode,
+                                    bobCode: results.bobCode,
+                                    isAliceThinkingEveListenedIn:
+                                        results.isAliceThinkingEveListenedIn,
+                                    isBobThinkingEveListenedIn:
+                                        results.isBobThinkingEveListenedIn,
+                                    eveCode: results.eveCode,
+                                });
+                            } else {
+                                cb(undefined);
+                            }
+                        }
+                    }
+                });
+            }
         });
     });
 }

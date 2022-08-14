@@ -1,6 +1,7 @@
 import { Server } from 'socket.io';
 import GameDb from '../database/GameDb';
 import LobbyDb from '../database/LobbyDb';
+import Validator from '../helper/Validator';
 import GameBuilder from '../models/GameBuilder';
 import Lobby from '../models/Lobby';
 import IClientToServerEvents from '../qkd-game-client/src/models/api/IClientToServerEvents';
@@ -9,6 +10,8 @@ import IServerToClientEvents from '../qkd-game-client/src/models/api/IServerToCl
 import ISocketData from '../qkd-game-client/src/models/api/ISocketData';
 import { PLAYERROLE } from '../qkd-game-client/src/models/api/PlayerRole';
 import IO from './IO';
+
+const validator = new Validator();
 
 function getLobby(lobbyId: string): Promise<Lobby | undefined> {
     return new LobbyDb().findById(lobbyId);
@@ -115,96 +118,108 @@ export default function registerSocketIOEvents(
 ) {
     server.on('connect', (socket) => {
         socket.on('joinLobby', (lobbyId) => {
-            getLobby(lobbyId).then((lobby) => {
-                lobby?.join(socket);
-            });
+            if (validator.isId(lobbyId)) {
+                getLobby(lobbyId).then((lobby) => {
+                    lobby?.join(socket);
+                });
+            }
         });
         socket.on('leaveLobby', (lobbyId) => {
-            getLobby(lobbyId).then((lobby) => {
-                lobby?.leave(socket);
-            });
+            if (validator.isId(lobbyId)) {
+                getLobby(lobbyId).then((lobby) => {
+                    lobby?.leave(socket);
+                });
+            }
         });
         socket.on('selectLobbyRole', (lobbyId, lobbyRole) => {
-            const lobbyDb = new LobbyDb();
+            if (
+                validator.isId(lobbyId) &&
+                (lobbyRole === undefined || validator.isPlayerrole(lobbyRole))
+            ) {
+                const lobbyDb = new LobbyDb();
 
-            lobbyDb.findById(lobbyId).then((lobby) => {
-                if (lobby && lobby.id) {
-                    if (lobbyRole === null || lobbyRole === undefined) {
-                        lobby.removeUserFromAllRoles(socket.request.user);
-                        lobbyDb.put(lobby).then((updatedLobby) => {
-                            if (updatedLobby && updatedLobby.id) {
-                                server
-                                    .to(updatedLobby.id)
-                                    .emit(
-                                        'updatedLobby',
-                                        updatedLobby.toJson()
-                                    );
-                                server
-                                    .to(updatedLobby.id)
-                                    .emit(
-                                        'chatMessage',
-                                        `${socket.request.user?.name} deselected their role.`
-                                    );
+                lobbyDb.findById(lobbyId).then((lobby) => {
+                    if (lobby && lobby.id) {
+                        if (lobbyRole === null || lobbyRole === undefined) {
+                            lobby.removeUserFromAllRoles(socket.request.user);
+                            lobbyDb.put(lobby).then((updatedLobby) => {
+                                if (updatedLobby && updatedLobby.id) {
+                                    server
+                                        .to(updatedLobby.id)
+                                        .emit(
+                                            'updatedLobby',
+                                            updatedLobby.toJson()
+                                        );
+                                    server
+                                        .to(updatedLobby.id)
+                                        .emit(
+                                            'chatMessage',
+                                            `${socket.request.user?.name} deselected their role.`
+                                        );
+                                }
+                            });
+                        } else {
+                            switch (lobbyRole) {
+                                case PLAYERROLE.alice:
+                                    if (!lobby.reservedAlice) {
+                                        lobby.removeUserFromAllRoles(
+                                            socket.request.user
+                                        );
+                                        lobby.reservedAlice =
+                                            socket.request.user;
+                                    }
+                                    break;
+                                case PLAYERROLE.bob:
+                                    if (!lobby.reservedBob) {
+                                        lobby.removeUserFromAllRoles(
+                                            socket.request.user
+                                        );
+                                        lobby.reservedBob = socket.request.user;
+                                    }
+                                    break;
+                                case PLAYERROLE.eve:
+                                    if (!lobby.reservedEve) {
+                                        lobby.removeUserFromAllRoles(
+                                            socket.request.user
+                                        );
+                                        lobby.reservedEve = socket.request.user;
+                                    }
                             }
-                        });
-                    } else {
-                        switch (lobbyRole) {
-                            case PLAYERROLE.alice:
-                                if (!lobby.reservedAlice) {
-                                    lobby.removeUserFromAllRoles(
-                                        socket.request.user
-                                    );
-                                    lobby.reservedAlice = socket.request.user;
+                            lobbyDb.put(lobby).then((updatedLobby) => {
+                                if (updatedLobby && updatedLobby.id) {
+                                    server
+                                        .to(updatedLobby.id)
+                                        .emit(
+                                            'updatedLobby',
+                                            updatedLobby.toJson()
+                                        );
+                                    server
+                                        .to(updatedLobby.id)
+                                        .emit(
+                                            'chatMessage',
+                                            `${socket.request.user?.name} plays as ${lobbyRole}.`
+                                        );
                                 }
-                                break;
-                            case PLAYERROLE.bob:
-                                if (!lobby.reservedBob) {
-                                    lobby.removeUserFromAllRoles(
-                                        socket.request.user
-                                    );
-                                    lobby.reservedBob = socket.request.user;
-                                }
-                                break;
-                            case PLAYERROLE.eve:
-                                if (!lobby.reservedEve) {
-                                    lobby.removeUserFromAllRoles(
-                                        socket.request.user
-                                    );
-                                    lobby.reservedEve = socket.request.user;
-                                }
+                            });
                         }
-                        lobbyDb.put(lobby).then((updatedLobby) => {
-                            if (updatedLobby && updatedLobby.id) {
-                                server
-                                    .to(updatedLobby.id)
-                                    .emit(
-                                        'updatedLobby',
-                                        updatedLobby.toJson()
-                                    );
-                                server
-                                    .to(updatedLobby.id)
-                                    .emit(
-                                        'chatMessage',
-                                        `${socket.request.user?.name} plays as ${lobbyRole}.`
-                                    );
-                            }
-                        });
                     }
-                }
-            });
+                });
+            }
         });
         socket.on('startGame', (lobbyId) => {
-            getLobby(lobbyId).then((lobby) => {
-                if (lobby && lobby.id) {
-                    if (socket.request.user?.id === lobby.owner.id) {
-                        if (lobby.isEveAllowed) {
-                            startAliceBobEveGame(lobby, server);
-                        } else {
-                            startAliceBobGame(lobby, server);
+            if (validator.isId(lobbyId)) {
+                getLobby(lobbyId).then((lobby) => {
+                    if (lobby && lobby.id) {
+                        if (socket.request.user?.id === lobby.owner.id) {
+                            if (lobby.isEveAllowed) {
+                                startAliceBobEveGame(lobby, server);
+                            } else {
+                                startAliceBobGame(lobby, server);
+                            }
                         }
-                    } // TODO maybe send unauthorized in else.
-                } // TODO maybe send 404 in else.
-            });
+                    }
+                });
+            }
         });
     });
 }
