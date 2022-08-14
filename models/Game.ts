@@ -2,6 +2,14 @@ import AlicePlayer from './player/AlicePlayer';
 import BobPlayer from './player/BobPlayer';
 import IGameJson from '../qkd-game-client/src/models/api/IGameJson';
 import EvePlayer from './player/EvePlayer';
+import IO from '../sockets/IO';
+import { Socket } from 'socket.io';
+import LobbyDb from '../database/LobbyDb';
+import IClientToServerEvents from '../qkd-game-client/src/models/api/IClientToServerEvents';
+import IInterServerEvents from '../qkd-game-client/src/models/api/IInterServerEvents';
+import IServerToClientEvents from '../qkd-game-client/src/models/api/IServerToClientEvents';
+import ISocketData from '../qkd-game-client/src/models/api/ISocketData';
+import GameDb from '../database/GameDb';
 
 export default class Game {
     private _id?: string;
@@ -58,6 +66,26 @@ export default class Game {
 
     public get evePlayer() {
         return this._evePlayer;
+    }
+
+    public leave(
+        socket: Socket<
+            IClientToServerEvents,
+            IServerToClientEvents,
+            IInterServerEvents,
+            ISocketData
+        >
+    ) {
+        const userId = socket.request.user?.id;
+        if (this.id && userId) {
+            new GameDb().delete(this.id).then((deletedGame) => {
+                if (deletedGame && deletedGame.id) {
+                    deletedGame._alicePlayer.onOtherPlayerLeftGame(this);
+                    deletedGame._bobPlayer.onOtherPlayerLeftGame(this);
+                    deletedGame._evePlayer?.onOtherPlayerLeftGame(this);
+                }
+            });
+        }
     }
 
     public onCodePublished() {

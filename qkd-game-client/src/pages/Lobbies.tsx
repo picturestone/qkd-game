@@ -13,8 +13,6 @@ function Lobbies() {
     const [lobbies, setLobbies] = useState(new Array<Lobby>());
     const navigate = useNavigate();
 
-    // Note: Empty dependency array means this will run once just like componentDidMount().
-    // TODO check if any other useEffect() should run only once.
     useEffect(() => {
         refreshLobbies();
     }, []);

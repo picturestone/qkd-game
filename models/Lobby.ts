@@ -153,18 +153,14 @@ export default class Lobby {
         if (this.id && userId) {
             if (userId === this.owner.id) {
                 if (this.id) {
-                    new LobbyDb()
-                        .delete(this.id)
-                        .then((deletedLobby) => {
-                            if (deletedLobby && deletedLobby.id) {
-                                this.server
-                                    .to(deletedLobby.id)
-                                    .emit('ownerLeftLobby', deletedLobby);
-                            }
-                        })
-                        .catch((err) => {
-                            console.log(err);
-                        });
+                    new LobbyDb().delete(this.id).then((deletedLobby) => {
+                        if (deletedLobby && deletedLobby.id) {
+                            this.server
+                                .to(deletedLobby.id)
+                                .emit('ownerLeftLobby', deletedLobby);
+                            this.server.socketsLeave(deletedLobby.id);
+                        }
+                    });
                 }
             } else {
                 socket.leave(this.id);

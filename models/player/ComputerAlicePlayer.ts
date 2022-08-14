@@ -7,7 +7,9 @@ export default class ComputerAlicePlayer extends AlicePlayer {
     get humanPlayer(): HumanPlayer | undefined {
         return undefined;
     }
-
+    public onOtherPlayerLeftGame(game: Game): void {
+        throw new Error('Method not implemented.');
+    }
     onQbitDiscardEnqueue(): void {
         throw new Error('Method not implemented.');
     }

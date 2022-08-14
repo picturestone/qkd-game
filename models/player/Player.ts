@@ -19,6 +19,8 @@ export default abstract class Player {
         isBobThinkingEveListenedIn: boolean,
         eveCode?: string
     ): void;
+    public abstract onCodePublished(): void;
+    public abstract onOtherPlayerLeftGame(game: Game): void;
 
     get game() {
         return this._game;
@@ -36,8 +38,6 @@ export default abstract class Player {
         this._publishedCode = value;
         this.onCodePublished();
     }
-
-    public abstract onCodePublished(): void;
 
     get isDoneWithGame() {
         return this._isDoneWithGame;

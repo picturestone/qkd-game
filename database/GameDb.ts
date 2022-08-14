@@ -19,4 +19,16 @@ export default class GameDb {
             res(game);
         });
     }
+
+    delete(id: string) {
+        return new Promise<Game | undefined>((res) => {
+            const index = GameDb._games.findIndex((game) => game.id === id);
+            const removedGames = GameDb._games.splice(index, 1);
+            let retVal: Game | undefined = undefined;
+            if (removedGames.length > 0) {
+                retVal = removedGames[0];
+            }
+            res(retVal);
+        });
+    }
 }

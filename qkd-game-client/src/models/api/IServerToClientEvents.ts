@@ -10,6 +10,7 @@ export default interface IServerToClientEvents {
     ownerLeftLobby: (lobby: ILobbyJson) => void;
     updatedLobby: (lobby: ILobbyJson) => void;
     startedGame: (game: IGameJson) => void;
+    playerLeftGame: (game: IGameJson) => void;
     qbitEnqueued: () => void;
     basisPublished: (basisComparisonData: IBasisComparisonData) => void;
     discardPublished: (qbitDiscardedData: IQbitDiscardData) => void;

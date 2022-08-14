@@ -1,5 +1,5 @@
 import { AxiosError } from 'axios';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import Button from '../components/Button';
 import MessageLog from '../components/MessageLog';
@@ -22,6 +22,7 @@ function LobbyDetail() {
     const lobbyId = params.lobbyId;
     const lobbiesService = new LobbiesService();
     const navigate = useNavigate();
+    const isLeavingLobbyOnCleanup = useRef(true);
     const [lobby, setLobby] = useState<Lobby>();
     const [messages, setMessages] = useState<string[]>([]);
 
@@ -34,24 +35,47 @@ function LobbyDetail() {
             socket.then((s) => {
                 s.on('updatedLobby', updatedLobbyHandler);
                 s.on('chatMessage', appendMessage);
-                s.on('startedGame', startedGameHandler);
                 s.on('ownerLeftLobby', leaveLobby);
-                s.emit('joinLobby', lobbyId);
             });
 
             return () => {
                 socket.then((s) => {
                     s.off('updatedLobby', updatedLobbyHandler);
                     s.off('chatMessage', appendMessage);
-                    s.off('startedGame', startedGameHandler);
                     s.off('ownerLeftLobby', leaveLobby);
-                    if (lobbyId) {
+                });
+            };
+        }
+    }, [socket]);
+
+    useEffect(() => {
+        if (socket && lobbyId) {
+            socket.then((s) => {
+                s.emit('joinLobby', lobbyId);
+            });
+
+            return () => {
+                socket.then((s) => {
+                    if (lobbyId && isLeavingLobbyOnCleanup.current) {
                         s.emit('leaveLobby', lobbyId);
                     }
                 });
             };
         }
     }, [socket, lobbyId]);
+
+    useEffect(() => {
+        if (socket && lobby) {
+            socket.then((s) => {
+                s.on('startedGame', startedGameHandler);
+            });
+            return () => {
+                socket.then((s) => {
+                    s.off('startedGame', startedGameHandler);
+                });
+            };
+        }
+    }, [socket, lobby]);
 
     function appendMessage(message: string) {
         setMessages((prevMessages) => [...prevMessages, message]);
@@ -63,6 +87,7 @@ function LobbyDetail() {
 
     function startedGameHandler(gameJson: IGameJson) {
         const game = Game.fromJson(gameJson);
+        isLeavingLobbyOnCleanup.current = false;
         navigate(`/games/${game.id}/${lobby?.selectedRole}`);
     }
 

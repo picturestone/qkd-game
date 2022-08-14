@@ -120,11 +120,9 @@ export default function registerSocketIOEvents(
             });
         });
         socket.on('leaveLobby', (lobbyId) => {
-            getLobby(lobbyId)
-                .then((lobby) => {
-                    lobby?.leave(socket);
-                })
-                .catch((err) => console.log(err));
+            getLobby(lobbyId).then((lobby) => {
+                lobby?.leave(socket);
+            });
         });
         socket.on('selectLobbyRole', (lobbyId, lobbyRole) => {
             const lobbyDb = new LobbyDb();

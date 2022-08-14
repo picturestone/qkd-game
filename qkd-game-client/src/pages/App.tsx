@@ -20,19 +20,12 @@ function App() {
     const [isP3Printed, setIsP3Printed] = useState(false);
     const [isCookiesConfirmed, setIsCookiesConfirmed] = useState(false);
     const navigate = useNavigate();
-    // TODO revert to original values
-    const smallPause = 0;
-    const mediumPause = 0;
+    const smallPause = 1000;
+    const mediumPause = 1500;
 
     const typewriterOptions = {
-        delay: 0,
+        delay: 50,
     };
-    // const smallPause = 1000;
-    // const mediumPause = 1500;
-
-    // const typewriterOptions = {
-    //     delay: 50,
-    // };
 
     // TODO deactivate confirm name button if input is 0 long.
     function handleSubmit(event: React.FormEvent<HTMLFormElement>) {

@@ -19,11 +19,6 @@ interface INoteTableColumnData {
     isDiscarded: boolean;
 }
 
-// TODO for sender: Show basis and bit value
-// TODO for receiver: show basis and bit value?
-// TODO for sender: Show polarization table
-// Difficulty: EVE > ALICE > BOB
-// See worksheets Quantum Computing for the Quantum Curious
 function NoteTable(props: IProps) {
     const cellHeightClass = 'h-8';
     const headerColClasses =

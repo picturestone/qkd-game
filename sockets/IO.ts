@@ -66,6 +66,7 @@ class IO {
                 user.socketId = socket.id;
             }
 
+            // TODO somehow make sure that a user gets back into the lobby. maybe ask before leaving.
             socket.on('disconnecting', () => {
                 const user = socket.request.user;
                 if (user && user.id) {
@@ -78,7 +79,9 @@ class IO {
                                     lobby.leave(socket);
                                 } else {
                                     gameDb.findById(val).then((game) => {
-                                        // TODO game.leave(socket);
+                                        if (game) {
+                                            game.leave(socket);
+                                        }
                                     });
                                 }
                             });

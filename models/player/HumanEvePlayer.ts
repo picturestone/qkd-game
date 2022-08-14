@@ -43,6 +43,10 @@ export default class HumanEvePlayer extends EvePlayer {
         this._humanPlayer.startGame(this.game);
     }
 
+    public onOtherPlayerLeftGame(game: Game): void {
+        this._humanPlayer.playerLeftGame(game);
+    }
+
     onAllPlayersDoneWithGame(
         aliceCode: string,
         bobCode: string,

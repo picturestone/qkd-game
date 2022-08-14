@@ -67,8 +67,6 @@ function isUserEve(
     return player;
 }
 
-// TODO add redirecting on missing auth.
-// TODO quit game when leaving.
 export default function registerSocketIOEvents(
     server: Server<
         IClientToServerEvents,
@@ -78,6 +76,11 @@ export default function registerSocketIOEvents(
     >
 ) {
     server.on('connect', (socket) => {
+        socket.on('leaveGame', (gameId) => {
+            getGame(gameId).then((game) => {
+                game?.leave(socket);
+            });
+        });
         socket.on('sendQbit', (gameId, qbitJson) => {
             getGame(gameId).then((game) => {
                 if (game) {

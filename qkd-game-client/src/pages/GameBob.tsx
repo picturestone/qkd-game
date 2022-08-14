@@ -63,6 +63,28 @@ function GameBob() {
         }
     }, [measuredPolarization, isMeasuredPhotonTransported]);
 
+    useEffect(() => {
+        if (socket) {
+            socket.then((s) => {
+                s.on('playerLeftGame', leaveGame);
+            });
+
+            return () => {
+                socket.then((s) => {
+                    s.off('playerLeftGame', leaveGame);
+                    if (gameId) {
+                        s.emit('leaveGame', gameId);
+                    }
+                });
+            };
+        }
+    }, [socket, gameId]);
+
+    function leaveGame() {
+        // TODO show popup that a player left the game.
+        navigate(`/lobbies`);
+    }
+
     function loadGame() {
         if (gameId) {
             gameService.get(gameId).then(
