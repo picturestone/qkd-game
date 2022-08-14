@@ -134,10 +134,11 @@ export default function registerSocketIOEvents(
         socket.on('selectLobbyRole', (lobbyId, lobbyRole) => {
             if (
                 validator.isId(lobbyId) &&
-                (lobbyRole === undefined || validator.isPlayerrole(lobbyRole))
+                (lobbyRole === undefined ||
+                    lobbyRole === null ||
+                    validator.isPlayerrole(lobbyRole))
             ) {
                 const lobbyDb = new LobbyDb();
-
                 lobbyDb.findById(lobbyId).then((lobby) => {
                     if (lobby && lobby.id) {
                         if (lobbyRole === null || lobbyRole === undefined) {
