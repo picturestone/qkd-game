@@ -44,6 +44,8 @@ function GameBob() {
 
     useEffect(() => {
         if (socket && !socket.connected) {
+            console.log('socket not connected');
+
             socket?.connect();
         }
     }, [socket]);

@@ -63,10 +63,6 @@ export default class HumanEvePlayer extends EvePlayer {
         );
     }
 
-    sendQbit(qbit: Qbit): void {
-        this.sendQbit(qbit);
-    }
-
     onQbitDiscardEnqueue(): void {
         const qbitDiscard = this.dequeueQbitDiscard();
         if (qbitDiscard) {
