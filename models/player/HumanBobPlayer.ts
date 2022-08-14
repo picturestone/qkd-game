@@ -30,6 +30,10 @@ export default class HumanBobPlayer extends BobPlayer {
         this._humanPlayer.startGame(this.game);
     }
 
+    public onOtherPlayerLeftGame(game: Game): void {
+        this._humanPlayer.playerLeftGame(game);
+    }
+
     onAllPlayersDoneWithGame(
         aliceCode: string,
         bobCode: string,

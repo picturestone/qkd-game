@@ -33,7 +33,6 @@ function LobbyForm(props: IProps) {
         if (loggedInUser) {
             // TODO handle validation in a seperate function.
             if (lobbyName) {
-                // TODO check if a new lobby is required or if an old one is updated.
                 lobbyService
                     .create(
                         new Lobby(

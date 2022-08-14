@@ -43,11 +43,16 @@ function GameBob() {
 
     useEffect(() => {
         if (socket) {
-            socket.on('qbitEnqueued', qbitEnqueuedHandler);
-            socket.on('basisPublished', appendBasisComparisonMessage);
+            socket.then((s) => {
+                s.on('qbitEnqueued', qbitEnqueuedHandler);
+                s.on('basisPublished', appendBasisComparisonMessage);
+            });
+
             return () => {
-                socket.off('qbitEnqueued', qbitEnqueuedHandler);
-                socket.off('basisPublished', appendBasisComparisonMessage);
+                socket.then((s) => {
+                    s.off('qbitEnqueued', qbitEnqueuedHandler);
+                    s.off('basisPublished', appendBasisComparisonMessage);
+                });
             };
         }
     }, [socket]);
@@ -57,6 +62,28 @@ function GameBob() {
             setShowPolarization(measuredPolarization);
         }
     }, [measuredPolarization, isMeasuredPhotonTransported]);
+
+    useEffect(() => {
+        if (socket) {
+            socket.then((s) => {
+                s.on('playerLeftGame', leaveGame);
+            });
+
+            return () => {
+                socket.then((s) => {
+                    s.off('playerLeftGame', leaveGame);
+                    if (gameId) {
+                        s.emit('leaveGame', gameId);
+                    }
+                });
+            };
+        }
+    }, [socket, gameId]);
+
+    function leaveGame() {
+        // TODO show popup that a player left the game.
+        navigate(`/lobbies`);
+    }
 
     function loadGame() {
         if (gameId) {
@@ -119,16 +146,13 @@ function GameBob() {
 
     function handlePhotonPassing(basis: BASIS) {
         if (gameId) {
-            socket?.emit(
-                'measureEnqueuedQbit',
-                gameId,
-                basis,
-                (polarization) => {
+            socket?.then((s) => {
+                s.emit('measureEnqueuedQbit', gameId, basis, (polarization) => {
                     if (polarization !== undefined) {
                         setMeasuredPolarization(polarization);
                     }
-                }
-            );
+                });
+            });
         }
     }
 
@@ -142,12 +166,14 @@ function GameBob() {
                 qbitNo: curQbitNo,
                 isDiscarded: false,
             };
-            socket?.emit(
-                'publishDiscard',
-                gameId,
-                qbitDiscard,
-                appendQbitDiscardMessage
-            );
+            socket?.then((s) => {
+                s.emit(
+                    'publishDiscard',
+                    gameId,
+                    qbitDiscard,
+                    appendQbitDiscardMessage
+                );
+            });
         }
     }
 
@@ -157,12 +183,14 @@ function GameBob() {
                 qbitNo: curQbitNo,
                 isDiscarded: true,
             };
-            socket?.emit(
-                'publishDiscard',
-                gameId,
-                qbitDiscard,
-                appendQbitDiscardMessage
-            );
+            socket?.then((s) => {
+                s.emit(
+                    'publishDiscard',
+                    gameId,
+                    qbitDiscard,
+                    appendQbitDiscardMessage
+                );
+            });
         }
     }
 
@@ -171,10 +199,12 @@ function GameBob() {
     ) {
         event.preventDefault();
         if (gameId) {
-            socket?.emit('publishCode', gameId, code, () => {
-                if (gameId) {
-                    navigate(`/games/${gameId}/compare`);
-                }
+            socket?.then((s) => {
+                s.emit('publishCode', gameId, code, () => {
+                    if (gameId) {
+                        navigate(`/games/${gameId}/compare`);
+                    }
+                });
             });
         }
     }

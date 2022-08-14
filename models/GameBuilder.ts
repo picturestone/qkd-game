@@ -13,7 +13,6 @@ import ComputerEvePlayer from './player/ComputerEvePlayer';
 import HumanBobPlayer from './player/HumanBobPlayer';
 import ComputerBobPlayer from './player/ComputerBobPlayer';
 
-// TODO introduce connection between game and players.
 // TODO this sounds more like the builder pattern than the factory pattern.
 // See https://en.wikipedia.org/wiki/Software_design_pattern
 export default class GameBuilder {

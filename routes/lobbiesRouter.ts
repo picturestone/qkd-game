@@ -6,25 +6,37 @@ import ILobbyJson from '../qkd-game-client/src/models/api/ILobbyJson';
 const router = express.Router();
 const lobbyDb = new LobbyDb();
 
-router.get('/', async function (req, res) {
+router.get('/', function (req, res) {
     const lobbyJson = new Array<ILobbyJson>();
-    const lobbies = await lobbyDb.findAll();
-    lobbies.map((lobbyModel) => {
-        lobbyJson.push(lobbyModel.toJson());
-    });
-    res.send(lobbyJson);
+    lobbyDb
+        .findAll()
+        .then((lobbies) => {
+            lobbies.map((lobbyModel) => {
+                lobbyJson.push(lobbyModel.toJson());
+            });
+            res.send(lobbyJson);
+        })
+        .catch((err) => {
+            console.log(err);
+        });
 });
 
-router.get('/:id', async function (req, res) {
-    const lobby = await lobbyDb.findById(req.params.id);
-    if (lobby) {
-        res.send(lobby.toJson());
-    } else {
-        res.status(404).send();
-    }
+router.get('/:id', function (req, res) {
+    lobbyDb
+        .findById(req.params.id)
+        .then((lobby) => {
+            if (lobby) {
+                res.send(lobby.toJson());
+            } else {
+                res.status(404).send();
+            }
+        })
+        .catch((err) => {
+            console.log(err);
+        });
 });
 
-router.post('/', async function (req, res) {
+router.post('/', function (req, res) {
     const lobbyJson: ILobbyJson = {
         name: req.body.name,
         owner: req.body.owner,
@@ -32,8 +44,14 @@ router.post('/', async function (req, res) {
         isEveAllowed: req.body.isEveAllowed,
     };
     const lobbyModel = Lobby.fromJson(lobbyJson);
-    const savedLobby = await lobbyDb.create(lobbyModel);
-    res.status(201).send(savedLobby.toJson());
+    lobbyDb
+        .create(lobbyModel)
+        .then((savedLobby) => {
+            res.status(201).send(savedLobby.toJson());
+        })
+        .catch((err) => {
+            console.log(err);
+        });
 });
 
 export default router;

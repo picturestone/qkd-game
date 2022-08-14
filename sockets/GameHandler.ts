@@ -10,16 +10,8 @@ import IInterServerEvents from '../qkd-game-client/src/models/api/IInterServerEv
 import IServerToClientEvents from '../qkd-game-client/src/models/api/IServerToClientEvents';
 import ISocketData from '../qkd-game-client/src/models/api/ISocketData';
 
-function isGameExisting(gameId: string): Promise<Game> {
-    return new Promise<Game>((res, rej) => {
-        new GameDb().findById(gameId).then((game) => {
-            if (game && game.id) {
-                res(game);
-            } else {
-                rej();
-            }
-        });
-    });
+function getGame(gameId: string): Promise<Game | undefined> {
+    return new GameDb().findById(gameId);
 }
 
 function getUserId(
@@ -75,8 +67,6 @@ function isUserEve(
     return player;
 }
 
-// TODO add redirecting on missing auth.
-// TODO quit game when leaving.
 export default function registerSocketIOEvents(
     server: Server<
         IClientToServerEvents,
@@ -86,141 +76,171 @@ export default function registerSocketIOEvents(
     >
 ) {
     server.on('connect', (socket) => {
+        socket.on('leaveGame', (gameId) => {
+            getGame(gameId).then((game) => {
+                game?.leave(socket);
+            });
+        });
         socket.on('sendQbit', (gameId, qbitJson) => {
-            isGameExisting(gameId).then((game) => {
-                const userId = getUserId(socket);
-                const alicePlayer = isUserAlice(game, userId);
-                const evePlayer = isUserEve(game, userId);
-                const sentQbit = Qbit.fromJson(qbitJson);
-                if (alicePlayer) {
-                    alicePlayer.sendQbit(sentQbit);
-                } else if (evePlayer) {
-                    evePlayer.sendQbit(sentQbit);
+            getGame(gameId).then((game) => {
+                if (game) {
+                    const userId = getUserId(socket);
+                    const alicePlayer = isUserAlice(game, userId);
+                    const evePlayer = isUserEve(game, userId);
+                    const sentQbit = Qbit.fromJson(qbitJson);
+                    if (alicePlayer) {
+                        alicePlayer.sendQbit(sentQbit);
+                    } else if (evePlayer) {
+                        evePlayer.sendQbit(sentQbit);
+                    }
                 }
             });
         });
         socket.on('measureEnqueuedQbit', (gameId, basis, cb) => {
-            isGameExisting(gameId).then((game) => {
-                const userId = getUserId(socket);
-                const bobPlayer = isUserBob(game, userId);
-                const evePlayer = isUserEve(game, userId);
-                if (bobPlayer) {
-                    const measuredPolarization =
-                        bobPlayer.measureEnqueuedQbit(basis);
-                    cb(measuredPolarization);
-                } else if (evePlayer) {
-                    const measuredPolarization =
-                        evePlayer.measureEnqueuedQbit(basis);
-                    cb(measuredPolarization);
+            getGame(gameId).then((game) => {
+                if (game) {
+                    const userId = getUserId(socket);
+                    const bobPlayer = isUserBob(game, userId);
+                    const evePlayer = isUserEve(game, userId);
+                    if (bobPlayer) {
+                        const measuredPolarization =
+                            bobPlayer.measureEnqueuedQbit(basis);
+                        cb(measuredPolarization);
+                    } else if (evePlayer) {
+                        const measuredPolarization =
+                            evePlayer.measureEnqueuedQbit(basis);
+                        cb(measuredPolarization);
+                    }
                 }
             });
         });
         socket.on('publishBasis', (gameId, basisComparisonData, cb) => {
-            isGameExisting(gameId).then((game) => {
-                const userId = getUserId(socket);
-                const alicePlayer = isUserAlice(game, userId);
-                const evePlayer = isUserEve(game, userId);
-                if (alicePlayer) {
-                    alicePlayer.sendBasisComparison(basisComparisonData);
-                    cb(basisComparisonData);
-                } else if (evePlayer) {
-                    evePlayer.sendBasisComparison(basisComparisonData);
-                    cb(basisComparisonData);
+            getGame(gameId).then((game) => {
+                if (game) {
+                    const userId = getUserId(socket);
+                    const alicePlayer = isUserAlice(game, userId);
+                    const evePlayer = isUserEve(game, userId);
+                    if (alicePlayer) {
+                        alicePlayer.sendBasisComparison(basisComparisonData);
+                        cb(basisComparisonData);
+                    } else if (evePlayer) {
+                        evePlayer.sendBasisComparison(basisComparisonData);
+                        cb(basisComparisonData);
+                    }
                 }
             });
         });
         socket.on('publishDiscard', (gameId, qbitDiscardedData, cb) => {
-            isGameExisting(gameId).then((game) => {
-                const userId = getUserId(socket);
-                const bobPlayer = isUserBob(game, userId);
-                const evePlayer = isUserEve(game, userId);
-                if (bobPlayer) {
-                    bobPlayer.sendQbitDiscard(qbitDiscardedData);
-                    cb(qbitDiscardedData);
-                } else if (evePlayer) {
-                    evePlayer.sendQbitDiscard(qbitDiscardedData);
-                    cb(qbitDiscardedData);
+            getGame(gameId).then((game) => {
+                if (game) {
+                    const userId = getUserId(socket);
+                    const bobPlayer = isUserBob(game, userId);
+                    const evePlayer = isUserEve(game, userId);
+                    if (bobPlayer) {
+                        bobPlayer.sendQbitDiscard(qbitDiscardedData);
+                        cb(qbitDiscardedData);
+                    } else if (evePlayer) {
+                        evePlayer.sendQbitDiscard(qbitDiscardedData);
+                        cb(qbitDiscardedData);
+                    }
                 }
             });
         });
         socket.on('publishCode', (gameId, code, cb) => {
-            isGameExisting(gameId).then((game) => {
-                const userId = getUserId(socket);
-                const alicePlayer = isUserAlice(game, userId);
-                const bobPlayer = isUserBob(game, userId);
-                const evePlayer = isUserEve(game, userId);
-                if (alicePlayer && alicePlayer.publishedCode === undefined) {
-                    alicePlayer.publishedCode = code;
-                    cb();
-                } else if (bobPlayer && bobPlayer.publishedCode === undefined) {
-                    bobPlayer.publishedCode = code;
-                    cb();
-                } else if (evePlayer && evePlayer.publishedCode === undefined) {
-                    evePlayer.publishedCode = code;
-                    cb();
+            getGame(gameId).then((game) => {
+                if (game) {
+                    const userId = getUserId(socket);
+                    const alicePlayer = isUserAlice(game, userId);
+                    const bobPlayer = isUserBob(game, userId);
+                    const evePlayer = isUserEve(game, userId);
+                    if (
+                        alicePlayer &&
+                        alicePlayer.publishedCode === undefined
+                    ) {
+                        alicePlayer.publishedCode = code;
+                        cb();
+                    } else if (
+                        bobPlayer &&
+                        bobPlayer.publishedCode === undefined
+                    ) {
+                        bobPlayer.publishedCode = code;
+                        cb();
+                    } else if (
+                        evePlayer &&
+                        evePlayer.publishedCode === undefined
+                    ) {
+                        evePlayer.publishedCode = code;
+                        cb();
+                    }
                 }
             });
         });
         socket.on('getPublishedCodes', (gameId, cb) => {
-            isGameExisting(gameId).then((game) => {
-                const userId = getUserId(socket);
-                const alicePlayer = isUserAlice(game, userId);
-                const bobPlayer = isUserBob(game, userId);
-                if (alicePlayer || bobPlayer) {
-                    const aliceCode = game.alicePlayer.publishedCode;
-                    const bobCode = game.bobPlayer.publishedCode;
-                    cb({
-                        aliceCode: aliceCode,
-                        bobCode: bobCode,
-                    });
+            getGame(gameId).then((game) => {
+                if (game) {
+                    const userId = getUserId(socket);
+                    const alicePlayer = isUserAlice(game, userId);
+                    const bobPlayer = isUserBob(game, userId);
+                    if (alicePlayer || bobPlayer) {
+                        const aliceCode = game.alicePlayer.publishedCode;
+                        const bobCode = game.bobPlayer.publishedCode;
+                        cb({
+                            aliceCode: aliceCode,
+                            bobCode: bobCode,
+                        });
+                    }
                 }
             });
         });
         socket.on(
             'publishIsThinkingEveListenedIn',
             (gameId, isThinkingEveListenedIn, cb) => {
-                isGameExisting(gameId).then((game) => {
-                    const userId = getUserId(socket);
-                    const alicePlayer = isUserAlice(game, userId);
-                    const bobPlayer = isUserBob(game, userId);
-                    if (
-                        alicePlayer &&
-                        alicePlayer.isThinkingEveListenedIn === undefined
-                    ) {
-                        alicePlayer.isThinkingEveListenedIn =
-                            isThinkingEveListenedIn;
-                        cb();
-                    } else if (
-                        bobPlayer &&
-                        bobPlayer.isThinkingEveListenedIn === undefined
-                    ) {
-                        bobPlayer.isThinkingEveListenedIn =
-                            isThinkingEveListenedIn;
-                        cb();
+                getGame(gameId).then((game) => {
+                    if (game) {
+                        const userId = getUserId(socket);
+                        const alicePlayer = isUserAlice(game, userId);
+                        const bobPlayer = isUserBob(game, userId);
+                        if (
+                            alicePlayer &&
+                            alicePlayer.isThinkingEveListenedIn === undefined
+                        ) {
+                            alicePlayer.isThinkingEveListenedIn =
+                                isThinkingEveListenedIn;
+                            cb();
+                        } else if (
+                            bobPlayer &&
+                            bobPlayer.isThinkingEveListenedIn === undefined
+                        ) {
+                            bobPlayer.isThinkingEveListenedIn =
+                                isThinkingEveListenedIn;
+                            cb();
+                        }
                     }
                 });
             }
         );
         socket.on('getGameResults', (gameId, cb) => {
-            isGameExisting(gameId).then((game) => {
-                const userId = getUserId(socket);
-                const alicePlayer = isUserAlice(game, userId);
-                const bobPlayer = isUserBob(game, userId);
-                const evePlayer = isUserEve(game, userId);
-                if (alicePlayer || bobPlayer || evePlayer) {
-                    const results = game.getGameResults();
-                    if (results) {
-                        cb({
-                            aliceCode: results.aliceCode,
-                            bobCode: results.bobCode,
-                            isAliceThinkingEveListenedIn:
-                                results.isAliceThinkingEveListenedIn,
-                            isBobThinkingEveListenedIn:
-                                results.isBobThinkingEveListenedIn,
-                            eveCode: results.eveCode,
-                        });
-                    } else {
-                        cb(undefined);
+            getGame(gameId).then((game) => {
+                if (game) {
+                    const userId = getUserId(socket);
+                    const alicePlayer = isUserAlice(game, userId);
+                    const bobPlayer = isUserBob(game, userId);
+                    const evePlayer = isUserEve(game, userId);
+                    if (alicePlayer || bobPlayer || evePlayer) {
+                        const results = game.getGameResults();
+                        if (results) {
+                            cb({
+                                aliceCode: results.aliceCode,
+                                bobCode: results.bobCode,
+                                isAliceThinkingEveListenedIn:
+                                    results.isAliceThinkingEveListenedIn,
+                                isBobThinkingEveListenedIn:
+                                    results.isBobThinkingEveListenedIn,
+                                eveCode: results.eveCode,
+                            });
+                        } else {
+                            cb(undefined);
+                        }
                     }
                 }
             });

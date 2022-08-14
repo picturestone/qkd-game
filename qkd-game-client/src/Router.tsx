@@ -14,6 +14,7 @@ function Router() {
     return (
         // TODO think about nested routes.
         // TODO protect routes like lobbies
+        // TODO add redirect to /lobbies for all 404s
         <Routes>
             <Route path="/" element={<App />}></Route>
             <Route path="/lobbies" element={<Lobbies />}></Route>

@@ -31,6 +31,10 @@ export default class HumanPlayer {
         });
     }
 
+    public playerLeftGame(game: Game): void {
+        this.socket.emit('playerLeftGame', game.toJson());
+    }
+
     get userId() {
         return this._user.id;
     }

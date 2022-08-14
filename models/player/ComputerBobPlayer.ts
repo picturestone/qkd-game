@@ -9,7 +9,9 @@ export default class ComputerBobPlayer extends BobPlayer {
     get humanPlayer(): HumanPlayer | undefined {
         return undefined;
     }
-
+    public onOtherPlayerLeftGame(game: Game): void {
+        throw new Error('Method not implemented.');
+    }
     onQbitEnqueue(): void {
         throw new Error('Method not implemented.');
     }

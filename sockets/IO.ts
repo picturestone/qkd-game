@@ -9,6 +9,9 @@ import { Server as HttpServer } from 'http';
 import { default as registerLobbySocketIOEvents } from './LobbyHandler';
 import { default as registerGameSocketIOEvents } from './GameHandler';
 import IUser = Express.User;
+import LobbyDb from '../database/LobbyDb';
+import GameDb from '../database/GameDb';
+import UserDb from '../database/UserDb';
 
 const wrap = (middleware: any) => (socket: Socket, next: any) =>
     middleware(socket.request, {}, next);
@@ -62,6 +65,31 @@ class IO {
             if (user) {
                 user.socketId = socket.id;
             }
+
+            // TODO somehow make sure that a user gets back into the lobby. maybe ask before leaving.
+            socket.on('disconnecting', () => {
+                const user = socket.request.user;
+                if (user && user.id) {
+                    const lobbyDb = new LobbyDb();
+                    const gameDb = new GameDb();
+                    socket.rooms.forEach((val) => {
+                        if (val !== socket.id) {
+                            lobbyDb.findById(val).then((lobby) => {
+                                if (lobby) {
+                                    lobby.leave(socket);
+                                } else {
+                                    gameDb.findById(val).then((game) => {
+                                        if (game) {
+                                            game.leave(socket);
+                                        }
+                                    });
+                                }
+                            });
+                        }
+                    });
+                    new UserDb().delete(user.id);
+                }
+            });
         });
 
         registerLobbySocketIOEvents(this._server);

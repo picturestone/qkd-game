@@ -9,18 +9,9 @@ import IServerToClientEvents from '../qkd-game-client/src/models/api/IServerToCl
 import ISocketData from '../qkd-game-client/src/models/api/ISocketData';
 import { PLAYERROLE } from '../qkd-game-client/src/models/api/PlayerRole';
 import IO from './IO';
-import IUser = Express.User;
 
-function removeFromOtherRoles(user: IUser | undefined, lobby: Lobby) {
-    if (user) {
-        const userId = user.id;
-        if (lobby.reservedAlice?.id === userId) {
-            lobby.reservedAlice = undefined;
-        }
-        if (lobby.reservedBob?.id === userId) {
-            lobby.reservedBob = undefined;
-        }
-    }
+function getLobby(lobbyId: string): Promise<Lobby | undefined> {
+    return new LobbyDb().findById(lobbyId);
 }
 
 function startAliceBobGame(
@@ -113,7 +104,7 @@ function startAliceBobEveGame(
     }
 }
 
-// TODO close lobby when leaving.
+// TODO move more responsibilities to the lobby.
 export default function registerSocketIOEvents(
     server: Server<
         IClientToServerEvents,
@@ -124,16 +115,13 @@ export default function registerSocketIOEvents(
 ) {
     server.on('connect', (socket) => {
         socket.on('joinLobby', (lobbyId) => {
-            new LobbyDb().findById(lobbyId).then((lobby) => {
-                if (lobby && lobby.id && !socket.rooms.has(lobby.id)) {
-                    socket.join(lobby.id);
-                    server
-                        .to(lobby.id)
-                        .emit(
-                            'chatMessage',
-                            `${socket.request.user?.name} joined the lobby.`
-                        );
-                }
+            getLobby(lobbyId).then((lobby) => {
+                lobby?.join(socket);
+            });
+        });
+        socket.on('leaveLobby', (lobbyId) => {
+            getLobby(lobbyId).then((lobby) => {
+                lobby?.leave(socket);
             });
         });
         socket.on('selectLobbyRole', (lobbyId, lobbyRole) => {
@@ -142,7 +130,7 @@ export default function registerSocketIOEvents(
             lobbyDb.findById(lobbyId).then((lobby) => {
                 if (lobby && lobby.id) {
                     if (lobbyRole === null || lobbyRole === undefined) {
-                        removeFromOtherRoles(socket.request.user, lobby);
+                        lobby.removeUserFromAllRoles(socket.request.user);
                         lobbyDb.put(lobby).then((updatedLobby) => {
                             if (updatedLobby && updatedLobby.id) {
                                 server
@@ -163,27 +151,24 @@ export default function registerSocketIOEvents(
                         switch (lobbyRole) {
                             case PLAYERROLE.alice:
                                 if (!lobby.reservedAlice) {
-                                    removeFromOtherRoles(
-                                        socket.request.user,
-                                        lobby
+                                    lobby.removeUserFromAllRoles(
+                                        socket.request.user
                                     );
                                     lobby.reservedAlice = socket.request.user;
                                 }
                                 break;
                             case PLAYERROLE.bob:
                                 if (!lobby.reservedBob) {
-                                    removeFromOtherRoles(
-                                        socket.request.user,
-                                        lobby
+                                    lobby.removeUserFromAllRoles(
+                                        socket.request.user
                                     );
                                     lobby.reservedBob = socket.request.user;
                                 }
                                 break;
                             case PLAYERROLE.eve:
                                 if (!lobby.reservedEve) {
-                                    removeFromOtherRoles(
-                                        socket.request.user,
-                                        lobby
+                                    lobby.removeUserFromAllRoles(
+                                        socket.request.user
                                     );
                                     lobby.reservedEve = socket.request.user;
                                 }
@@ -209,7 +194,7 @@ export default function registerSocketIOEvents(
             });
         });
         socket.on('startGame', (lobbyId) => {
-            new LobbyDb().findById(lobbyId).then((lobby) => {
+            getLobby(lobbyId).then((lobby) => {
                 if (lobby && lobby.id) {
                     if (socket.request.user?.id === lobby.owner.id) {
                         if (lobby.isEveAllowed) {

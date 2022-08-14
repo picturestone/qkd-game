@@ -19,4 +19,16 @@ export default class UserDb {
             res(user);
         });
     }
+
+    delete(id: string) {
+        return new Promise<User | undefined>((res) => {
+            const index = UserDb._users.findIndex((user) => user.id === id);
+            const removedUsers = UserDb._users.splice(index, 1);
+            let retVal: User | undefined = undefined;
+            if (removedUsers.length > 0) {
+                retVal = removedUsers[0];
+            }
+            res(retVal);
+        });
+    }
 }
