@@ -3,6 +3,7 @@ import logger from 'morgan';
 import cookieParser from 'cookie-parser';
 import path from 'path';
 import passport from 'passport';
+import helmet from 'helmet';
 import 'dotenv/config';
 
 import indexRouter from './routes/indexRouter';
@@ -15,7 +16,7 @@ import IO from './sockets/IO';
 import gamesRouter from './routes/gamesRouter';
 
 const app = express();
-
+app.use(helmet());
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
