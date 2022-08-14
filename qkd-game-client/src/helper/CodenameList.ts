@@ -122,7 +122,6 @@ export default class CodenameList {
         'EVILOLIVE',
         'EWALK',
         'EXPECTATIONS',
-        'FA',
         'FACELIFT',
         'FAIRVIEW',
         'FALLOUT',

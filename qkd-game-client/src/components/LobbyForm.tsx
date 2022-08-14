@@ -12,6 +12,7 @@ interface IProps {
     lobby?: Lobby;
 }
 
+// TODO style form.
 function LobbyForm(props: IProps) {
     const authStorage = new AuthStorage();
     const loggedInUser = authStorage.getLoggedInUser();
@@ -28,10 +29,13 @@ function LobbyForm(props: IProps) {
     const [isEveAllowed, setIsEveAllowed] = useState(false);
     const navigate = useNavigate();
 
+    function isSubmitAllowed() {
+        return lobbyName.length > 0 && !isNaN(noOfQbits);
+    }
+
     function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
         event.preventDefault();
-        if (loggedInUser) {
-            // TODO handle validation in a seperate function.
+        if (isSubmitAllowed() && loggedInUser) {
             if (lobbyName) {
                 lobbyService
                     .create(
@@ -56,9 +60,9 @@ function LobbyForm(props: IProps) {
             onSubmit={(event) => handleSubmit(event)}
             className="flex flex-col"
         >
-            <div className="flex flex-row">
+            <div className="flex flex-row mb-6">
                 <label className="flex items-center">
-                    <span>Lobby name</span>
+                    <span className="w-40">Lobby name</span>
                     <Input
                         value={lobbyName}
                         onChange={(event) => setLobbyName(event.target.value)}
@@ -66,16 +70,19 @@ function LobbyForm(props: IProps) {
                     ></Input>
                 </label>
             </div>
-            <div className="flex flex-row">
+            <div className="flex flex-row mb-6">
                 <label className="flex items-center">
-                    <span>No. of qbits</span>
-                    <NumberInput
-                        value={noOfQbits}
-                        onChange={(newVal) => setNoOfQbits(newVal)}
-                    ></NumberInput>
+                    <span className="w-40">No. of qbits</span>
+                    <div className="flex w-40">
+                        <NumberInput
+                            className="flex-none w-full"
+                            value={noOfQbits}
+                            onChange={(newVal) => setNoOfQbits(newVal)}
+                        ></NumberInput>
+                    </div>
                 </label>
             </div>
-            <div className="flex flex-row">
+            <div className="flex flex-row mb-8">
                 <Checkbox
                     defaultChecked={isEveAllowed}
                     onChange={() => {
@@ -86,7 +93,9 @@ function LobbyForm(props: IProps) {
                 </Checkbox>
             </div>
             <div className="flex flex-row">
-                <Button type="submit">Save</Button>
+                <Button type="submit" disabled={!isSubmitAllowed()}>
+                    Save
+                </Button>
             </div>
         </form>
     );

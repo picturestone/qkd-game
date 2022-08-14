@@ -7,14 +7,11 @@ import { HiRefresh } from 'react-icons/hi';
 import LobbiesService from '../services/LobbyService';
 import Lobby from '../models/Lobby';
 import { useNavigate } from 'react-router-dom';
-import { useSocket } from '../helper/IO';
 
 function Lobbies() {
     const lobbiesService = new LobbiesService();
     const [lobbies, setLobbies] = useState(new Array<Lobby>());
     const navigate = useNavigate();
-    // Try opening socket here to reduce the number of failures.
-    useSocket();
 
     useEffect(() => {
         refreshLobbies();

@@ -33,33 +33,29 @@ function GameAlice() {
         loadGame();
     }, []);
 
-    // game state is used in handler, which makes it a dependency.
+    useEffect(() => {
+        if (socket && !socket.connected) {
+            socket?.connect();
+        }
+    }, [socket]);
+
     useEffect(() => {
         if (socket && game) {
-            socket.then((s) => {
-                s.on('discardPublished', appendQbitDiscardMessage);
-            });
+            socket.on('discardPublished', appendQbitDiscardMessage);
             return () => {
-                socket.then((s) => {
-                    s.off('discardPublished', appendQbitDiscardMessage);
-                });
+                socket.off('discardPublished', appendQbitDiscardMessage);
             };
         }
     }, [socket, game]);
 
     useEffect(() => {
         if (socket && gameId) {
-            socket.then((s) => {
-                s.on('playerLeftGame', leaveGame);
-            });
-
+            socket.on('playerLeftGame', leaveGame);
             return () => {
-                socket.then((s) => {
-                    s.off('playerLeftGame', leaveGame);
-                    if (gameId && isLeavingGameOnCleanup.current) {
-                        s.emit('leaveGame', gameId);
-                    }
-                });
+                socket.off('playerLeftGame', leaveGame);
+                if (gameId && isLeavingGameOnCleanup.current) {
+                    socket.emit('leaveGame', gameId);
+                }
             };
         }
     }, [socket, gameId]);
@@ -121,9 +117,7 @@ function GameAlice() {
 
     function handlePolarizedPhotonTransported(qbit: Qbit) {
         if (gameId) {
-            socket?.then((s) => {
-                s.emit('sendQbit', gameId, qbit.toJson());
-            });
+            socket?.emit('sendQbit', gameId, qbit.toJson());
         }
     }
 
@@ -133,14 +127,12 @@ function GameAlice() {
                 qbitNo: curQbitNo,
                 basis: BASIS.horizontalVertical,
             };
-            socket?.then((s) => {
-                s.emit(
-                    'publishBasis',
-                    gameId,
-                    basisComparison,
-                    appendBasisComparisonMessage
-                );
-            });
+            socket?.emit(
+                'publishBasis',
+                gameId,
+                basisComparison,
+                appendBasisComparisonMessage
+            );
         }
     }
 
@@ -150,14 +142,12 @@ function GameAlice() {
                 qbitNo: curQbitNo,
                 basis: BASIS.diagonal,
             };
-            socket?.then((s) => {
-                s.emit(
-                    'publishBasis',
-                    gameId,
-                    basisComparison,
-                    appendBasisComparisonMessage
-                );
-            });
+            socket?.emit(
+                'publishBasis',
+                gameId,
+                basisComparison,
+                appendBasisComparisonMessage
+            );
         }
     }
 
@@ -166,13 +156,11 @@ function GameAlice() {
     ) {
         event.preventDefault();
         if (gameId) {
-            socket?.then((s) => {
-                s.emit('publishCode', gameId, code, () => {
-                    if (gameId) {
-                        isLeavingGameOnCleanup.current = false;
-                        navigate(`/games/${gameId}/compare`);
-                    }
-                });
+            socket?.emit('publishCode', gameId, code, () => {
+                if (gameId) {
+                    isLeavingGameOnCleanup.current = false;
+                    navigate(`/games/${gameId}/compare`);
+                }
             });
         }
     }

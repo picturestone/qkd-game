@@ -82,13 +82,19 @@ export default function registerSocketIOEvents(
         socket.on('leaveGame', (gameId) => {
             if (validator.isId(gameId)) {
                 getGame(gameId).then((game) => {
-                    game?.leave(socket);
+                    if (game) {
+                        game.leave(socket);
+                    }
                 });
             }
         });
         socket.on('leaveGameResult', (gameId) => {
             if (validator.isId(gameId)) {
-                getGame(gameId).then((game) => {});
+                getGame(gameId).then((game) => {
+                    if (game) {
+                        game.leaveResult(socket);
+                    }
+                });
             }
         });
         socket.on('sendQbit', (gameId, qbitJson) => {

@@ -16,31 +16,39 @@ function CodeCompare() {
     const navigate = useNavigate();
 
     useEffect(() => {
+        if (socket && !socket.connected) {
+            socket?.connect();
+        }
+    }, [socket]);
+
+    useEffect(() => {
         if (socket) {
-            socket.then((s) => {
-                s.on('allCodesPublished', setCodesFromPublishedCodesData);
-            });
+            socket.on('allCodesPublished', setCodesFromPublishedCodesData);
             return () => {
-                socket.then((s) => {
-                    s.off('allCodesPublished', setCodesFromPublishedCodesData);
-                });
+                socket.off('allCodesPublished', setCodesFromPublishedCodesData);
             };
         }
     }, [socket]);
 
     useEffect(() => {
         if (socket && gameId) {
-            socket.then((s) => {
-                s.on('playerLeftGame', leaveGame);
-            });
+            socket.emit(
+                'getPublishedCodes',
+                gameId,
+                setCodesFromPublishedCodesData
+            );
+        }
+    }, [socket, gameId]);
+
+    useEffect(() => {
+        if (socket && gameId) {
+            socket.on('playerLeftGame', leaveGame);
 
             return () => {
-                socket.then((s) => {
-                    s.off('playerLeftGame', leaveGame);
-                    if (gameId && isLeavingGameOnCleanup.current) {
-                        s.emit('leaveGame', gameId);
-                    }
-                });
+                socket.off('playerLeftGame', leaveGame);
+                if (gameId && isLeavingGameOnCleanup.current) {
+                    socket.emit('leaveGame', gameId);
+                }
             };
         }
     }, [socket, gameId]);
@@ -61,19 +69,17 @@ function CodeCompare() {
 
     function publishIsThinkingEveListenedIn(isThinkingEveListenedIn: boolean) {
         if (socket && gameId) {
-            socket.then((s) => {
-                s.emit(
-                    'publishIsThinkingEveListenedIn',
-                    gameId,
-                    isThinkingEveListenedIn,
-                    () => {
-                        if (gameId) {
-                            isLeavingGameOnCleanup.current = false;
-                            navigate(`/games/${gameId}/result`);
-                        }
+            socket.emit(
+                'publishIsThinkingEveListenedIn',
+                gameId,
+                isThinkingEveListenedIn,
+                () => {
+                    if (gameId) {
+                        isLeavingGameOnCleanup.current = false;
+                        navigate(`/games/${gameId}/result`);
                     }
-                );
-            });
+                }
+            );
         }
     }
 

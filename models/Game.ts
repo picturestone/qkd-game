@@ -119,7 +119,6 @@ export default class Game {
                 (this._isEveGoneFromResults === undefined ||
                     this._isEveGoneFromResults)
             ) {
-                console.log('delete game');
                 new GameDb().delete(this.id);
             }
         }

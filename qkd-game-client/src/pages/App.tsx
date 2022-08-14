@@ -40,7 +40,6 @@ function App() {
         if (codename && isCookiesConfirmed) {
             // TODO error handling, e.g. user exists.
             userService.create(new User(codename)).then((token) => {
-                console.log(token);
                 navigate('/lobbies');
             });
         }

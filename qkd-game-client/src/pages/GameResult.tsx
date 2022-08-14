@@ -25,41 +25,37 @@ function GameResult() {
     const navigate = useNavigate();
 
     useEffect(() => {
+        if (socket && !socket.connected) {
+            socket?.connect();
+        }
+    }, [socket]);
+
+    useEffect(() => {
         if (socket) {
-            socket.then((s) => {
-                s.on('allPlayersDoneWithGame', setDataFromResults);
-            });
+            socket.on('allPlayersDoneWithGame', setDataFromResults);
             return () => {
-                socket.then((s) => {
-                    s.off('allPlayersDoneWithGame', setDataFromResults);
-                });
+                socket.off('allPlayersDoneWithGame', setDataFromResults);
             };
         }
     }, [socket]);
 
     useEffect(() => {
         if (socket && gameId) {
-            socket.then((s) => {
-                s.on('playerLeftGame', leaveGame);
-            });
+            socket.on('playerLeftGame', leaveGame);
 
             return () => {
-                socket.then((s) => {
-                    s.off('playerLeftGame', leaveGame);
-                    s.emit('leaveGameResult', gameId);
-                });
+                socket.off('playerLeftGame', leaveGame);
+                socket.emit('leaveGameResult', gameId);
             };
         }
     }, [socket, gameId]);
 
     useEffect(() => {
         if (socket && gameId && result === undefined) {
-            socket.then((s) => {
-                s.emit('getGameResults', gameId, (gameResultData) => {
-                    if (gameResultData) {
-                        setDataFromResults(gameResultData);
-                    }
-                });
+            socket.emit('getGameResults', gameId, (gameResultData) => {
+                if (gameResultData) {
+                    setDataFromResults(gameResultData);
+                }
             });
         }
     }, [socket, gameId, result]);
@@ -218,7 +214,7 @@ function GameResult() {
                 }}
                 onInit={(t) => {
                     let typewriter = t
-                        .typeString(`Alice's code is: `)
+                        .typeString(`Alice's code is:&nbsp;`)
                         .pauseFor(shortDelay)
                         .changeDelay(codeDelay)
                         .typeString(`${result?.aliceCode.split('').join(' ')}`)
@@ -288,7 +284,7 @@ function GameResult() {
                 <Nav></Nav>
             </div>
             <div className="flex-1 flex flex-col">
-                <WidthLimiter className="flex flex-1 flex-col">
+                <WidthLimiter className="flex flex-1 flex-col p-8">
                     <PaperStack className="flex-auto mx-auto p-6">
                         <div className="text-3xl mb-4">Results</div>
                         {getTypewriter()}

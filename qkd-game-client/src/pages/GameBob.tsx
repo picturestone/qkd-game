@@ -43,17 +43,19 @@ function GameBob() {
     }, []);
 
     useEffect(() => {
+        if (socket && !socket.connected) {
+            socket?.connect();
+        }
+    }, [socket]);
+
+    useEffect(() => {
         if (socket) {
-            socket.then((s) => {
-                s.on('qbitEnqueued', qbitEnqueuedHandler);
-                s.on('basisPublished', appendBasisComparisonMessage);
-            });
+            socket.on('qbitEnqueued', qbitEnqueuedHandler);
+            socket.on('basisPublished', appendBasisComparisonMessage);
 
             return () => {
-                socket.then((s) => {
-                    s.off('qbitEnqueued', qbitEnqueuedHandler);
-                    s.off('basisPublished', appendBasisComparisonMessage);
-                });
+                socket.off('qbitEnqueued', qbitEnqueuedHandler);
+                socket.off('basisPublished', appendBasisComparisonMessage);
             };
         }
     }, [socket]);
@@ -66,17 +68,13 @@ function GameBob() {
 
     useEffect(() => {
         if (socket && gameId) {
-            socket.then((s) => {
-                s.on('playerLeftGame', leaveGame);
-            });
+            socket.on('playerLeftGame', leaveGame);
 
             return () => {
-                socket.then((s) => {
-                    s.off('playerLeftGame', leaveGame);
-                    if (gameId && isLeavingGameOnCleanup.current) {
-                        s.emit('leaveGame', gameId);
-                    }
-                });
+                socket.off('playerLeftGame', leaveGame);
+                if (gameId && isLeavingGameOnCleanup.current) {
+                    socket.emit('leaveGame', gameId);
+                }
             };
         }
     }, [socket, gameId]);
@@ -147,13 +145,16 @@ function GameBob() {
 
     function handlePhotonPassing(basis: BASIS) {
         if (gameId) {
-            socket?.then((s) => {
-                s.emit('measureEnqueuedQbit', gameId, basis, (polarization) => {
+            socket?.emit(
+                'measureEnqueuedQbit',
+                gameId,
+                basis,
+                (polarization) => {
                     if (polarization !== undefined) {
                         setMeasuredPolarization(polarization);
                     }
-                });
-            });
+                }
+            );
         }
     }
 
@@ -167,14 +168,12 @@ function GameBob() {
                 qbitNo: curQbitNo,
                 isDiscarded: false,
             };
-            socket?.then((s) => {
-                s.emit(
-                    'publishDiscard',
-                    gameId,
-                    qbitDiscard,
-                    appendQbitDiscardMessage
-                );
-            });
+            socket?.emit(
+                'publishDiscard',
+                gameId,
+                qbitDiscard,
+                appendQbitDiscardMessage
+            );
         }
     }
 
@@ -184,14 +183,12 @@ function GameBob() {
                 qbitNo: curQbitNo,
                 isDiscarded: true,
             };
-            socket?.then((s) => {
-                s.emit(
-                    'publishDiscard',
-                    gameId,
-                    qbitDiscard,
-                    appendQbitDiscardMessage
-                );
-            });
+            socket?.emit(
+                'publishDiscard',
+                gameId,
+                qbitDiscard,
+                appendQbitDiscardMessage
+            );
         }
     }
 
@@ -200,13 +197,11 @@ function GameBob() {
     ) {
         event.preventDefault();
         if (gameId) {
-            socket?.then((s) => {
-                s.emit('publishCode', gameId, code, () => {
-                    if (gameId) {
-                        isLeavingGameOnCleanup.current = false;
-                        navigate(`/games/${gameId}/compare`);
-                    }
-                });
+            socket?.emit('publishCode', gameId, code, () => {
+                if (gameId) {
+                    isLeavingGameOnCleanup.current = false;
+                    navigate(`/games/${gameId}/compare`);
+                }
             });
         }
     }
