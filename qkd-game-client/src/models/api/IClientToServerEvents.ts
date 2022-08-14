@@ -12,6 +12,7 @@ export default interface IClientToServerEvents {
     leaveLobby: (lobbyId: string) => void;
     startGame: (lobbyId: string) => void;
     leaveGame: (gameId: string) => void;
+    leaveGameResult: (gameId: string) => void;
     selectLobbyRole: (
         lobbyId: string,
         lobbyRole: PLAYERROLE | undefined

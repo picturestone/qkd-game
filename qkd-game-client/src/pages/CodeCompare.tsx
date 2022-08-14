@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import Nav from '../components/Nav';
 import WidthLimiter from '../components/WidthLimiter';
@@ -12,6 +12,7 @@ function CodeCompare() {
     const gameId = params.gameId;
     const [aliceCode, setAliceCode] = useState<string | undefined>(undefined);
     const [bobCode, setBobCode] = useState<string | undefined>(undefined);
+    const isLeavingGameOnCleanup = useRef(true);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -30,14 +31,24 @@ function CodeCompare() {
     useEffect(() => {
         if (socket && gameId) {
             socket.then((s) => {
-                s.emit(
-                    'getPublishedCodes',
-                    gameId,
-                    setCodesFromPublishedCodesData
-                );
+                s.on('playerLeftGame', leaveGame);
             });
+
+            return () => {
+                socket.then((s) => {
+                    s.off('playerLeftGame', leaveGame);
+                    if (gameId && isLeavingGameOnCleanup.current) {
+                        s.emit('leaveGame', gameId);
+                    }
+                });
+            };
         }
     }, [socket, gameId]);
+
+    function leaveGame() {
+        // TODO show popup that a player left the game.
+        navigate(`/lobbies`);
+    }
 
     function setCodesFromPublishedCodesData(codes: IPublishedCodesData) {
         setAliceCode(codes.aliceCode);
@@ -57,6 +68,7 @@ function CodeCompare() {
                     isThinkingEveListenedIn,
                     () => {
                         if (gameId) {
+                            isLeavingGameOnCleanup.current = false;
                             navigate(`/games/${gameId}/result`);
                         }
                     }

@@ -118,6 +118,7 @@ export default function registerSocketIOEvents(
 ) {
     server.on('connect', (socket) => {
         socket.on('joinLobby', (lobbyId) => {
+            console.log('joinLobby received');
             if (validator.isId(lobbyId)) {
                 getLobby(lobbyId).then((lobby) => {
                     lobby?.join(socket);

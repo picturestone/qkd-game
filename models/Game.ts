@@ -17,6 +17,9 @@ export default class Game {
     private _alicePlayer: AlicePlayer;
     private _bobPlayer: BobPlayer;
     private _evePlayer?: EvePlayer;
+    private _isAliceGoneFromResults: boolean;
+    private _isBobGoneFromResults: boolean;
+    private _isEveGoneFromResults?: boolean;
     private _noOfQbits: number;
 
     constructor(
@@ -32,10 +35,13 @@ export default class Game {
         this._bobPlayer = bobPlayer;
         this._evePlayer = evePlayer;
         this._alicePlayer.game = this;
+        this._isAliceGoneFromResults = false;
         this._bobPlayer.game = this;
+        this._isBobGoneFromResults = false;
 
         if (this._evePlayer) {
             this._evePlayer.game = this;
+            this._isEveGoneFromResults = false;
         }
     }
 
@@ -85,6 +91,37 @@ export default class Game {
                     deletedGame._evePlayer?.onOtherPlayerLeftGame(this);
                 }
             });
+        }
+    }
+
+    public leaveResult(
+        socket: Socket<
+            IClientToServerEvents,
+            IServerToClientEvents,
+            IInterServerEvents,
+            ISocketData
+        >
+    ) {
+        const userId = socket.request.user?.id;
+        if (this.id && userId) {
+            if (userId === this._alicePlayer.humanPlayer?.userId) {
+                this._isAliceGoneFromResults = true;
+            } else if (userId === this._bobPlayer.humanPlayer?.userId) {
+                this._isBobGoneFromResults = true;
+            } else if (userId === this._evePlayer?.humanPlayer?.userId) {
+                this._isEveGoneFromResults = true;
+            }
+
+            // After every player left the result page delete the game.
+            if (
+                this._isAliceGoneFromResults &&
+                this._isBobGoneFromResults &&
+                (this._isEveGoneFromResults === undefined ||
+                    this._isEveGoneFromResults)
+            ) {
+                console.log('delete game');
+                new GameDb().delete(this.id);
+            }
         }
     }
 

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import CodeComparator from '../components/game/CodeComparator';
 import DecisionCommunicator from '../components/game/DecisionCommunicator';
@@ -35,6 +35,7 @@ function GameBob() {
     const [game, setGame] = useState<Game>();
     const [code, setCode] = useState<string>('');
     const [codeComperatorDisabled, setCodeComperatorDisabled] = useState(true);
+    const isLeavingGameOnCleanup = useRef(true);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -64,7 +65,7 @@ function GameBob() {
     }, [measuredPolarization, isMeasuredPhotonTransported]);
 
     useEffect(() => {
-        if (socket) {
+        if (socket && gameId) {
             socket.then((s) => {
                 s.on('playerLeftGame', leaveGame);
             });
@@ -72,7 +73,7 @@ function GameBob() {
             return () => {
                 socket.then((s) => {
                     s.off('playerLeftGame', leaveGame);
-                    if (gameId) {
+                    if (gameId && isLeavingGameOnCleanup.current) {
                         s.emit('leaveGame', gameId);
                     }
                 });
@@ -202,6 +203,7 @@ function GameBob() {
             socket?.then((s) => {
                 s.emit('publishCode', gameId, code, () => {
                     if (gameId) {
+                        isLeavingGameOnCleanup.current = false;
                         navigate(`/games/${gameId}/compare`);
                     }
                 });

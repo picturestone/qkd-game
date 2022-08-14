@@ -86,6 +86,11 @@ export default function registerSocketIOEvents(
                 });
             }
         });
+        socket.on('leaveGameResult', (gameId) => {
+            if (validator.isId(gameId)) {
+                getGame(gameId).then((game) => {});
+            }
+        });
         socket.on('sendQbit', (gameId, qbitJson) => {
             if (validator.isId(gameId) && validator.isIQbitJson(qbitJson)) {
                 getGame(gameId).then((game) => {

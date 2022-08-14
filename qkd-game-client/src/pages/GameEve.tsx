@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { FaArrowsAlt } from 'react-icons/fa';
 import { useNavigate, useParams } from 'react-router-dom';
 import DecisionCommunicator from '../components/game/DecisionCommunicator';
@@ -38,6 +38,7 @@ function GameEve() {
     const [game, setGame] = useState<Game>();
     const [code, setCode] = useState<string>('');
     const [codeComperatorDisabled, setCodeComperatorDisabled] = useState(true);
+    const isLeavingGameOnCleanup = useRef(true);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -84,7 +85,7 @@ function GameEve() {
     }, [measuredPolarization, isMeasuredPhotonTransported]);
 
     useEffect(() => {
-        if (socket) {
+        if (socket && gameId) {
             socket.then((s) => {
                 s.on('playerLeftGame', leaveGame);
             });
@@ -92,7 +93,7 @@ function GameEve() {
             return () => {
                 socket.then((s) => {
                     s.off('playerLeftGame', leaveGame);
-                    if (gameId) {
+                    if (gameId && isLeavingGameOnCleanup.current) {
                         s.emit('leaveGame', gameId);
                     }
                 });
@@ -290,6 +291,7 @@ function GameEve() {
             socket?.then((s) => {
                 s.emit('publishCode', gameId, code, () => {
                     if (gameId) {
+                        isLeavingGameOnCleanup.current = false;
                         navigate(`/games/${gameId}/result`);
                     }
                 });

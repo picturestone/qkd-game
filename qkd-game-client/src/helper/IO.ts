@@ -16,9 +16,14 @@ function getSocket() {
                         authorization: new AuthStorage().getToken() || '',
                     },
                 });
-            socket.on('connect', () => {
-                res(socket);
+            socket.on('connect_error', (err) => {
+                console.log(`connect_error due to ${err.message}`);
             });
+            socket.on('connect', () => {
+                console.log('connected');
+            });
+            console.log('in get socket');
+            res(socket);
         }
     );
 }

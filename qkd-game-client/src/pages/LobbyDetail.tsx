@@ -19,6 +19,7 @@ function LobbyDetail() {
     const loggedInUser = authStorage.getLoggedInUser();
     const params = useParams();
     const socket = useSocket();
+    console.log(socket);
     const lobbyId = params.lobbyId;
     const lobbiesService = new LobbiesService();
     const navigate = useNavigate();
@@ -51,6 +52,8 @@ function LobbyDetail() {
     useEffect(() => {
         if (socket && lobbyId) {
             socket.then((s) => {
+                console.log('trying to emmit join lobby');
+
                 s.emit('joinLobby', lobbyId);
             });
 
