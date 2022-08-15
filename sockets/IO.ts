@@ -64,6 +64,10 @@ class IO {
             const user = socket.request.user;
             if (user) {
                 user.socketId = socket.id;
+
+                if (user.id) {
+                    new UserDb().unscheduleUserForDelete(user.id);
+                }
             }
 
             // TODO somehow make sure that a user gets back into the lobby. maybe ask before leaving.
@@ -87,7 +91,7 @@ class IO {
                             });
                         }
                     });
-                    new UserDb().delete(user.id);
+                    new UserDb().scheduleUserForDelete(user.id);
                 }
             });
         });

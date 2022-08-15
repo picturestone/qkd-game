@@ -1,9 +1,11 @@
+import { time } from 'console';
 import { v4 as uuidv4 } from 'uuid';
 import User from '../models/User';
 
 export default class UserDb {
     // TODO use database instead of in-memory
     static _users = new Array<User>();
+    private static _usersScheduledForDelete = new Map<string, NodeJS.Timeout>();
 
     create(user: User) {
         return new Promise<User>((res) => {
@@ -18,6 +20,22 @@ export default class UserDb {
             const user = UserDb._users.find((user) => user.id === id);
             res(user);
         });
+    }
+
+    unscheduleUserForDelete(id: string) {
+        const timeout = UserDb._usersScheduledForDelete.get(id);
+        if (timeout) {
+            clearTimeout(timeout);
+            UserDb._usersScheduledForDelete.delete(id);
+        }
+    }
+
+    scheduleUserForDelete(id: string) {
+        const timeout = setTimeout(() => {
+            this.delete(id);
+            UserDb._usersScheduledForDelete.delete(id);
+        }, 60000);
+        UserDb._usersScheduledForDelete.set(id, timeout);
     }
 
     delete(id: string) {

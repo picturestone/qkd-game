@@ -214,13 +214,13 @@ function GameResult() {
                 }}
                 onInit={(t) => {
                     let typewriter = t
-                        .typeString(`Alice's code is:&nbsp;`)
+                        .typeString(`Alice's code is:`)
                         .pauseFor(shortDelay)
                         .changeDelay(codeDelay)
                         .typeString(`${result?.aliceCode.split('').join(' ')}`)
                         .pauseFor(mediumDelay)
                         .changeDelay(textDelay)
-                        .typeString(`<br/>Bobs's code is:&nbsp;&nbsp;`)
+                        .typeString(`<br/>Bobs's code is:`)
                         .pauseFor(shortDelay)
                         .changeDelay(codeDelay)
                         .typeString(`${result?.bobCode.split('').join(' ')}`)
