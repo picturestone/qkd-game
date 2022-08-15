@@ -31,9 +31,7 @@ function LobbyDetail() {
     }, []);
 
     useEffect(() => {
-        console.log(socket);
         if (socket && !socket.connected) {
-            console.log('connecting socket');
             socket?.connect();
         }
     }, [socket]);

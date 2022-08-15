@@ -14,11 +14,6 @@ function getSocket() {
         },
     });
 
-    // TODO try turning off connect and try to reconnect manually with timer.
-    socket.on('connect', () => {
-        console.log('connected');
-    });
-
     return socket;
 }
 
