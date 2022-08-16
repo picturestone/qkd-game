@@ -183,12 +183,6 @@ function GameResult() {
             text =
                 'By chance, Eve got the same code as Alice and Bob. Eve could decrypt anything Alice and Bob send with this code.';
             text = text + addMoreText;
-        } else if (
-            result?.eveCode !== undefined &&
-            result?.eveCode !== result?.aliceCode &&
-            result?.eveCode !== result?.bobCode
-        ) {
-            text = `Eve's code does not match with neiter Alice's nor Bob's code. Alice and Bob can securily send data with their code.`;
         }
         return text;
     }
@@ -240,7 +234,7 @@ function GameResult() {
                         .pauseFor(longDelay)
                         .typeString(
                             result?.eveCode
-                                ? ' Eve was listening in.'
+                                ? ' Eve was listening in. A sign for this can be that the codes of Alice and Bob are different.'
                                 : ' Eve did not listen in.'
                         );
                     if (result?.eveCode) {

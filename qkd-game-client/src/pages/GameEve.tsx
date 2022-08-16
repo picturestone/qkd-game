@@ -387,10 +387,7 @@ function GameEve() {
                                 {/* TODO place compare code button here which opens popup. Should activat once last qbit discard message arrived */}
                             </div>
                             <div className="flex-initial w-full">
-                                <MessageLog
-                                    messages={messages}
-                                    className="h-full"
-                                ></MessageLog>
+                                <MessageLog messages={messages}></MessageLog>
                             </div>
                         </div>
                     </div>

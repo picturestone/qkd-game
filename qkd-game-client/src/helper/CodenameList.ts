@@ -94,7 +94,6 @@ export default class CodenameList {
         'DANGERMOUSE',
         'DARKTHUNDER',
         'DECKPIN',
-        'DEITYBOUNCE',
         'DELTA',
         'DEWSWEEPER',
         'DIETYBOUNCE',
@@ -166,8 +165,7 @@ export default class CodenameList {
         'HIGHTIDE',
         'HOLLOWPOINT',
         'HOMEBASE',
-        'HOWLERMONKEY  ',
-        'HOWLERMONKRY',
+        'HOWLERMONKEY',
         'HUSH',
         'Hx9',
         'II',
@@ -319,7 +317,6 @@ export default class CodenameList {
         'STELLARWIND',
         'STONE',
         'STORMBREW',
-        'STRAITBAZARRE',
         'STRAITBAZZARE',
         'STRAITBIZARRE',
         'STRIKEZONE',
@@ -511,6 +508,9 @@ export default class CodenameList {
         'Photon',
         'Blue',
         'Threshold',
+        'INTERLOPER',
+        'Boss',
+        'Babou',
     ];
 
     public getRandomCodename(): string {
