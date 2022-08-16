@@ -98,7 +98,9 @@ function FilterWheel<FilterType>(props: IProps<FilterType>) {
                             icon={filter.icon}
                             iconRotation={filter.iconRotation}
                             onClick={() => {
-                                handleFilterClick(i);
+                                if (!isSnapping) {
+                                    handleFilterClick(i);
+                                }
                             }}
                         />
                     </animated.div>
