@@ -8,8 +8,6 @@ Setup steps:
 1. Execute `git clone git@github.com:picturestone/qkd-game.git`
 2. Execute `cd qkd-game`
 3. Execute `npm install`
-4. Execute `cd qkd-game-client`
-5. Exeucte `npm install`
 
 Start for development:
 

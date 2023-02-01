@@ -5,6 +5,7 @@ import Game from '../models/Game';
 import HumanAlicePlayer from '../models/player/HumanAlicePlayer';
 import HumanBobPlayer from '../models/player/HumanBobPlayer';
 import HumanEvePlayer from '../models/player/HumanEvePlayer';
+import Player from '../models/player/Player';
 import Qbit from '../models/quantum/Qbit';
 import IClientToServerEvents from '../qkd-game-client/src/models/api/IClientToServerEvents';
 import IInterServerEvents from '../qkd-game-client/src/models/api/IInterServerEvents';

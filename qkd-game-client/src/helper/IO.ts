@@ -10,6 +10,7 @@ declare global {
 }
 
 export function useSocket() {
+    // TODO remove connection checks where this socket is used.
     if (!window.socketIoInstance) {
         window.socketIoInstance = io({
             extraHeaders: {
